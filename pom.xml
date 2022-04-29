@@ -37,7 +37,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>massim.g6Agent.Main</mainClass>
+                            <mainClass>g6Agent.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
