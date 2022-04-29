@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          submodules: 'https://github.com/agentcontest/massim_2022'
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
