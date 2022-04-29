@@ -1,7 +1,6 @@
 package g6Agent.agents.PerceptionAndMemory;
 
 import eis.iilang.*;
-import g6Agent.agents.perceptionAndMemory.*;
 import g6Agent.perceptionAndMemory.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Point;
