@@ -1,9 +1,7 @@
 package g6Agent.perceptionAndMemory;
 
 import eis.iilang.Percept;
-import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.Enties.Role;
-import g6Agent.perceptionAndMemory.Enties.Task;
+import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
 
@@ -18,7 +16,7 @@ public interface PerceptionAndMemory {
 
     /**
      * Handles the Percepts of this step.
-     * @param perceptInput
+     * @param perceptInput the Percepts recieved this step.
      */
     void handlePercepts(List<Percept> perceptInput);
 
@@ -64,11 +62,6 @@ public interface PerceptionAndMemory {
      * @return is the Agent ready for Action?
      */
     boolean isReadyForAction();
-
-    /**
-     * Clears every information that is only relevant for this step, like obstacle or Agent Positions.
-     */
-    //void clearShortTermMemory();
 
     /**
      * @return a List with Coordinates with Agents of the same Team, perceived this step
