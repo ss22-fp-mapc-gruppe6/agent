@@ -16,5 +16,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: install Eismassim
+          run: mvn install:install-file -Dfile=${{ hashFiles('**/src/java/resources/eismassim-4.4-jar-with-dependencies }} -DgroupId=massim -DartifactId=eismassim -Dversion=4.4 -Dpackaging=jar
       - name: Run tests with Maven
         run: mvn -B test --file pom.xml
