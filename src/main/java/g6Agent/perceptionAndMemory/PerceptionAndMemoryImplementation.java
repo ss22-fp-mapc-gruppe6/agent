@@ -2,10 +2,7 @@ package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 
-import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.Enties.Role;
-import g6Agent.perceptionAndMemory.Enties.Task;
-import g6Agent.perceptionAndMemory.Enties.Norm;
+import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
 import java.util.ArrayList;
@@ -30,13 +27,15 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     private List<Point> roleZones;
     private List<Point> goalZones;
     private int steps;
-    private List norms;
+    private List<Norm> norms;
     private String currentRoleName;
     private final HashMap<String, Role> possibleRoles;
     private int currentStep;
     private int teamSize;
-    private List markers;
+    private List<Marker> markers;
 
+
+    private record AgentEntry(String team, Point coordinate) {}
 
     public PerceptionAndMemoryImplementation() {
         obstacles = new ArrayList<>();
@@ -341,8 +340,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     public List<Point> getFriendlyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (agent.getTeamName().equals(this.team)){
-                points.add(agent.getCoordinates());
+            if (agent.team.equals(this.team)){
+                points.add(agent.coordinate());
             }
         }
         return points;
@@ -352,8 +351,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     public List<Point> getEnemyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (!agent.getTeamName().equals(this.team)){
-                points.add(agent.getCoordinates());
+            if (!agent.team.equals(this.team)){
+                points.add(agent.coordinate());
             }
         }
         return points;

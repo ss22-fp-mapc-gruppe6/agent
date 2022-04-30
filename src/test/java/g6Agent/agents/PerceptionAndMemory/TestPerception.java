@@ -34,7 +34,7 @@ public class TestPerception {
 
 
     @org.junit.Test
-    public void testlastActionPerception(){
+    public void testLastActionPerception(){
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("lastAction", new Identifier("move"));

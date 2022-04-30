@@ -1,4 +1,4 @@
-package g6Agent.perceptionAndMemory;
+package g6Agent.perceptionAndMemory.Enties;
 
 import eis.iilang.Parameter;
 

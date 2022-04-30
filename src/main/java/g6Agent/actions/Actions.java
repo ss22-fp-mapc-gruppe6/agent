@@ -4,6 +4,7 @@ import eis.iilang.Action;
 import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import g6Agent.services.Direction;
+import g6Agent.services.Rotation;
 
 
 import java.awt.*;
@@ -41,22 +42,24 @@ public class Actions {
      * @return the Movement Action
      */
     public static Action move(Direction direction){
-        Action action = null;
-        switch (direction) {
-            case SOUTH: action = new Action("move", new Identifier("s")); break;
-            case WEST: action = new Action("move", new Identifier("w")); break;
-            case NORTH: action = new Action("move", new Identifier("n")); break;
-            case EAST: action = new Action("move", new Identifier("e")); break;
-        }
-        return action;
+        return new Action("move", direction.getIdentifier());
     }
 
 
     /**
      * Clears the Obstacle at the given Point, or disables an enemy Agent
-     * @param point
+     * @param point the point
      * @return the clear Action
      */
     public static Action clear(Point point) {return new Action("clear", new Numeral(point.x), new Numeral(point.y));
+    }
+
+    /**
+     * Rotates the Agent with everything attached in the given Rotation
+     * @param rotation the rotation
+     * @return the rotation Action
+     */
+    public static Action rotate(Rotation rotation){
+        return new Action("rotate", rotation.getIdentifier());
     }
 }
