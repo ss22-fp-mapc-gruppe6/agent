@@ -78,6 +78,48 @@ public class LastActionMemory {
      * failed_parameter  -	 Parameter is not a (rotation) direction.
      * failed 	         -   One of the things attached to the agent cannot rotate to its target position OR the agent is currently attached to another agent.
      *
+     *
+     * Action connected:
+     * failed_parameter -   First parameter is not an agent of the same team OR x and y cannot be parsed to valid integers.
+     * failed_partner 	-   The partner's action is not connect OR failed randomly OR has wrong parameters.
+     * failed_target 	-   At least one of the specified blocks is not at the given position or not attached to the agent or already attached to the other agent.
+     * failed 	        -   The given positions are too far apart OR one agent is already attached to the other (or through other blocks), or connecting both blocks would violate the size limit for connected structures.
+     *
+     * Action disconnect:
+     * failed_parameter -	No valid integer coordinates given.
+     * failed_target 	-   Target locations aren't attachments of the agent or not attached to each other directly.
+     *
+     * Action request:
+     * failed_parameter  -	Parameter is not a direction.
+     * failed_target 	 -  No dispenser was found in the specific position.
+     * failed_blocked 	 -  The dispenser's position is currently blocked by another agent or thing.
+     *
+     * Action submit:
+     * failed_target    -	No active task could be associated with first parameter, or task has not been accepted by the agent.
+     * failed 	        -   One or more of the requested blocks are missing OR the agent is not on a goal terrain.
+     *
+     * Action clear:
+     * failed_parameter  -	No valid integer coordinates given.
+     * failed_target 	 -  Target location is not within the agent's vision radius or outside the grid.
+     * failed_resources  - 	The agent's energy is too low.
+     * failed_location 	 -  The agent is targeting a cell out of reach.
+     * failed_random 	 -  The action failed due to random failure or the additional probability to fail.
+     *
+     * Action adopt:
+     * failed_parameter  -	No parameter or parameter is not a valid role name.
+     * failed_location 	 -  Agent is not in a role zone.
+     *
+     * Action survey:
+     * failed_parameter  - 	Parameters are not coordinates or too many parameters given.
+     * failed_location 	 -  The location is outside the agent's vision.
+     * failed_target 	 -  There is no entity at the given location. It might have moved away before.
+     *
+     * Action all actions:
+     * failed_random 	-   The action failed randomly.
+     * failed_status 	-   The agent is deactivated.
+     * failed_role 	    -   The agent's current role does not permit the action.
+     * unknown_action 	-   The action is not part of the game.
+     *
      * @return the message
      */
     public String getSuccessMessage() {
