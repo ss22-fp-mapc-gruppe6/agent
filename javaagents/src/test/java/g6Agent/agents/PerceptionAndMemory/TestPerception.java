@@ -11,7 +11,7 @@ import java.util.List;
 public class TestPerception {
 
     @org.junit.Test
-    public void obstaclePerceptionTest(){
+    public void obstaclePerceptionTest() {
         Percept p = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("obstacle"), new Identifier(""));
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         assert (pam.getObstacles().size() == 0);
@@ -19,11 +19,11 @@ public class TestPerception {
         pl.add(p);
         pam.handlePercepts(pl);
         assert (pam.getObstacles().size() == 1);
-        assert (pam.getObstacles().get(0).equals(new Point(1,1)));
+        assert (pam.getObstacles().get(0).equals(new Point(1, 1)));
     }
 
     @org.junit.Test
-    public void testScorePerception(){
+    public void testScorePerception() {
         PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("score", new Numeral(1));
@@ -34,7 +34,7 @@ public class TestPerception {
 
 
     @org.junit.Test
-    public void testLastActionPerception(){
+    public void testLastActionPerception() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("lastAction", new Identifier("move"));
@@ -44,16 +44,16 @@ public class TestPerception {
         Percept p2 = new Percept("lastActionParams", parameters);
         pl.add(p2);
         pl.add(new Percept("lastActionResult", new Identifier("success")));
-        assert(pam.getLastAction().getParameters().size() == 0);
-        assert(!pam.getLastAction().getSuccessMessage().equals("success"));
+        assert (pam.getLastAction().getParameters().size() == 0);
+        assert (!pam.getLastAction().getSuccessMessage().equals("success"));
         pam.handlePercepts(pl);
         assert (pam.getLastAction().getName().equals("move"));
         assert (pam.getLastAction().getParameters().size() == 1);
-        assert(pam.getLastAction().getSuccessMessage().equals("success"));
+        assert (pam.getLastAction().getSuccessMessage().equals("success"));
     }
 
     @org.junit.Test
-    public void testEnergyPerception(){
+    public void testEnergyPerception() {
         PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         assert (pam.getEnergy() == 100);
         List<Percept> pl = new ArrayList<>();
@@ -64,7 +64,7 @@ public class TestPerception {
     }
 
     @org.junit.Test
-    public void testNamePerception(){
+    public void testNamePerception() {
         PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         assert (pam.getName() == null);
         List<Percept> pl = new ArrayList<>();
@@ -75,7 +75,7 @@ public class TestPerception {
     }
 
     @org.junit.Test
-    public void testReadiness(){
+    public void testReadiness() {
         PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         assert (!pam.isDeactivated());
@@ -89,6 +89,7 @@ public class TestPerception {
         pam.handlePercepts(pl);
         assert (!pam.isDeactivated() && pam.isReadyForAction());
     }
+
     @org.junit.Test
     public void testTeamAndAgentsPerception() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
@@ -98,12 +99,12 @@ public class TestPerception {
         pl.add(new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("entity"), new Identifier("B")));
         pam.handlePercepts(pl);
         assert (pam.getTeam().equals("A"));
-        assert (pam.getFriendlyAgents().size()== 1);
-        assert ( pam.getEnemyAgents().size() == 1);
+        assert (pam.getFriendlyAgents().size() == 1);
+        assert (pam.getEnemyAgents().size() == 1);
     }
 
     @org.junit.Test
-    public void testTasks(){
+    public void testTasks() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = (new Percept("task",
@@ -115,8 +116,9 @@ public class TestPerception {
         assert (pam.getTasks().get(0).getName().equals("task1"));
         assert (pam.getTasks().get(0).getRequirements().get(0).getBlocktype().equals("B1"));
     }
+
     @org.junit.Test
-    public void testMisc(){
+    public void testMisc() {
         Percept block = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("block"), new Identifier("B1"));
         Percept block2 = new Percept("thing", new Numeral(2), new Numeral(2), new Identifier("dispenser"), new Identifier("B0"));
         Percept marker = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("marker"), new Identifier("ci"));
@@ -150,7 +152,7 @@ public class TestPerception {
     }
 
     @org.junit.Test
-    public void testZones(){
+    public void testZones() {
         Percept block = new Percept("roleZone", new Numeral(1), new Numeral(1));
         Percept block2 = new Percept("goalZone", new Numeral(2), new Numeral(2));
 
@@ -159,12 +161,18 @@ public class TestPerception {
         pl.add(block);
         pl.add(block2);
         pam.handlePercepts(pl);
-        assert (pam.getRoleZones().size() ==1);
+        assert (pam.getRoleZones().size() == 1);
         assert (pam.getRoleZones().get(0).x == 1);
         assert (pam.getRoleZones().get(0).y == 1);
         assert (pam.getGoalZones().size() == 1);
         assert (pam.getGoalZones().get(0).x == 2);
         assert (pam.getGoalZones().get(0).y == 2);
+    }
+
+    @org.junit.Test
+    public void dummyTest() {
+        System.out.println("run dummy test to check whether github action caches correctly");
+        assert true;
     }
 
 
