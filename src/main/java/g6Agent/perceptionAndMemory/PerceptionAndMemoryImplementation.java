@@ -202,8 +202,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: lastActionResult with unforeseen parameter size");
         }
-        lastAction.setWasSuccessful(
-             ((Identifier) percept.getParameters().get(0)).toProlog().equals("success")
+        lastAction.setSuccessfulMessage(
+             ((Identifier) percept.getParameters().get(0)).toProlog()
             );
     }
 

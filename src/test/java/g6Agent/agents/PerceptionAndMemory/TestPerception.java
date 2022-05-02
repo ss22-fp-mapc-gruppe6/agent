@@ -45,11 +45,11 @@ public class TestPerception {
         pl.add(p2);
         pl.add(new Percept("lastActionResult", new Identifier("success")));
         assert(pam.getLastAction().getParameters().size() == 0);
-        assert(!pam.getLastAction().wasSuccessful());
+        assert(!pam.getLastAction().getSuccessMessage().equals("success"));
         pam.handlePercepts(pl);
         assert (pam.getLastAction().getName().equals("move"));
         assert (pam.getLastAction().getParameters().size() == 1);
-        assert(pam.getLastAction().wasSuccessful());
+        assert(pam.getLastAction().getSuccessMessage().equals("success"));
     }
 
     @org.junit.Test

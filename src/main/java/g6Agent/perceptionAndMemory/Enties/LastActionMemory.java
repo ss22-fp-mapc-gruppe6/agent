@@ -12,12 +12,12 @@ import java.util.List;
 public class LastActionMemory {
     private List<Parameter> lastActionParameters;
     private String name;
-    private boolean isLastActionSuccessful;
+    private String lastActionSuccessfulMessage;
 
     public LastActionMemory() {
         this.lastActionParameters = new ArrayList<>();
-        this.name = "lastAction";
-        this.isLastActionSuccessful = false;
+        this.name = "";
+        this.lastActionSuccessfulMessage = "";
     }
 
     /**
@@ -51,17 +51,43 @@ public class LastActionMemory {
     }
 
     /**
+     * Message that gives the success or error message of the last action.
+     * If it was successful it says "success"
+     * If not the failure code it is action dependent:
      *
-     * @return was the last action successful?
+     * Action move :
+     * failed_parameter  - 	No parameters given or at least one parameter is not a valid direction.
+     * failed_path       -	The first move was blocked.
+     * partial_success   -	At least the first step worked but one of the later moves was blocked.
+     *
+     * Action attach :
+     * failed_parameter  -	Parameter is not a direction.
+     * failed_target     -	There is nothing to attach in the given direction.
+     * failed_blocked    - 	The thing is already attached to an opponent agent.
+     * failed 	         -  The agent already has too many things attached.
+     *
+     *
+     * Action detach:
+     * failed_parameter  -	Parameter is not a direction.
+     * failed_target     - 	There was no attachment to detach in the given direction.
+     * failed 	         -  There was a thing but not attached to the agent.
+     *
+     *
+     * Action rotate:
+     *
+     * failed_parameter  -	 Parameter is not a (rotation) direction.
+     * failed 	         -   One of the things attached to the agent cannot rotate to its target position OR the agent is currently attached to another agent.
+     *
+     * @return the message
      */
-    public boolean wasSuccessful() {
-        return isLastActionSuccessful;
+    public String getSuccessMessage() {
+        return lastActionSuccessfulMessage;
     }
 
     /**
      * @param lastActionSuccessful was the last action successfull?
      */
-    public void setWasSuccessful(boolean lastActionSuccessful) {
-        isLastActionSuccessful = lastActionSuccessful;
+    public void setSuccessfulMessage(String lastActionSuccessful) {
+        lastActionSuccessfulMessage = lastActionSuccessful;
     }
 }
