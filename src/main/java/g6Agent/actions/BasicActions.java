@@ -1,7 +1,6 @@
 package g6Agent.actions;
 
 import eis.iilang.Action;
-import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import g6Agent.services.Direction;
 import g6Agent.services.Rotation;
@@ -10,7 +9,7 @@ import g6Agent.services.Rotation;
 import java.awt.*;
 import java.util.Random;
 
-public class Actions {
+public class BasicActions {
 
     /**
      * Moves to a random Direction
@@ -20,10 +19,10 @@ public class Actions {
         Action action = null;
         int randomNumber = getRandomNumberInRange(0, 3);
         switch (randomNumber) {
-            case 0: action = move(Direction.SOUTH); break;
-            case 1: action = move(Direction.WEST); break;
-            case 2: action = move(Direction.EAST); break;
-            case 3: action = move(Direction.NORTH); break;
+            case 0 -> action = move(Direction.SOUTH);
+            case 1 -> action = move(Direction.WEST);
+            case 2 -> action = move(Direction.EAST);
+            case 3 -> action = move(Direction.NORTH);
         }
         return action;
     }
@@ -34,6 +33,12 @@ public class Actions {
 
     }
 
+    /** Skips this Step
+     * @return the skip Action
+     */
+    public static Action skip(){
+        return new Action("skip");
+    }
 
 
     /**
