@@ -11,8 +11,6 @@ jobs:
         with:
           java-version: 17
 
-      - name: Maven install
-        run: mvn install -pl eismassim -am
       - name: Cache Maven package
         uses: actions/cache@v2
         with:
