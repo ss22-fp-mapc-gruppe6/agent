@@ -1,0 +1,17 @@
+/* 
+ * Sample Jason Project 
+ * for connecting Jason agents to the 
+ * MASSim server for the 
+ * Multi-Agent Programming Contest
+ * https://multiagentcontest.org/
+ */
+
+MAS mapc2021 {
+
+    infrastructure: Local
+
+    environment: jason.eis.EISAdapter
+
+    agents:
+        agentA #20;
+}
