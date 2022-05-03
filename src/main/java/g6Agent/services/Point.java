@@ -52,4 +52,14 @@ public class Point extends java.awt.Point{
     }
 
 
+    public Point addAll(Point point){
+        return new Point(this.x + point.x, this.y + point.y);
+    }
+
+   public void translate(Point vector) {
+        this.add(vector);
+    }
+
+    private void add(Point vector) {
+    }
 }

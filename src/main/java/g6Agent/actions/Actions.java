@@ -15,14 +15,14 @@ public class Actions {
      * Moves to a random Direction
      * @return the movement Action
      */
-    public static Action moveRandomly(){
+ /**   public static Action moveRandomly(){
         Action action = null;
         int randomNumber = getRandomNumberInRange(0, 3);
         switch (randomNumber) {
-            case 0: action = move(Direction.SOUTH); break;
-            case 1: action = move(Direction.WEST); break;
-            case 2: action = move(Direction.EAST); break;
-            case 3: action = move(Direction.NORTH); break;
+            case 0: action = move(Direction.s); break;
+            case 1: action = move(Direction.w); break;
+            case 2: action = move(Direction.e); break;
+            case 3: action = move(Direction.n); break;
         }
         return action;
     }
@@ -40,7 +40,7 @@ public class Actions {
      * @param direction the given Direction
      * @return the Movement Action
      */
-    public static Action move(Direction direction){
+ /**   public static Action move(Direction direction){
         Action action = null;
         switch (direction) {
             case SOUTH: action = new Action("move", new Identifier("s")); break;
@@ -57,6 +57,6 @@ public class Actions {
      * @param point
      * @return the clear Action
      */
-    public static Action clear(Point point) {return new Action("clear", new Numeral(point.x), new Numeral(point.y));
-    }
+   // public static Action clear(Point point) {return new Action("clear", new Numeral(point.x), new Numeral(point.y));}
+
 }
