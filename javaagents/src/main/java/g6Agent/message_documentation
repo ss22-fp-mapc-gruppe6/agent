@@ -1,0 +1,1 @@
+MOVEMENT_NOTIFICATION - broadcasted by an Agent to notifiy others of his succesfull movement.  Parameters: {(Identifier) direction, (Numeral) speed}

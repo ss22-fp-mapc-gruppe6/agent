@@ -1,19 +1,23 @@
 package g6Agent.agents;
 
 import eis.iilang.*;
+import g6Agent.perceptionAndMemory.AgentMap.InternalMapOfOtherAgents;
 import g6Agent.perceptionAndMemory.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.MailService;
 import g6Agent.actions.BasicActions;
+import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
 
 public class MyTestAgent extends Agent{
     PerceptionAndMemory perceptionAndMemory;
+    InternalMapOfOtherAgents internalMapOfOtherAgents;
 
     public MyTestAgent(String name, MailService mailbox){
         super(name, mailbox);
-        perceptionAndMemory = new PerceptionAndMemoryImplementation();
+        perceptionAndMemory = new PerceptionAndMemoryImplementation(this);
+        internalMapOfOtherAgents = new InternalMapOfOtherAgents(this, perceptionAndMemory, mailbox);
     }
 
     @Override
@@ -48,7 +52,12 @@ public class MyTestAgent extends Agent{
 
     @Override
     public void handleMessage(Percept message, String sender) {
-
+        if(message.getName().equals("MOVEMENT_NOTIFICATION")){
+            internalMapOfOtherAgents.notifiedOfMovement(
+                    sender,
+                    Direction.fromIdentifier((Identifier) message.getParameters().get(0)),
+                    ((Numeral)message.getParameters().get(0)).getValue().intValue());
+        }
     }
 
 }

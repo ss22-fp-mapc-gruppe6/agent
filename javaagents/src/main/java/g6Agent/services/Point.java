@@ -51,5 +51,15 @@ public class Point extends java.awt.Point{
         return Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
     }
 
+    /**
+     * @param multiplier the number the point coordinates will be multiplied with
+     * @return a new Point, where the x and y coordinates are multiplied with the multiplier
+     */
+    public Point multiply(int multiplier) {
+        return new Point(
+        this.x = x * multiplier,
+        this.y = y * multiplier
+        );
+    }
 
 }

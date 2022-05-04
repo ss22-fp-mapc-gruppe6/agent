@@ -125,4 +125,10 @@ public interface PerceptionAndMemory {
      * @return the teamsize of the Agents Team
      */
     int getTeamSize();
+
+    /**
+     *
+     * @return positions at which something is attached to the Agent
+     */
+    List<Point> getAttached();
 }
