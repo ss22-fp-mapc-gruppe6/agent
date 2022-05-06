@@ -1,9 +1,7 @@
 package g6Agent.agents.PerceptionAndMemory;
 
 import eis.iilang.*;
-import g6Agent.MailService;
-import g6Agent.agents.BasicAgent;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Point;
 
@@ -15,7 +13,7 @@ public class TestPerception {
     @org.junit.Test
     public void obstaclePerceptionTest() {
         Percept p = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("obstacle"), new Identifier(""));
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         assert (pam.getObstacles().size() == 0);
         List<Percept> pl = new ArrayList<>();
         pl.add(p);
@@ -26,7 +24,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testScorePerception() {
-        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("score", new Numeral(1));
         pl.add(p);
@@ -37,7 +35,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testLastActionPerception() {
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("lastAction", new Identifier("move"));
         pl.add(p);
@@ -56,7 +54,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testEnergyPerception() {
-        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         assert (pam.getEnergy() == 100);
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("energy", new Numeral(90));
@@ -67,7 +65,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testNamePerception() {
-        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         assert (pam.getName() == null);
         List<Percept> pl = new ArrayList<>();
         Percept p = new Percept("name", new Identifier("A1"));
@@ -78,7 +76,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testReadiness() {
-        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemoryImplementation pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         assert (!pam.isDeactivated());
         assert (!pam.isReadyForAction());
@@ -94,7 +92,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testTeamAndAgentsPerception() {
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         pl.add(new Percept("team", new Identifier("A")));
         pl.add(new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("entity"), new Identifier("A")));
@@ -107,7 +105,7 @@ public class TestPerception {
 
     @org.junit.Test
     public void testTasks() {
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         Percept p = (new Percept("task",
                 new Identifier("task1"), new Numeral(100), new Numeral(200),
@@ -127,7 +125,7 @@ public class TestPerception {
         Percept steps = new Percept("steps", new Numeral(700));
         Percept step = new Percept("step", new Numeral(100));
         Percept teamsize = new Percept("teamSize", new Numeral(40));
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         pl.add(block);
         pl.add(block2);
@@ -158,7 +156,7 @@ public class TestPerception {
         Percept block = new Percept("roleZone", new Numeral(1), new Numeral(1));
         Percept block2 = new Percept("goalZone", new Numeral(2), new Numeral(2));
 
-        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation(new BasicAgent("", new MailService()));
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         List<Percept> pl = new ArrayList<>();
         pl.add(block);
         pl.add(block2);

@@ -1,17 +1,16 @@
 package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
-
-import g6Agent.agents.Agent;
-import g6Agent.perceptionAndMemory.AgentMap.InternalMapOfOtherAgents;
+import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
+import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
-import g6Agent.services.Direction;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
+public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private LastActionMemory lastAction;
     private List<Point> obstacles;
@@ -38,10 +37,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     private List<Marker> markers;
     private List<Point> attached;
 
+    private final List<LastActionListener> lastActionListeners;
+    private AgentVisionReporter visionReporter;
+
 
     private record AgentEntry(String team, Point coordinate) {}
 
-    public PerceptionAndMemoryImplementation(Agent agent) {
+    public PerceptionAndMemoryImplementation() {
         obstacles = new ArrayList<>();
         lastID = -1;
         currentId = -1;
@@ -63,8 +65,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         this.lastAction = new LastActionMemory();
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
+        this.lastActionListeners = new ArrayList<>(1);
     }
 
+    void setVisionReporter(AgentVisionReporter reporter){
+        this.visionReporter = reporter;
+    }
     @Override
     public boolean isDeactivated() {
         return isDeactivated;
@@ -130,9 +136,19 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            notifyListenersOfLastAction();
+            if (visionReporter != null){
+                visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);
+                visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+            }
         }
     }
 
+    private void notifyListenersOfLastAction() {
+        for (LastActionListener listener : lastActionListeners){
+            listener.reportLastAction(lastAction);
+        }
+    }
 
 
     private void handleRolePercept(Percept percept) throws Exception {
@@ -432,6 +448,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     @Override
     public List<Point> getAttached() {
         return attached;
+    }
+
+    @Override
+    public void addLastActionListener(LastActionListener listener) {
+        this.lastActionListeners.add(listener);
     }
 
     @Override

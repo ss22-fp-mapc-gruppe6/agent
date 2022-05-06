@@ -1,23 +1,25 @@
 package g6Agent.agents;
 
 import eis.iilang.*;
-import g6Agent.perceptionAndMemory.AgentMap.InternalMapOfOtherAgents;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
+import g6Agent.perceptionAndMemory.Interfaces.AgentAgentMapCoordinaterInterface;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.MailService;
 import g6Agent.actions.BasicActions;
-import g6Agent.services.Direction;
+import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 import g6Agent.services.Point;
 
 
+
+
 public class MyTestAgent extends Agent{
-    PerceptionAndMemory perceptionAndMemory;
-    InternalMapOfOtherAgents internalMapOfOtherAgents;
+    private final PerceptionAndMemory perceptionAndMemory;
+    private final AgentAgentMapCoordinaterInterface agentMapCoordinator;
 
     public MyTestAgent(String name, MailService mailbox){
         super(name, mailbox);
-        perceptionAndMemory = new PerceptionAndMemoryImplementation(this);
-        internalMapOfOtherAgents = new InternalMapOfOtherAgents(this, perceptionAndMemory, mailbox);
+        PerceptionAndMemoryLinker pamLinker = new PerceptionAndMemoryLinker(this, mailbox);
+        this.perceptionAndMemory = pamLinker.getPerceptionAndMemory();
+        this.agentMapCoordinator = pamLinker.getAgentMapCoordinator();
     }
 
     @Override
@@ -52,11 +54,9 @@ public class MyTestAgent extends Agent{
 
     @Override
     public void handleMessage(Percept message, String sender) {
-        if(message.getName().equals("MOVEMENT_NOTIFICATION")){
-            internalMapOfOtherAgents.notifiedOfMovement(
-                    sender,
-                    Direction.fromIdentifier((Identifier) message.getParameters().get(0)),
-                    ((Numeral)message.getParameters().get(0)).getValue().intValue());
+        switch(message.getName()){
+            case "MOVEMENT_NOTIFICATION"  -> agentMapCoordinator.processMovementNotification(message, sender);
+            case "MY_VISION" -> agentMapCoordinator.processVisionNotificationNotification(message, sender);
         }
     }
 

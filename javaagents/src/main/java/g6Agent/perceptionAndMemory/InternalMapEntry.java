@@ -1,9 +1,9 @@
-package g6Agent.perceptionAndMemory.AgentMap;
+package g6Agent.perceptionAndMemory;
 
 
 import g6Agent.services.Point;
 
-public class InternalMapEntry {
+ class InternalMapEntry {
     private Point position;
     private int counter;
 

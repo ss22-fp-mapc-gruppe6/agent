@@ -1,30 +1,17 @@
-package g6Agent.perceptionAndMemory.AgentMap;
+package g6Agent.perceptionAndMemory;
 
-import eis.iilang.Identifier;
-import eis.iilang.Numeral;
-import eis.iilang.Parameter;
-import eis.iilang.Percept;
-import g6Agent.MailService;
-import g6Agent.agents.Agent;
-import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+
+import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class InternalMapOfOtherAgents {
-    private final PerceptionAndMemory perceptionAndMemory;
-    private final MailService mailservice;
-    private final Agent agent;
+class InternalMapOfOtherAgents {
+    private final String agentname;
     private final HashMap<String, InternalMapEntry> relativePositionOfOtherAgents;
 
-    public InternalMapOfOtherAgents(Agent agent, PerceptionAndMemory perceptionAndMemory, MailService mailservice) {
-        this.agent = agent;
-        this.perceptionAndMemory = perceptionAndMemory;
-        this.mailservice = mailservice;
+    public InternalMapOfOtherAgents(String agentname) {
+        this.agentname = agentname;
         this.relativePositionOfOtherAgents = new HashMap<>();
     }
 
@@ -63,8 +50,8 @@ public class InternalMapOfOtherAgents {
      * Updates the Position of an Agent, if the lastSeenCounter is more recent.
      * Or Registers the Agent, if it is not known yet.
      *
-     * @param agentname
-     * @param entry
+     * @param agentname the agents name
+     * @param entry the entry
      */
     protected void updateAgent(String agentname, InternalMapEntry entry) {
         //Case doesnt have a entry yet.
@@ -75,7 +62,6 @@ public class InternalMapOfOtherAgents {
         //Case new lastSeenCounter is more recent
         if (relativePositionOfOtherAgents.get(agentname).getCounter() > entry.getCounter()) {
             relativePositionOfOtherAgents.replace(agentname, entry);
-            return;
         }
     }
 
@@ -88,7 +74,7 @@ public class InternalMapOfOtherAgents {
      */
     public void incrementAllCounters() {
          relativePositionOfOtherAgents.forEach(
-                 (key, entry) -> entry.increaseCounter()
+                 (key, entry) -> {if(entry != null) {entry.increaseCounter();}}
          );
     }
 
@@ -105,7 +91,7 @@ public class InternalMapOfOtherAgents {
      *  Updates all entries according to the movement of the Agent owning the internal Representation.
      * @param movement the movement
      */
-    private void movedMyself(Movement movement) {
+    void movedMyself(Movement movement) {
      movedMyself(movement.direction(), movement.speed());
     }
     /**
@@ -117,18 +103,6 @@ public class InternalMapOfOtherAgents {
         updateAllEntries(direction.getNextCoordinate().invert().multiply(speed));
     }
 
-    public void notifiedOfMovement(String agentname, Direction direction, int speed){
-        if(isKnown(agentname)){
-            updateSingleEntry(agentname, direction.getNextCoordinate().multiply(speed));
-        }
-    }
-
-    private void updateSingleEntry(String agentname, Point offset) {
-        InternalMapEntry agentPos = relativePositionOfOtherAgents.get(agentname);
-        int xPos = agentPos.getPosition().x + offset.x;
-        int yPos = agentPos.getPosition().y + offset.y;
-        agentPos.setPosition(new Point(xPos,yPos));
-    }
 
     private void updateAllEntries(Point offset){
         relativePositionOfOtherAgents.forEach(
@@ -139,36 +113,4 @@ public class InternalMapOfOtherAgents {
                 }
         );
     }
-
-    public void checkAndNotifyIfMovedLastStep() {
-        LastActionMemory lastAction = perceptionAndMemory.getLastAction();
-        //check if agent moved
-        if (lastAction.getName().equals("move")
-                &&
-                (lastAction.getSuccessMessage().equals("success")
-                || lastAction.getSuccessMessage().equals("partial_success"))){
-            int speed;
-            if (lastAction.getSuccessMessage().equals("partial_success")){
-                speed = 1;
-                //TODO check if any Agent role has more than speed 2, this is unhandled
-            } else {
-                if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttached().size()){
-                    speed = 0;
-                } else {
-                    speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getAttached().size());
-                }
-            }
-            System.out.println("SPEED CHECK : " + speed);
-            if (speed > 0){
-                Direction direction = Direction.fromIdentifier(((Identifier) lastAction.getParameters().get(0)));
-                Movement movement = new Movement(direction, speed);
-                movedMyself(movement);
-                mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION", movement.asParameterList()), agent.getName());
-            }
-        }
-    }
-
-
-
-
 }

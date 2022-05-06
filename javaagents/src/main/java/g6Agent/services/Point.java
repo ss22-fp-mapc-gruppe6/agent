@@ -1,5 +1,7 @@
 package g6Agent.services;
 
+import massim.protocol.data.Position;
+
 public class Point extends java.awt.Point{
 
     public Point(int x, int y) {
@@ -62,4 +64,12 @@ public class Point extends java.awt.Point{
         );
     }
 
+    /**
+     * Adds the x and y Coordinates of the two points
+     * @param pointToAdd the point to add
+     * @return new Point((x1+x2), (y1,y2))
+     */
+    public Point add(Point pointToAdd) {
+        return new Point((this.x + pointToAdd.x), (this.y + pointToAdd.y));
+    }
 }

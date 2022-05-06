@@ -1,8 +1,10 @@
-package g6Agent.perceptionAndMemory.AgentMap;
+package g6Agent.perceptionAndMemory.Enties;
 
 import eis.iilang.Numeral;
 import eis.iilang.Parameter;
+import eis.iilang.Percept;
 import g6Agent.services.Direction;
+import g6Agent.services.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
  */
 public record Movement(Direction direction, int speed) {
 
+
     /**
      *
      * @return [(Identier) direction, (Numeral) speed]
@@ -25,6 +28,10 @@ public record Movement(Direction direction, int speed) {
         list.add(new Numeral(speed));
 
         return list;
+    }
+
+    public Point asVector() {
+        return direction.getNextCoordinate().multiply(speed);
     }
 }
 
