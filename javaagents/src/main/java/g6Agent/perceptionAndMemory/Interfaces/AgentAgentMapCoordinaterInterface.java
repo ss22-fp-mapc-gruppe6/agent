@@ -1,5 +1,6 @@
 package g6Agent.perceptionAndMemory.Interfaces;
 
+import eis.iilang.Action;
 import eis.iilang.Percept;
 
 public interface AgentAgentMapCoordinaterInterface {
@@ -15,5 +16,9 @@ public interface AgentAgentMapCoordinaterInterface {
      * @param message the message
      * @param sender   the sender
      */
-    void processVisionNotificationNotification(Percept message, String sender);
+    void processVisionNotification(Percept message, String sender);
+
+    void broadcastActionAttempt(Action action);
+
+    void deciferActionAttemot(Percept message, String sender);
 }

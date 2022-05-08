@@ -47,6 +47,7 @@ public class MyTestAgent extends Agent{
                 }
             }
         }
+        agentMapCoordinator.broadcastActionAttempt(action);
         return action;
     }
 
@@ -56,7 +57,8 @@ public class MyTestAgent extends Agent{
     public void handleMessage(Percept message, String sender) {
         switch(message.getName()){
             case "MOVEMENT_NOTIFICATION"  -> agentMapCoordinator.processMovementNotification(message, sender);
-            case "MY_VISION" -> agentMapCoordinator.processVisionNotificationNotification(message, sender);
+            case "MOVEMENT_ATTEMPT" -> agentMapCoordinator.deciferActionAttemot(message, sender);
+            case "MY_VISION" -> agentMapCoordinator.processVisionNotification(message, sender);
         }
     }
 
