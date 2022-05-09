@@ -134,8 +134,14 @@ public interface PerceptionAndMemory {
     List<Point> getAttached();
 
     /**
+     *
+     * @return the norms
+     */
+    List<Norm> getNorms();
+    /**
      * Adds a listener for Last Actions
      * @param listener the listener
      */
     void addLastActionListener(LastActionListener listener);
+
 }

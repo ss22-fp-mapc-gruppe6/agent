@@ -122,7 +122,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                         System.out.println("THING ATTACHED : MILESTONE REACHED, Please check implementation in PerceptionAndMemory!" + percept);
                         this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
-                        //TODO Test when we mangaged to attach something
+                        //TODO Test when we managed to attach something
                     }
                     //ignore cases
                     else if (!(percept.getName().equals("simStart")
@@ -448,6 +448,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Point> getAttached() {
         return attached;
+    }
+
+    @Override
+    public List<Norm> getNorms() {
+        return norms;
     }
 
     @Override
