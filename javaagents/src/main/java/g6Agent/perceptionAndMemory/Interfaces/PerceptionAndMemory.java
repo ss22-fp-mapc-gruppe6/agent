@@ -1,6 +1,7 @@
-package g6Agent.perceptionAndMemory;
+package g6Agent.perceptionAndMemory.Interfaces;
 
 import eis.iilang.Percept;
+import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
@@ -125,4 +126,22 @@ public interface PerceptionAndMemory {
      * @return the teamsize of the Agents Team
      */
     int getTeamSize();
+
+    /**
+     *
+     * @return positions at which something is attached to the Agent
+     */
+    List<Point> getAttached();
+
+    /**
+     *
+     * @return the norms
+     */
+    List<Norm> getNorms();
+    /**
+     * Adds a listener for Last Actions
+     * @param listener the listener
+     */
+    void addLastActionListener(LastActionListener listener);
+
 }

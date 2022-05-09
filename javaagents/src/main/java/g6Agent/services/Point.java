@@ -1,5 +1,6 @@
 package g6Agent.services;
 
+
 public class Point extends java.awt.Point{
 
     public Point(int x, int y) {
@@ -51,15 +52,28 @@ public class Point extends java.awt.Point{
         return Math.sqrt(Math.pow((this.x - point.x), 2) + Math.pow((this.y - point.y), 2));
     }
 
+    /**
+     * @param multiplier the number the point coordinates will be multiplied with
+     * @return a new Point, where the x and y coordinates are multiplied with the multiplier
+     */
+    public Point multiply(int multiplier) {
+        return new Point(
+        this.x = x * multiplier,
+        this.y = y * multiplier
+        );
+    }
 
+
+    /**
+     * Adds the x and y Coordinates of the two points
+     * @param pointToAdd the point to add
+     * @return new Point((x1+x2), (y1,y2))
+     */
+    public Point add(Point pointToAdd) {
+        return new Point((this.x + pointToAdd.x), (this.y + pointToAdd.y));
+    }
     public Point addAll(Point point){
         return new Point(this.x + point.x, this.y + point.y);
     }
 
-   public void translate(Point vector) {
-        this.add(vector);
-    }
-
-    private void add(Point vector) {
-    }
 }

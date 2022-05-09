@@ -28,4 +28,24 @@ public enum Direction {
     public Point getNextCoordinate() {
         return nextCoordinate;
     }
+
+    /**
+     * Creates an Direction from a given Identifier
+     * @param id the Identifier
+     * @return the Direction
+     */
+    public static Direction fromIdentifier(Identifier id){
+        Direction direction;
+        switch (id.toProlog()) {
+            case "w" ->  direction = Direction.WEST;
+            case "e" -> direction = Direction.EAST;
+            case "n" -> direction = Direction.NORTH;
+            case "s" -> direction = Direction.SOUTH;
+            default ->
+                    throw new IllegalStateException(
+                            "Unexpected value: " + id.toProlog()
+                                    + "in Direction.fromIdentifier()");
+        }
+        return direction;
+    }
 }
