@@ -18,7 +18,16 @@ public interface AgentAgentMapCoordinaterInterface {
      */
     void processVisionNotification(Percept message, String sender);
 
+    /**
+     * Broadcasts a "MOVEMENT_ATTEMPT" message, if the attempted action is one.
+     * @param action the action
+     */
     void broadcastActionAttempt(Action action);
 
-    void deciferActionAttemot(Percept message, String sender);
+    /**
+     * decifers an "ACTION_ATTEMPT" message
+     * @param message the message
+     * @param sender the sender
+     */
+    void deciferActionAttempt(Percept message, String sender);
 }

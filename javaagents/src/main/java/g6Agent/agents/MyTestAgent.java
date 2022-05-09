@@ -5,6 +5,7 @@ import g6Agent.perceptionAndMemory.Interfaces.AgentAgentMapCoordinaterInterface;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.MailService;
 import g6Agent.actions.BasicActions;
+import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 import g6Agent.services.Point;
 
@@ -13,13 +14,10 @@ import g6Agent.services.Point;
 
 public class MyTestAgent extends Agent{
     private final PerceptionAndMemory perceptionAndMemory;
-    private final AgentAgentMapCoordinaterInterface agentMapCoordinator;
 
     public MyTestAgent(String name, MailService mailbox){
         super(name, mailbox);
-        PerceptionAndMemoryLinker pamLinker = new PerceptionAndMemoryLinker(this, mailbox);
-        this.perceptionAndMemory = pamLinker.getPerceptionAndMemory();
-        this.agentMapCoordinator = pamLinker.getAgentMapCoordinator();
+        this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
     }
 
     @Override
@@ -47,7 +45,6 @@ public class MyTestAgent extends Agent{
                 }
             }
         }
-        agentMapCoordinator.broadcastActionAttempt(action);
         return action;
     }
 
@@ -55,11 +52,6 @@ public class MyTestAgent extends Agent{
 
     @Override
     public void handleMessage(Percept message, String sender) {
-        switch(message.getName()){
-            case "MOVEMENT_NOTIFICATION"  -> agentMapCoordinator.processMovementNotification(message, sender);
-            case "MOVEMENT_ATTEMPT" -> agentMapCoordinator.deciferActionAttemot(message, sender);
-            case "MY_VISION" -> agentMapCoordinator.processVisionNotification(message, sender);
-        }
-    }
 
+    }
 }

@@ -61,7 +61,7 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
     }
 
     @Override
-    public void deciferActionAttemot(Percept message, String sender) {
+    public void deciferActionAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
             attemptedMovements.put(sender,
                     new Movement(Direction.fromIdentifier((Identifier)message.getParameters().get(0)),

@@ -1,1 +1,5 @@
-MOVEMENT_NOTIFICATION - broadcasted by an Agent to notifiy others of his succesfull movement.  Parameters: {(Identifier) direction, (Numeral) speed}
+AgentMapCoordinator:
+"MOVEMENT_NOTIFICATION" - broadcasted by an Agent to notifiy others of his succesfull movement.  Parameters: {(Identifier) direction, (Numeral) speed}
+"MOVEMENT_ATTEMPT" - broadcasted by an Agent, if he attempts to do a movement. Parameters: {(Identifier) direction, (Numeral) speed}
+"MY_VISION" - Information on what an Agent sees - NOT IMPLEMENTED
+
