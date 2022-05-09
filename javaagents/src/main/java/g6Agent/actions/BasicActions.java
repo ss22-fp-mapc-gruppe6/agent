@@ -1,28 +1,28 @@
 package g6Agent.actions;
 
 import eis.iilang.Action;
+import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import g6Agent.services.Direction;
-import g6Agent.services.Rotation;
 
 
 import java.awt.*;
 import java.util.Random;
 
-public class BasicActions {
+public class Actions {
 
     /**
      * Moves to a random Direction
      * @return the movement Action
      */
-    public static Action moveRandomly(){
+ /**   public static Action moveRandomly(){
         Action action = null;
         int randomNumber = getRandomNumberInRange(0, 3);
         switch (randomNumber) {
-            case 0 -> action = move(Direction.SOUTH);
-            case 1 -> action = move(Direction.WEST);
-            case 2 -> action = move(Direction.EAST);
-            case 3 -> action = move(Direction.NORTH);
+            case 0: action = move(Direction.s); break;
+            case 1: action = move(Direction.w); break;
+            case 2: action = move(Direction.e); break;
+            case 3: action = move(Direction.n); break;
         }
         return action;
     }
@@ -33,12 +33,6 @@ public class BasicActions {
 
     }
 
-    /** Skips this Step
-     * @return the skip Action
-     */
-    public static Action skip(){
-        return new Action("skip");
-    }
 
 
     /**
@@ -46,25 +40,23 @@ public class BasicActions {
      * @param direction the given Direction
      * @return the Movement Action
      */
-    public static Action move(Direction direction){
-        return new Action("move", direction.getIdentifier());
+ /**   public static Action move(Direction direction){
+        Action action = null;
+        switch (direction) {
+            case SOUTH: action = new Action("move", new Identifier("s")); break;
+            case WEST: action = new Action("move", new Identifier("w")); break;
+            case NORTH: action = new Action("move", new Identifier("n")); break;
+            case EAST: action = new Action("move", new Identifier("e")); break;
+        }
+        return action;
     }
 
 
     /**
      * Clears the Obstacle at the given Point, or disables an enemy Agent
-     * @param point the point
+     * @param point
      * @return the clear Action
      */
-    public static Action clear(Point point) {return new Action("clear", new Numeral(point.x), new Numeral(point.y));
-    }
+   // public static Action clear(Point point) {return new Action("clear", new Numeral(point.x), new Numeral(point.y));}
 
-    /**
-     * Rotates the Agent with everything attached in the given Rotation
-     * @param rotation the rotation
-     * @return the rotation Action
-     */
-    public static Action rotate(Rotation rotation){
-        return new Action("rotate", rotation.getIdentifier());
-    }
 }

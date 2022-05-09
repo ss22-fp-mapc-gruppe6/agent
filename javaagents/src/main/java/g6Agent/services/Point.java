@@ -63,6 +63,7 @@ public class Point extends java.awt.Point{
         );
     }
 
+
     /**
      * Adds the x and y Coordinates of the two points
      * @param pointToAdd the point to add
@@ -71,4 +72,8 @@ public class Point extends java.awt.Point{
     public Point add(Point pointToAdd) {
         return new Point((this.x + pointToAdd.x), (this.y + pointToAdd.y));
     }
+    public Point addAll(Point point){
+        return new Point(this.x + point.x, this.y + point.y);
+    }
+
 }
