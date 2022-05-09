@@ -1,12 +1,11 @@
 package g6Agent.agents;
 
 import eis.iilang.*;
-import g6Agent.perceptionAndMemory.Interfaces.AgentAgentMapCoordinaterInterface;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.MailService;
 import g6Agent.actions.BasicActions;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
+
 import g6Agent.services.Point;
 
 

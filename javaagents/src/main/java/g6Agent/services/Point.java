@@ -1,6 +1,5 @@
 package g6Agent.services;
 
-import massim.protocol.data.Position;
 
 public class Point extends java.awt.Point{
 
