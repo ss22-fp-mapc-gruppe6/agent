@@ -51,6 +51,7 @@ public class LastActionMemory {
     }
 
     /**
+     * <pre>
      * Message that gives the success or error message of the last action.
      * If it was successful it says "success"
      * If not the failure code it is action dependent:
@@ -119,7 +120,7 @@ public class LastActionMemory {
      * failed_status 	-   The agent is deactivated.
      * failed_role 	    -   The agent's current role does not permit the action.
      * unknown_action 	-   The action is not part of the game.
-     *
+     * </pre>
      * @return the message
      */
     public String getSuccessMessage() {
