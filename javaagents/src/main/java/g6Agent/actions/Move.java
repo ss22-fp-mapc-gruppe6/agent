@@ -44,7 +44,7 @@ public class Move extends Action implements g6Action{
     @Override
     // todo lastaction get involved
     public void succeededEffect(MyTestAgent agent, int step) {
-        agent.updateGridPosition(direction.getVector(),step);
+        agent.updateGridPosition(direction.getNextCoordinate(),step);
     }
 
 }
