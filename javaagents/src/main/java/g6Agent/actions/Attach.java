@@ -50,7 +50,7 @@ public class Attach extends Action implements g6Action{
     }
 
     public void changesAfterSuccess(MyTestAgent agent, int step) {
-        Point direction = this.direction.getDirection();
+        Point direction = this.direction.getNextCoordinate();
         Point agentPosition = agent.getPosition(step);
         Point attaching = agentPosition.addAll(direction);
 
