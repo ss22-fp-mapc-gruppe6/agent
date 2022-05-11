@@ -11,9 +11,9 @@ public class Factory_g6Action extends Action {
 
     public static Action getActionClass(String actionClass, Direction direction) {
         switch (actionClass) {
-            case "Move":
+            case "move":
                 return new Move(direction, actionClass);
-            case "Skip":
+            case "skip":
                 return new Skip();
 
 
