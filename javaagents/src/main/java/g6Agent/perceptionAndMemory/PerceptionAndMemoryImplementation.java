@@ -128,6 +128,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     else if (!(percept.getName().equals("simStart")
                             || percept.getName().equals("requestAction")
                             || percept.getName().equals("deadline")
+                            || percept.getName().equals("simEnd")
+                            || percept.getName().equals("ranking")
                             || percept.getName().equals("timestamp"))
                     ) {
                         System.out.println("UNHANDLED PERCEPT : " + percept);
