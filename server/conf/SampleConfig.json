@@ -1,8 +1,8 @@
 {
   "server" : {
-    "tournamentMode" : "round-robin",
+    "tournamentMode" : "manual",
     "teamsPerMatch" : 2,
-    "launch" : "key",
+    "launch" : "1s",
     "port" : 12300,
     "backlog" : 10000,
     "agentTimeout" : 4000,
@@ -11,18 +11,17 @@
     "logPath" : "logs",
     "replayPath" : "replays",
     "maxPacketLength" : 65536,
-    "waitBetweenSimulations" : 5000
+    "waitBetweenSimulations" : 1000
   },
 
   "manual-mode" : [
     ["A", "B"],
-    ["B", "C"],
-    ["A", "C"]
+    ["A", "B"]
   ],
 
   "match" : [
     "$(sim/sim1.json)",
-    "$(sim/sim2.json)"
+    "$(sim/sim1.json)"
   ],
 
   "teams" : {
