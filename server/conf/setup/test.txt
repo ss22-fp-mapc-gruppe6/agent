@@ -2,7 +2,7 @@
 
 add 5 5 taskboard
 
-stop    # stops further setup execution
+#stop    # stops further setup execution
 
 move 3 3 agentA1
 move 6 3 agentA2
