@@ -95,13 +95,7 @@ public class Scheduler implements AgentListener, EnvironmentListener{
         for (AgentConf agentConf: agentConfigurations) {
 
             Agent agent = null;
-            //We should to use only one Agent with a lot of actions (1:n). It will be too complex with relationship  n:m
-            if ("TestAgent".equals(agentConf.className)) {
-                agent = new MyTestAgent(agentConf.name, mailService);
-            } else {
-                System.out.println("Unknown agent class " + agentConf.className);
-            }
-          /**  switch(agentConf.className){
+            switch(agentConf.className){
                 case "BasicAgent":
                     agent = new BasicAgent(agentConf.name, mailService);
                     break;
@@ -111,7 +105,7 @@ public class Scheduler implements AgentListener, EnvironmentListener{
                 // [add further types here]
                 default:
                     System.out.println("Unknown agent type/class " + agentConf.className);
-            } */
+            }
             if(agent == null) continue;
 
             mailService.registerAgent(agent, agentConf.team);

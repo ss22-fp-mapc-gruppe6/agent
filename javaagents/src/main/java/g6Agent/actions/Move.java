@@ -11,12 +11,12 @@ public class Move extends Action implements g6Action{
     private Direction direction;
 
     public Move(Direction direction, String name) {
-        super(name);
+        super(name, direction.getIdentifier());
         this.direction = direction;
     }
 
     public Move(Direction s) {
-        super("move");
+        super("move", s.getIdentifier());
     }
 
 
