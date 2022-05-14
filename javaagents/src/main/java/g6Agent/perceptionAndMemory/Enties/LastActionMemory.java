@@ -51,6 +51,7 @@ public class LastActionMemory {
     }
 
     /**
+     * <pre>
      * Message that gives the success or error message of the last action.
      * If it was successful it says "success"
      * If not the failure code it is action dependent:
