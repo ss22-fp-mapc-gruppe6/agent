@@ -3,11 +3,16 @@ package g6Agent.perceptionAndMemory.Enties;
 import eis.iilang.Function;
 import eis.iilang.Identifier;
 import eis.iilang.Numeral;
+import g6Agent.agents.MyTestAgent;
 import g6Agent.services.Point;
+
+import java.util.HashSet;
 
 public class Block {
     private final String blocktype;
-    private final Point coordinates;
+    private  Point coordinates;
+
+    private boolean isAttached = false;
 
 
 
@@ -36,11 +41,16 @@ public class Block {
         return blocktype;
     }
 
+    public boolean setIsAttached(boolean isAttached) { return this.isAttached = isAttached;}
+    public boolean getIsAttached() {return isAttached; }
     /**
      * Returns the relative coordinates to the Agent of the given Block
      * @return the coordinates
      */
     public Point getCoordinates() {
         return coordinates;
+    }
+    public Point setCoordinates(Point point){
+       return this.coordinates= point;
     }
 }

@@ -13,6 +13,8 @@ public class Task {
     private final int start, reward;
     private final List<Block> requirements;
 
+    private String acceptedTask;
+
     public Task(Percept p){
         name = ((Identifier)p.getParameters().get(0)).toProlog();
         start = ((Numeral) p.getParameters().get(1)).getValue().intValue();
@@ -54,4 +56,6 @@ public class Task {
     public List<Block> getRequirements() {
         return requirements;
     }
+
+
 }

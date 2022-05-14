@@ -3,9 +3,10 @@ package g6Agent.agents;
 import eis.iilang.*;
 import g6Agent.actions.Factory_g6Action;
 import g6Agent.actions.Move;
+import g6Agent.actions.Objects.Pair_BlockAgent;
 import g6Agent.actions.g6Action;
 import g6Agent.environment.GridObject;
-import g6Agent.perceptionAndMemory.LastActionMemory;
+import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.MailService;
@@ -13,8 +14,9 @@ import g6Agent.actions.Actions;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.AgentStep;
-
+import g6Agent.perceptionAndMemory.Enties.Task;
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class MyTestAgent extends Agent{
@@ -22,11 +24,13 @@ public class MyTestAgent extends Agent{
     public HashMap<Integer, AgentStep> stepValues = new HashMap<>();
     private GridObject grid;
 
+    private  HashSet<Pair_BlockAgent> attachedList;
+
+    private Task task;
     public MyTestAgent(String name, MailService mailbox){
         super(name, mailbox);
         perceptionAndMemory = new PerceptionAndMemoryImplementation();
     }
-
 
     public Point getPosition(int step) {
         return stepValues.get(step).getAgentMapPos();
@@ -35,6 +39,10 @@ public class MyTestAgent extends Agent{
     public GridObject getGrid() {
         return (grid);
     }
+
+    public void setAttachedList(HashSet list){this.attachedList = list;}
+
+    public HashSet<Pair_BlockAgent> getAttachedList() {return this.attachedList;}
 
     @Override
     public void handlePercept(Percept percept) {
@@ -50,7 +58,7 @@ public class MyTestAgent extends Agent{
            
             // action = Actions.moveRandomly();
             // It will be more flexible when we use interface and factory method.
-            action = Factory_g6Action.getActionClass("Move", Direction.s);
+            action = Factory_g6Action.getActionClass("Move", Direction.SOUTH);
 
 
             //Deactivate Enemy Agents - seems to work, but with this logic leads to Agent hanging around enemy Agent
@@ -81,6 +89,5 @@ public class MyTestAgent extends Agent{
         stepValues.get(step).getAgentMapPos().translate(vector);
 
     }
-
 
 }

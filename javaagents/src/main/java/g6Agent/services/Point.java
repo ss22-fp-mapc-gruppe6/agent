@@ -60,6 +60,9 @@ public class Point extends java.awt.Point{
         this.add(vector);
     }
 
-    private void add(Point vector) {
+    private Point add(Point point) {
+        this.x -= point.x;
+        this.y -= point.y;
+        return this;
     }
 }

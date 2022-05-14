@@ -1,60 +1,61 @@
 package g6Agent.actions;
 
 import eis.iilang.Action;
+import g6Agent.actions.Objects.Pair_BlockAgent;
 import g6Agent.agents.MyTestAgent;
 import g6Agent.environment.CellObject;
-import g6Agent.services.ActionResult;
+import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+
+import java.util.HashSet;
 
 // Attaches a block to the agent.
 public class Attach extends Action implements g6Action{
     private static final String TAG = "Attach";
     private final Direction direction;
+    private PerceptionAndMemory perception;
+
+    private  HashSet<Pair_BlockAgent> attachedList;
+
+
 
     public Attach(Direction direction, String name) {
         super(name);
-
         this.direction = direction;
+        perception = new PerceptionAndMemoryImplementation();
     }
 
     public Direction getDirection() {
         return direction;}
 
+    public  HashSet getAttachedList() {return this.attachedList;}
+
     @Override
-    public void getAgentActionFeedback(ActionResult lastActionResult, MyTestAgent Agent, int step) {
-        switch (lastActionResult) {
-            case SUCCESS:
-                changesAfterSuccess(Agent, step);
-                break;
-            case FAILED_PARAMETER:
-                //to do: Error Message
-                break;
-            case FAILED_TARGET:
-                //to do: Error Message
-                break;
-            case FAILED_BLOCKED:
-                //to do: Error Message
-                break;
-            case FAILED:
-                //to do: Error Message
-                break;
-            default:
-                break;
+    public void setSucceededEffect(MyTestAgent agent, int step) {
+        if (perception.getLastAction().getSuccessMessage().equals("success")) {
+            Point direction = this.direction.getNextCoordinate();
+            Point agentPosition = agent.getPosition(step);
+            Point blockPosition = new Point(agentPosition.x + direction.x, agentPosition.y + direction.y );
+            Block block = new Block(blockPosition, "block_B1");
+            attachBlockToAgent(block, agent);
+
+
         }
     }
 
-    @Override
-    public void succeededEffect(MyTestAgent agent, int step) {
+    public  void attachBlockToAgent(Block block, MyTestAgent agent) {
+        if (agent != null && !block.getIsAttached() && block != null) {
+            if(attachedList.isEmpty()) attachedList = new HashSet<>();
+            attachedList.add(new Pair_BlockAgent(block, agent));
+            agent.setAttachedList(attachedList);
+            block.setIsAttached(true);
+        }
 
     }
 
-    public void changesAfterSuccess(MyTestAgent agent, int step) {
-        Point direction = this.direction.getDirection();
-        Point agentPosition = agent.getPosition(step);
-        Point attaching = agentPosition.addAll(direction);
 
-       //todo not yet finish
 
-    }
 }
