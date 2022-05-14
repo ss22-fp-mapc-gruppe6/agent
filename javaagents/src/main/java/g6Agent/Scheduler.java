@@ -96,7 +96,7 @@ public class Scheduler implements AgentListener, EnvironmentListener{
 
             Agent agent = null;
             //We should to use only one Agent with a lot of actions (1:n). It will be too complex with relationship  n:m
-            if ("TestAgent".equals(agentConf.className)) {
+            if ("MyTestAgent".equals(agentConf.className)) {
                 agent = new MyTestAgent(agentConf.name, mailService);
             } else {
                 System.out.println("Unknown agent class " + agentConf.className);
