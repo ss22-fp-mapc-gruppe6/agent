@@ -1,7 +1,7 @@
 package g6Agent.actions;
 
 import g6Agent.agents.MyTestAgent;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 public class Submit implements  g6Action{
     private String taskName;

@@ -2,7 +2,7 @@ package g6Agent.actions;
 
 import eis.iilang.Action;
 import g6Agent.agents.MyTestAgent;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Direction;
 

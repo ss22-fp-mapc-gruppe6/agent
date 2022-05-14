@@ -3,7 +3,7 @@ package g6Agent.actions;
 import g6Agent.actions.Objects.Pair_BlockAgent;
 import g6Agent.agents.MyTestAgent;
 import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
