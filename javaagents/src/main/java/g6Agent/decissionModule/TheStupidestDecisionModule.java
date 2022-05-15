@@ -27,20 +27,24 @@ public class TheStupidestDecisionModule implements DecisionModule{
 
         //if has blocks attached -> Go for Goal
         if (perceptionAndMemory.getAttached().size() > 0){
-               return (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled())? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
+               currentGoal= (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled())? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
+                return currentGoal;
         }
 
         //if dispenser is in sight -> retrieve block
         if (perceptionAndMemory.getDispensers().size() > 0){
-            return (currentGoal.getName().equals("G6GoalRetrieveBlock")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
+            currentGoal =  (currentGoal.getName().equals("G6GoalRetrieveBlock")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
+            return currentGoal;
         }
 
         //if more obstacles than threshold are in sight -> dig
         if (perceptionAndMemory.getObstacles().size() > OBSTACLE_THRESHOLD){
-            return (currentGoal.getName().equals("G6GoalDig")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalDig(perceptionAndMemory);
+            currentGoal =  (currentGoal.getName().equals("G6GoalDig")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalDig(perceptionAndMemory);
+            return currentGoal;
         }
 
         //if nothing else -> Explore
-        return (currentGoal.getName().equals("G6GoalExplore")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalExplore(perceptionAndMemory);
+        currentGoal = (currentGoal.getName().equals("G6GoalExplore")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalExplore(perceptionAndMemory);
+        return currentGoal;
     }
 }
