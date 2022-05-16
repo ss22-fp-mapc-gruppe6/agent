@@ -25,7 +25,7 @@ public class Agent006 extends Agent{
      * @param name    the agent's name
      * @param mailbox the mail facility
      */
-    Agent006(String name, MailService mailbox) {
+    public Agent006(String name, MailService mailbox) {
         super(name, mailbox);
         this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
         this.decisionModule = new TheStupidestDecisionModule(perceptionAndMemory);
