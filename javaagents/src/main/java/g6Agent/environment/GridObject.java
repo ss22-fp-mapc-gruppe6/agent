@@ -4,6 +4,9 @@ import g6Agent.services.Point;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Unused
+ */
 public class GridObject {
     private static final String TAG = "Grid";
 

@@ -1,5 +1,6 @@
 package g6Agent.perceptionAndMemory.Enties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class Role {
     public Role(String name, int visionRange, List<String> possibleActions, List<Integer> movement, double clearActionChance, int clearActionMaximumDistance) {
         this.name = name;
         this.visionRange = visionRange;
-        this.possibleActions = possibleActions;
+        this.possibleActions = (possibleActions == null ?  new ArrayList<>() : possibleActions);
         this.movementSpeed = movement;
         this.clearActionChance = clearActionChance;
         this.clearActionMaximumDistance = clearActionMaximumDistance;

@@ -119,10 +119,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     } else if (percept.getName().equals("teamSize")) {
                         this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
                     } else if (percept.getName().equals("attached")){
-                        System.out.println("THING ATTACHED : MILESTONE REACHED, Please check implementation in PerceptionAndMemory!" + percept);
                         this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
-                        //TODO Test when we managed to attach something
                     }
                     //ignore cases
                     else if (!(percept.getName().equals("simStart")
