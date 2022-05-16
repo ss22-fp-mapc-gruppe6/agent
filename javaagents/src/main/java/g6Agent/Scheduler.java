@@ -8,6 +8,7 @@ import eis.exceptions.PerceiveException;
 import eis.exceptions.RelationException;
 import eis.iilang.EnvironmentState;
 import eis.iilang.Percept;
+import g6Agent.agents.Agent006;
 import massim.eismassim.EnvironmentInterface;
 import g6Agent.agents.Agent;
 import g6Agent.agents.BasicAgent;
@@ -101,6 +102,9 @@ public class Scheduler implements AgentListener, EnvironmentListener{
                     break;
                 case "MyTestAgent":
                     agent = new MyTestAgent(agentConf.name, mailService);
+                    break;
+                case "Agent006":
+                    agent = new Agent006(agentConf.name, mailService);
                     break;
                 // [add further types here]
                 default:
