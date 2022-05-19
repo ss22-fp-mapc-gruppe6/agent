@@ -119,10 +119,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     } else if (percept.getName().equals("teamSize")) {
                         this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
                     } else if (percept.getName().equals("attached")){
-                        System.out.println("THING ATTACHED : MILESTONE REACHED, Please check implementation in PerceptionAndMemory!" + percept);
                         this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
-                        //TODO Test when we managed to attach something
                     }
                     //ignore cases
                     else if (!(percept.getName().equals("simStart")
@@ -448,6 +446,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Point> getAttached() {
         return attached;
+    }
+
+    @Override
+    public List<Block> getAttachedBlocks() {
+        List<Block> blocksAttached = new ArrayList<>(attached.size());
+        if (this.attached.isEmpty()){
+            return blocksAttached;
+        }
+        for(Point p : attached){
+            for(Block block : blocks){
+                if(block.getCoordinates().equals(p)){
+                    blocksAttached.add(block);
+                }
+            }
+        }
+        return blocksAttached;
     }
 
     @Override

@@ -175,5 +175,23 @@ public class TestPerception {
         assert true;
     }
 
-
+    @org.junit.Test
+    public void attachedBlocksTest(){
+        PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
+        Percept block = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("block"), new Identifier("B1"));
+        List<Percept> pl = new ArrayList<>();
+        pl.add(block);
+        pam.handlePercepts(pl);
+        assert(pam.getAttachedBlocks().isEmpty());
+        Percept attached = new Percept("attached", new Numeral(1), new Numeral(1));
+        pl = new ArrayList<>();
+        pl.add(attached);
+        pam.handlePercepts(pl);
+        assert (pam.getAttachedBlocks().isEmpty());
+        pl = new ArrayList<>();
+        pl.add(attached);
+        pl.add(block);
+        pam.handlePercepts(pl);
+        assert (!pam.getAttachedBlocks().isEmpty());
+    }
 }

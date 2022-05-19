@@ -3,7 +3,7 @@ package g6Agent.agents;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
-import g6Agent.actions.g6Action;
+import g6Agent.actions.G6Action;
 import g6Agent.decissionModule.DecisionModule;
 import g6Agent.decissionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
@@ -38,7 +38,7 @@ public class Agent006 extends Agent{
 
     @Override
     public Action step() {
-        g6Action action = null;
+        G6Action action = null;
         perceptionAndMemory.handlePercepts(getPercepts());
         if (perceptionAndMemory.isReadyForAction()){
             Goal currentGoal = decisionModule.revalidateGoal();

@@ -1,7 +1,6 @@
 package g6Agent.goals;
 
-import g6Agent.actions.g6Action;
-import g6Agent.goals.Goal;
+import g6Agent.actions.G6Action;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 public class G6GoalDig implements Goal {
@@ -11,7 +10,7 @@ public class G6GoalDig implements Goal {
     }
 
     @Override
-    public g6Action getNextAction() {
+    public G6Action getNextAction() {
         return null;
     }
 

@@ -2,7 +2,9 @@ package g6Agent.environment;
 
 import g6Agent.services.ObjectType;
 
-
+/**
+ * Unused
+ */
 public class CellObject {
     private static final String TAG = "CellObject";
     private final ObjectType objectType;

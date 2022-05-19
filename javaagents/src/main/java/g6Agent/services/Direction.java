@@ -48,4 +48,8 @@ public enum Direction {
         }
         return direction;
     }
+
+    public static Direction[] allDirections(){
+       return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
+    }
 }
