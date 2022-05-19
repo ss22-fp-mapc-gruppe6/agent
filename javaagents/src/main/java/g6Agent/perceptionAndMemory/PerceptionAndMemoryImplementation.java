@@ -449,6 +449,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     }
 
     @Override
+    public List<Block> getAttachedBlocks() {
+        List<Block> blocksAttached = new ArrayList<>(attached.size());
+        if (this.attached.isEmpty()){
+            return blocksAttached;
+        }
+        for(Point p : attached){
+            for(Block block : blocks){
+                if(block.getCoordinates().equals(p)){
+                    blocksAttached.add(block);
+                }
+            }
+        }
+        return blocksAttached;
+    }
+
+    @Override
     public List<Norm> getNorms() {
         return norms;
     }
