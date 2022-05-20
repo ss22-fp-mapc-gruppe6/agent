@@ -52,4 +52,27 @@ public enum Direction {
     public static Direction[] allDirections(){
        return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
     }
+
+    public Direction rotate(Rotation rotation) {
+        switch (rotation){
+            case CLOCKWISE -> {
+                switch (this){
+                    case WEST -> { return Direction.NORTH;}
+                    case EAST -> { return Direction.SOUTH;}
+                    case NORTH -> { return Direction.EAST;}
+                    case SOUTH -> { return Direction.WEST; }
+                }
+            }
+            case COUNTERCLOCKWISE -> {
+                switch (this){
+                    case WEST -> { return Direction.SOUTH;}
+                    case EAST -> { return Direction.NORTH;}
+                    case NORTH -> {return Direction.WEST;}
+                    case SOUTH -> {return Direction.EAST;}
+                    }
+                }
+            }
+    return null;
+    }
+
 }
