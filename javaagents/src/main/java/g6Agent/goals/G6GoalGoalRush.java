@@ -1,6 +1,5 @@
 package g6Agent.goals;
 
-import eis.iilang.Action;
 import g6Agent.actions.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
@@ -10,6 +9,9 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,15 @@ public class G6GoalGoalRush implements Goal {
     public G6GoalGoalRush(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
         //check if attached blocks are part of a task, choose the task with an attached block matching
+        for (Task task : perceptionAndMemory.getTasks()) {
+            for (Block b : task.getRequirements()) {
+                for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
+                    if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
+                        this.task = task;
+                    }
+                }
+            }
+        }
         for (Task task : perceptionAndMemory.getTasks()) {
             for (Block b : task.getRequirements()) {
                 for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
