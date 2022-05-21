@@ -13,9 +13,6 @@ import g6Agent.services.Rotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class G6GoalGoalRush implements Goal {
     private Task task;
     private Direction fibonacciWalkDirection = Direction.NORTH;
