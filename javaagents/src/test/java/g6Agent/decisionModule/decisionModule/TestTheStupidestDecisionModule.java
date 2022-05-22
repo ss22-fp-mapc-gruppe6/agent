@@ -1,4 +1,4 @@
-package g6Agent.agents.decisionModule;
+package g6Agent.decisionModule.decisionModule;
 
 import eis.iilang.Identifier;
 import eis.iilang.Numeral;
