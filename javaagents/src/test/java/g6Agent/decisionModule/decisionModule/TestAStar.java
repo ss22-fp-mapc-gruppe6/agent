@@ -1,9 +1,9 @@
 package g6Agent.decisionModule.decisionModule;
 
+import g6Agent.decissionModule.AStar;
 import g6Agent.services.Point;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +12,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
+
+    AStar aStar = new AStar();
 
     public static String visualize(List<Point> path) {
         Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
@@ -68,14 +70,14 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        List<Point> path = getPath(target);
+        List<Point> path = aStar.getPath(target);
         assertEquals(1, path.size());
         assertEquals(List.of(target), path);
     }
 
     @Test
     public void test_east() {
-        List<Point> path = getPath(new Point(3, 0));
+        List<Point> path = aStar.getPath(new Point(3, 0));
         assertEquals(List.of(new Point(1, 0), new Point(2, 0), new Point(3, 0)), path);
     }
 
@@ -102,12 +104,6 @@ public class TestAStar {
                  9  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [4]
                 """;
         assertEquals(expected, visualize(path));
-    }
-
-    private List<Point> getPath(Point target) {
-        ArrayList<Point> path = new ArrayList<>();
-        path.add(target);
-        return path;
     }
 
 
