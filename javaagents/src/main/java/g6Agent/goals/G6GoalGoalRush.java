@@ -38,7 +38,7 @@ public class G6GoalGoalRush implements Goal {
         //accept a task with only one block needed
         for (Task t : possibleTasks){
             if (t.getRequirements().size() == 1){
-
+                this.task = t;
             }
         } //TODO Tasks with more than one block
     }
