@@ -9,6 +9,7 @@ import g6Agent.services.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
@@ -121,6 +122,10 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     } else if (percept.getName().equals("attached")){
                         this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
+                    }else if (percept.getName().equals("simEnd")){
+                        lastID = -1;
+                        currentId = -1;
+                        System.out.println("NEW GAME");
                     }
                     //ignore cases
                     else if (!(percept.getName().equals("simStart")
@@ -388,7 +393,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     @Override
     public List<Task> getTasks() {
-        return tasks;
+
+        return tasks.stream().filter(t -> t.getEnd() >= currentStep).collect(Collectors.toList());
     }
 
     @Override

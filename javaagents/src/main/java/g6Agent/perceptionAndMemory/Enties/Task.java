@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class Task {
     private final String name;
-    private final int start, reward;
+    private final int end, reward;
     private final List<Block> requirements;
 
     public Task(Percept p){
         name = ((Identifier)p.getParameters().get(0)).toProlog();
-        start = ((Numeral) p.getParameters().get(1)).getValue().intValue();
+        end = ((Numeral) p.getParameters().get(1)).getValue().intValue();
         reward = ((Numeral) p.getParameters().get(2)).getValue().intValue();
         requirements = translateRequirements((ParameterList) p.getParameters().get(3));
     }
@@ -42,10 +42,10 @@ public class Task {
     }
 
     /**
-     * @return the first step during which the task can be completed
+     * @return the last step during which the task can be completed
      */
-    public int getStart() {
-        return start;
+    public int getEnd() {
+        return end;
     }
 
     /**

@@ -5,7 +5,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 public class TheStupidestDecisionModule implements DecisionModule{
 
-    int OBSTACLE_THRESHOLD = 15;
+    int OBSTACLE_THRESHOLD = 22;
     Goal currentGoal;
     PerceptionAndMemory perceptionAndMemory;
 
@@ -37,7 +37,6 @@ public class TheStupidestDecisionModule implements DecisionModule{
         //if rolezone in sight -> become a worker
             if ((!perceptionAndMemory.getCurrentRole().getName().equals("worker")) && perceptionAndMemory.getRoleZones().size() > 0) {
                 currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
-                System.out.println("Try to become worker");
                 return currentGoal;
             }
 
@@ -45,15 +44,14 @@ public class TheStupidestDecisionModule implements DecisionModule{
                 //if has blocks attached -> Go for Goal
                 if (perceptionAndMemory.getAttached().size() > 0) {
                     currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
-                    System.out.println("Try to goal rush");
-                    return currentGoal;
+                        return currentGoal;
+
                 }
 
 
                 //if dispenser is in sight -> retrieve block
                 if (perceptionAndMemory.getDispensers().size() > 0) {
                     currentGoal = (currentGoal.getName().equals("G6GoalRetrieveBlock") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
-                    System.out.println("try to retrieve block");
                     return currentGoal;
                 }
             }
