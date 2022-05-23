@@ -1,4 +1,4 @@
-package g6Agent.agents.PerceptionAndMemory;
+package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;

@@ -23,26 +23,24 @@ public class G6GoalGoalRush implements Goal {
 
     public G6GoalGoalRush(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
-        //check if attached blocks are part of a task, choose the task with an attached block matching
+        //check if attached blocks are part of a task, choose the tasks with an attached block matching
+        List<Task> possibleTasks = new ArrayList<>();
         for (Task task : perceptionAndMemory.getTasks()) {
             for (Block b : task.getRequirements()) {
                 for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
                     if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
-                        this.task = task;
-                    }
-                }
-            }
-        }
-        for (Task task : perceptionAndMemory.getTasks()) {
-            for (Block b : task.getRequirements()) {
-                for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
-                    if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
-                        this.task = task;
+                        possibleTasks.add(task);
                         break;
                     }
                 }
             }
         }
+        //accept a task with only one block needed
+        for (Task t : possibleTasks){
+            if (t.getRequirements().size() == 1){
+
+            }
+        } //TODO Tasks with more than one block
     }
 
 

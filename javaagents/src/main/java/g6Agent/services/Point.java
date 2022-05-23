@@ -67,7 +67,7 @@ public class Point extends java.awt.Point{
     /**
      * Adds the x and y Coordinates of the two points
      * @param pointToAdd the point to add
-     * @return new Point((x1+x2), (y1,y2))
+     * @return new Point((x1+x2), (y1+y2))
      */
     public Point add(Point pointToAdd) {
         return new Point((this.x + pointToAdd.x), (this.y + pointToAdd.y));
@@ -76,4 +76,20 @@ public class Point extends java.awt.Point{
         return new Point(this.x + point.x, this.y + point.y);
     }
 
+    /**
+     * returns a new Point that is a rotatet represantation of this point over the (0,0) Coordinate
+     * @param rotation the rotation direction
+     */
+    public Point rotate(Rotation rotation) {
+        switch (rotation){
+            case CLOCKWISE -> {
+                return new Point(-this.y, this.x);
+            }
+            case COUNTERCLOCKWISE -> {
+                return new Point(this.y, -this.x);
+            }
+        }
+        //can not happen
+        return null;
+    }
 }
