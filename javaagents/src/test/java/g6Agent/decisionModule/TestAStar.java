@@ -1,27 +1,26 @@
-package g6Agent.decisionModule.decisionModule;
+package g6Agent.decisionModule;
 
-import g6Agent.decissionModule.AStar;
 import g6Agent.services.Point;
 import org.junit.Test;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
 
-    AStar aStar = new AStar();
-
     public static String visualize(List<Point> path) {
         Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
         Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
-        if (maxXPoint.isEmpty() || maxYPoint.isEmpty())
-            throw new IllegalArgumentException("x or y dimension is empty?");
         if (path.isEmpty())
             throw new IllegalArgumentException("list is empty");
+        if (maxXPoint.isEmpty() || maxYPoint.isEmpty())
+            throw new IllegalArgumentException("x or y dimension is empty?");
         double maxX = maxXPoint.get().getX();
         double maxY = maxYPoint.get().getY();
 
@@ -58,7 +57,7 @@ public class TestAStar {
                         }
                     }
                 }
-                String fieldFormat = String.format("[%s]" , field);
+                String fieldFormat = String.format("[%s]", field);
                 s.append(fieldFormat);
             }
             s.append("\n");
@@ -70,15 +69,18 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        List<Point> path = aStar.getPath(target);
-        assertEquals(1, path.size());
-        assertEquals(List.of(target), path);
+        final var shortestPath = AStar.findShortestPath(target, target);
+        assertEquals(0, shortestPath.size());
+        assertEquals(List.of(target), shortestPath);
     }
 
     @Test
-    public void test_east() {
-        List<Point> path = aStar.getPath(new Point(3, 0));
-        assertEquals(List.of(new Point(1, 0), new Point(2, 0), new Point(3, 0)), path);
+    public void test_9_9() {
+        Point start = new Point(0, 0);
+        Point target = new Point(2, 2);
+        final var shortestPath = AStar.findShortestPath(start, target);
+        assertEquals(2, shortestPath.size());
+        assertEquals(List.of(new Point(1, 0), new Point(1, 1)), shortestPath);
     }
 
     @Test
@@ -107,4 +109,25 @@ public class TestAStar {
     }
 
 
+    @Test
+    public void getNeighbours() {
+        final var neighbours = AStar.getNeighbours(new Point(0, 0));
+        assertEquals(Set.of(
+                new Point(0, 1),
+                new Point(0, -1),
+                new Point(1, 0),
+                new Point(-1, 0)
+        ), neighbours);
+    }
+
+    @Test
+    public void getNeighbours2() {
+        final var neighbours = AStar.getNeighbours(new Point(3, 4));
+        assertEquals(Set.of(
+                new Point(3, 5),
+                new Point(4, 4),
+                new Point(3, 3),
+                new Point(2, 4)
+        ), neighbours);
+    }
 }
