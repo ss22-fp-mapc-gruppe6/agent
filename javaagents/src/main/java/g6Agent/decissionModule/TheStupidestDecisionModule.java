@@ -1,6 +1,8 @@
 package g6Agent.decissionModule;
 
 import g6Agent.goals.*;
+import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 public class TheStupidestDecisionModule implements DecisionModule{
@@ -33,28 +35,40 @@ public class TheStupidestDecisionModule implements DecisionModule{
                 return new G6GoalDig(perceptionAndMemory);
             }
         }
-
-        //if rolezone in sight -> become a worker
+        if(perceptionAndMemory.getCurrentRole() != null) {
+            //if rolezone in sight -> become a worker
             if ((!perceptionAndMemory.getCurrentRole().getName().equals("worker")) && perceptionAndMemory.getRoleZones().size() > 0) {
                 currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
                 return currentGoal;
             }
-
-            if(perceptionAndMemory.getCurrentRole().getName().equals("worker")) {
+            boolean canDoAttach = false;
+            boolean canDoSubmit = false;
+            for (String actionName : perceptionAndMemory.getCurrentRole().getPossibleActions()) {
+                if (actionName.equals("submit")) canDoSubmit = true;
+                if (actionName.equals("attach")) canDoAttach = true;
+            }
+            if (canDoSubmit) {
                 //if has blocks attached -> Go for Goal
                 if (perceptionAndMemory.getAttached().size() > 0) {
-                    currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
+                    boolean hasBlockMatchingTask = checkIfBlockMatchingTask();
+                    if (hasBlockMatchingTask) {
+                        currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
                         return currentGoal;
-
+                    }
                 }
 
-
+            }
+            if (canDoAttach) {
+                for (String actionName : perceptionAndMemory.getCurrentRole().getPossibleActions()) {
+                    if (actionName.equals("submit")) canDoAttach = true;
+                }
                 //if dispenser is in sight -> retrieve block
                 if (perceptionAndMemory.getDispensers().size() > 0) {
                     currentGoal = (currentGoal.getName().equals("G6GoalRetrieveBlock") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
                     return currentGoal;
                 }
             }
+        }
 
 
         //if more obstacles than threshold are in sight -> dig
@@ -66,5 +80,19 @@ public class TheStupidestDecisionModule implements DecisionModule{
         //if nothing else -> Explore
         currentGoal = (currentGoal.getName().equals("G6GoalExplore")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalExplore(perceptionAndMemory);
         return currentGoal;
+    }
+
+    private boolean checkIfBlockMatchingTask() {
+        boolean hasBlockMatchingTask = false;
+        for (Block attchedBlock : perceptionAndMemory.getAttachedBlocks()){
+            for (Task t : perceptionAndMemory.getTasks()){
+                for (Block requirement : t.getRequirements()){
+                    if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())){
+                        hasBlockMatchingTask = true;
+                    }
+                }
+            }
+        }
+        return hasBlockMatchingTask;
     }
 }
