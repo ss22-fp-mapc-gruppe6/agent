@@ -24,6 +24,10 @@ public class G6GoalGoalRush implements Goal {
     public G6GoalGoalRush(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
         //check if attached blocks are part of a task, choose the tasks with an attached block matching
+        chooseTask();
+    }
+
+    private void chooseTask() {
         List<Task> possibleTasks = new ArrayList<>();
         for (Task task : perceptionAndMemory.getTasks()) {
             for (Block b : task.getRequirements()) {
@@ -49,6 +53,18 @@ public class G6GoalGoalRush implements Goal {
         if(perceptionAndMemory.getGoalZones().isEmpty()){
             return findGoalZone();
         } else{
+            //If no task Selected, select another one, or skip
+            if(task == null) chooseTask();
+            if(task == null) return new Skip();
+            boolean isTaskStillActive = false;
+            for (Task t : perceptionAndMemory.getTasks()){
+                if(t.getName().equals(task.getName())){
+                    isTaskStillActive = true;
+                }
+            }
+            if(!isTaskStillActive){ chooseTask();}
+            if(task == null) return new Skip();
+
             boolean inGoalZone = checkIfInGoalZone();
             if(inGoalZone) {
                 if (task.getRequirements().size() == 1){
@@ -65,11 +81,47 @@ public class G6GoalGoalRush implements Goal {
 
     private G6Action rotateAndSubmit() {
         Block requirement =  task.getRequirements().get(0);
+        boolean blockInGoalZone = false;
+        for (Point goalzone : perceptionAndMemory.getGoalZones()){
+            if (goalzone.equals(requirement.getCoordinates())){
+                blockInGoalZone = true;
+            }
+            if (!blockInGoalZone){
+                //move one step in
+                //TODO Needs better logic
+                for (Direction direction : Direction.allDirections()){
+                    boolean isDirectionInGoalZone = false;
+                    boolean isOppositeDirectionInGoalZone = false;
+                    for (Point goalZone : perceptionAndMemory.getGoalZones()) {
+                        if( direction.getNextCoordinate().equals(goalZone)) isDirectionInGoalZone = true;
+                        if (direction.getNextCoordinate().invert().equals(goalZone)) isOppositeDirectionInGoalZone = true;
+                    }
+                    if (isDirectionInGoalZone && !isOppositeDirectionInGoalZone){
+                        System.out.println("MOVE TO GOALZONE");
+                        for (Point obstacle : perceptionAndMemory.getObstacles()) {
+                            if (obstacle.equals(direction.getNextCoordinate())){
+                                return new Clear(obstacle);
+                            }
+                        }
+                        return moveTo(direction);
+                    }
+                }
+            }
+        }
         for (Block attached : perceptionAndMemory.getAttachedBlocks()){
-            if(requirement.getBlocktype().equals(attached.getBlocktype()) && requirement.getCoordinates().equals(attached.getCoordinates())){
+            if(requirement.getBlocktype().equals(attached.getBlocktype()) &&
+                    requirement.getCoordinates().equals(attached.getCoordinates())){
                 return new Submit(task);
             }
             else{
+                for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()){
+                    for (Point obstacle : perceptionAndMemory.getObstacles()){
+                        if (obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.CLOCKWISE))
+                                || obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE))){
+                            return new Clear(obstacle);
+                        }
+                    }
+                }
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
@@ -77,18 +129,17 @@ public class G6GoalGoalRush implements Goal {
     }
 
     private boolean checkIfInGoalZone() {
-        boolean inGoalZone = false;
         for(Point goalZone : perceptionAndMemory.getGoalZones()) {
             if(goalZone.equals(new Point(0,0))){
-                inGoalZone = true;
+                return true;
             }
         }
-        return inGoalZone;
+        return false;
     }
 
     private G6Action moveToGoalZone() {
-        Point closestGoalZone = perceptionAndMemory.getRoleZones().get(0);
-        for (Point goalZone : perceptionAndMemory.getRoleZones()){
+        Point closestGoalZone = perceptionAndMemory.getGoalZones().get(0);
+        for (Point goalZone : perceptionAndMemory.getGoalZones()){
             if(goalZone.manhattanDistanceTo(new Point(0,0)) < closestGoalZone.manhattanDistanceTo(new Point(0,0))){
                 closestGoalZone = goalZone;
             }
@@ -106,6 +157,13 @@ public class G6GoalGoalRush implements Goal {
     private G6Action moveTo(Direction direction) {
         for(Block attachedBlock : perceptionAndMemory.getAttachedBlocks()){
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
+                for (Point obstacle : perceptionAndMemory.getObstacles()){
+                        if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate())
+                                ||obstacle.equals(direction.getNextCoordinate().invert())
+                                || obstacle.equals(direction.rotate(Rotation.COUNTERCLOCKWISE).getNextCoordinate())){
+                            return new Clear(obstacle);
+                        }
+                }
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
@@ -160,6 +218,9 @@ public class G6GoalGoalRush implements Goal {
         }
         if(!taskStillActive){
             this.task = null;
+            return false;
+        }
+        if(!perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")){
             return false;
         }
         //Has Blocks matching Task
