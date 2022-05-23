@@ -22,7 +22,7 @@ public class G6GoalDig implements Goal {
             return new Skip();
         }
         //find closest obstacle
-        Point closestObstacle = perceptionAndMemory.getObstacles().get(0); 
+        Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
         for(Point obstacle : perceptionAndMemory.getObstacles()){
             if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
                 closestObstacle = obstacle;
