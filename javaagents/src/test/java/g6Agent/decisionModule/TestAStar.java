@@ -31,18 +31,17 @@ public class TestAStar {
         String fielGap = " ";
         StringBuffer s = new StringBuffer();
         // x axis legend
-        s.append(" ").append(" ");
+        s.append(" ").append(" ").append(" ");
         for (int x = 0; x <= maxX; x++) {
-            s.append(" ").append(" ").append(" ").append(x);
+            s.append(String.format("%5s", x));
         }
         s.append("\n");
 
         for (int y = 0; y <= maxY; y++) {
             //y axis legend
-            s.append(" ").append(y).append(" ");
+            s.append(String.format("%3s", y));
 
             for (int x = 0; x <= maxX; x++) {
-                s.append(fielGap);
                 String field = " ";
                 if (start.getX() == x && start.getY() == y)
                     field = "s";
@@ -57,7 +56,7 @@ public class TestAStar {
                         }
                     }
                 }
-                String fieldFormat = String.format("[%s]", field);
+                String fieldFormat = String.format("%5s", field);
                 s.append(fieldFormat);
             }
             s.append("\n");
@@ -76,11 +75,15 @@ public class TestAStar {
 
     @Test
     public void test_9_9() {
-        Point start = new Point(0, 0);
-        Point target = new Point(2, 2);
+        Point start = new Point(4, 5);
+        Point target = new Point(12, 9);
         final var shortestPath = AStar.findShortestPath(start, target);
-        assertEquals(2, shortestPath.size());
-        assertEquals(List.of(new Point(1, 0), new Point(1, 1)), shortestPath);
+        System.out.println("shortestPath = " + shortestPath);
+        final var visualize = visualize(shortestPath);
+        System.out.println(visualize);
+
+        assertEquals(4, shortestPath.size());
+//        assertEquals(List.of(new Point(1, 0), new Point(1, 1)), shortestPath);
     }
 
     @Test
