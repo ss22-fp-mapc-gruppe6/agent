@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
@@ -30,7 +31,7 @@ public class AStar {
             Point start,
             Point target,
             Function<Point, Double> heuristic) {
-        TreeSet<Wrapper> queue = new TreeSet<>(Wrapper::compareTo);
+        PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<Point, Wrapper> wrappers = new HashMap<>();
         HashSet<Point> visited = new HashSet<>();
@@ -39,10 +40,8 @@ public class AStar {
         queue.add(startWrapper);
 
         while (!queue.isEmpty()) {
-            final var currentWrapped = queue.pollFirst();
+            final var currentWrapped = queue.poll();
             final var currentPoint = currentWrapped.point();
-            System.out.println("currentPoint = " + currentPoint);
-            System.out.println("currentWrapped.costSum() = " + currentWrapped.costSum());
             visited.add(currentPoint);
 
             if (currentPoint.equals(target)) {
@@ -61,7 +60,7 @@ public class AStar {
                     final var minimumRemainingCost = heuristic.apply(neighbour);
                     neighbourWrapped = Wrapper.create(neighbour, currentWrapped, totalCost, minimumRemainingCost);
                     wrappers.put(neighbour, neighbourWrapped);
-                    queue.add(neighbourWrapped);
+                    final var add = queue.add(neighbourWrapped);
                 } else if (totalCost < neighbourWrapped.totalCostFromStart()) {
                     queue.remove(neighbourWrapped);
 
