@@ -4,7 +4,10 @@ package g6Agent.perceptionAndMemory;
 import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 class InternalMapOfOtherAgents {
     private final String agentname;
@@ -112,5 +115,14 @@ class InternalMapOfOtherAgents {
                     entry.setPosition(new Point(xPos, yPos));
                 }
         );
+    }
+
+    public List<AgentNameAndPosition> knownAgents() {
+        List<AgentNameAndPosition> knownAgents = new ArrayList<>();
+        relativePositionOfOtherAgents.forEach((key, entry) -> {
+            if (entry != null) knownAgents.add(new AgentNameAndPosition(key, entry.getPosition()));
+        });
+
+        return knownAgents;
     }
 }
