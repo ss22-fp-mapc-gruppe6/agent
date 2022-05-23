@@ -17,7 +17,7 @@ public class G6GoalGoalRush implements Goal {
     private Task task;
     private Direction fibonacciWalkDirection = Direction.NORTH;
     private int fibonnaciWalkCurrent = 1;
-    private int fibbonacciWalkFormer = 0;
+    private int fibbonacciWalkFormer = 1;
     private int fibbbonacciwalkCounter = 0;
     private final PerceptionAndMemory perceptionAndMemory;
 
@@ -55,7 +55,7 @@ public class G6GoalGoalRush implements Goal {
         } else{
             //If no task Selected, select another one, or skip
             if(task == null) chooseTask();
-            if(task == null) return new Skip();
+            if(task == null) return moveToGoalZone();
             boolean isTaskStillActive = false;
             for (Task t : perceptionAndMemory.getTasks()){
                 if(t.getName().equals(task.getName())){
@@ -63,10 +63,10 @@ public class G6GoalGoalRush implements Goal {
                 }
             }
             if(!isTaskStillActive){ chooseTask();}
-            if(task == null) return new Skip();
 
             boolean inGoalZone = checkIfInGoalZone();
             if(inGoalZone) {
+                if(task == null) return new Skip();
                 if (task.getRequirements().size() == 1){
                    return rotateAndSubmit();
                 } else{
@@ -82,11 +82,7 @@ public class G6GoalGoalRush implements Goal {
     private G6Action rotateAndSubmit() {
         Block requirement =  task.getRequirements().get(0);
         boolean blockInGoalZone = false;
-        for (Point goalzone : perceptionAndMemory.getGoalZones()){
-            if (goalzone.equals(requirement.getCoordinates())){
-                blockInGoalZone = true;
-            }
-            if (!blockInGoalZone){
+            if (true){
                 //move one step in
                 //TODO Needs better logic
                 for (Direction direction : Direction.allDirections()){
@@ -107,7 +103,6 @@ public class G6GoalGoalRush implements Goal {
                     }
                 }
             }
-        }
         for (Block attached : perceptionAndMemory.getAttachedBlocks()){
             if(requirement.getBlocktype().equals(attached.getBlocktype()) &&
                     requirement.getCoordinates().equals(attached.getCoordinates())){
