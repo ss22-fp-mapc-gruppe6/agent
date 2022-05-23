@@ -59,4 +59,12 @@ public class Task {
     public List<Block> getRequirements() {
         return requirements;
     }
+
+    public String toString(){
+
+        return
+                "Name :       " + this.name + "\n" +
+                "Reqirements :   " + this.requirements + "\n" +
+                "Reward      :   " +  this.reward +"\n";
+    }
 }

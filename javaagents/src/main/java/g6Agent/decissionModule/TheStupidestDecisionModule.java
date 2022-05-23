@@ -5,7 +5,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 public class TheStupidestDecisionModule implements DecisionModule{
 
-    int OBSTACLE_THRESHOLD = 5;
+    int OBSTACLE_THRESHOLD = 15;
     Goal currentGoal;
     PerceptionAndMemory perceptionAndMemory;
 
@@ -25,20 +25,42 @@ public class TheStupidestDecisionModule implements DecisionModule{
         }
         //walk decision tree
 
-        //if has blocks attached -> Go for Goal
-        if (perceptionAndMemory.getAttached().size() > 0){
-               currentGoal= (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled())? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
-                return currentGoal;
+        //if blocked clear your way out
+        if(perceptionAndMemory.getLastAction() != null){
+            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
+                    && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
+                    && perceptionAndMemory.getEnergy() > 30){
+                return new G6GoalDig(perceptionAndMemory);
+            }
         }
 
-        //if dispenser is in sight -> retrieve block
-        if (perceptionAndMemory.getDispensers().size() > 0){
-            currentGoal =  (currentGoal.getName().equals("G6GoalRetrieveBlock")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
-            return currentGoal;
-        }
+        //if rolezone in sight -> become a worker
+            if ((!perceptionAndMemory.getCurrentRole().getName().equals("worker")) && perceptionAndMemory.getRoleZones().size() > 0) {
+                currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
+                System.out.println("Try to become worker");
+                return currentGoal;
+            }
+
+            if(perceptionAndMemory.getCurrentRole().getName().equals("worker")) {
+                //if has blocks attached -> Go for Goal
+                if (perceptionAndMemory.getAttached().size() > 0) {
+                    currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
+                    System.out.println("Try to goal rush");
+                    return currentGoal;
+                }
+
+
+                //if dispenser is in sight -> retrieve block
+                if (perceptionAndMemory.getDispensers().size() > 0) {
+                    currentGoal = (currentGoal.getName().equals("G6GoalRetrieveBlock") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
+                    System.out.println("try to retrieve block");
+                    return currentGoal;
+                }
+            }
+
 
         //if more obstacles than threshold are in sight -> dig
-        if (perceptionAndMemory.getObstacles().size() > OBSTACLE_THRESHOLD){
+        if (perceptionAndMemory.getObstacles().size() > OBSTACLE_THRESHOLD && perceptionAndMemory.getEnergy() > 50){
             currentGoal =  (currentGoal.getName().equals("G6GoalDig")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalDig(perceptionAndMemory);
             return currentGoal;
         }
