@@ -2,6 +2,7 @@ package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 import g6Agent.MailService;
+import g6Agent.agents.Agent;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Movement;
@@ -12,6 +13,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,6 +50,57 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
         }
     }
 
+    public void checkForOtherAgents(){
+        List<Point> unknownAgents = new ArrayList<>();
+        //determine known Agents in sight
+        for(Point agentPosition : perceptionAndMemory.getFriendlyAgents()){
+            boolean isIdentified = false;
+            for(AgentNameAndPosition agentInMemory : internalMapOfOtherAgents.knownAgents()){
+                //if movement is known
+                isIdentified = comparePositionWithMovementVectors(agentPosition, agentInMemory);
+                if(isIdentified){
+                    internalMapOfOtherAgents.spottetAgent(agentInMemory.name(), agentPosition);
+                    break;
+                }
+            }
+            if(!isIdentified){
+                unknownAgents.add(agentPosition);
+            }
+        }
+        for(Point unknownAgent : unknownAgents){
+            //TODO Send Message with Request for Answer if in position Vector
+            //this agents position is fixed, the other Agent doesn't know yet if his movement succeeded
+            //Encode with Lambert clock?
+        }
+    }
+
+    private boolean comparePositionWithMovementVectors(Point agentPosition, AgentNameAndPosition agentInMemory) {
+        boolean isIdentified = false;
+        Movement attemptedMove = attemptedMovements.get(agentInMemory.name());
+        if (attemptedMove != null){
+            Point positionBefore = agentInMemory.position();
+            Point positionAfter = agentInMemory.position().add(attemptedMove.asVector());
+            if (positionBefore.x == positionAfter.x){
+                int smallerY = (Math.min(positionBefore.y, positionAfter.y));
+                int biggerY = (Math.max(positionBefore.y, positionAfter.y));
+                if (agentPosition.x == positionBefore.x && (agentPosition.y >= smallerY && agentPosition.y <= biggerY)){
+                    isIdentified = true;
+                }
+            }else{
+                int smallerX = (Math.min(positionBefore.x, positionAfter.x));
+                int biggerX = (Math.max(positionBefore.x, positionAfter.x));
+                if (agentPosition.y == positionBefore.y && (agentPosition.x >= smallerX && agentPosition.x <= biggerX)){
+                    isIdentified = true;
+                }
+            }
+        }else{
+           if (agentPosition.x == agentInMemory.position().x && agentPosition.y == agentInMemory.position().y){
+               isIdentified = true;
+           }
+        }
+        return isIdentified;
+    }
+
     @Override
     public void processVisionNotification(Percept message, String sender) {
         //TODO decipher the message and save the coordinates.
@@ -72,18 +125,9 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
 
     @Override
     public void reportLastAction(LastActionMemory lastAction){
-        if (lastAction.getName().equals("move")
-                &&
-                (lastAction.getSuccessMessage().equals("success")
-                        || lastAction.getSuccessMessage().equals("partial_success"))){
-            int speed;
-            if (lastAction.getSuccessMessage().equals("partial_success")){
-                speed = 1;
-                //TODO check if any Agent role has more than speed 2, this is unhandled
-            } else {
-                speed = determineSpeed();
-            }
-            System.out.println("SPEED CHECK : " + speed);
+        //If moved at all
+        if (lastAction.getName().equals("move")){
+            int speed = determineSpeedOfLastAction(lastAction);
             if (speed > 0){
                 Direction direction = Direction.fromIdentifier(((Identifier) lastAction.getParameters().get(0)));
                 Movement movement = new Movement(direction, speed);
@@ -93,11 +137,15 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
         }
     }
 
-    private int determineSpeed(LastActionMemory lastAction) {
+    private int determineSpeedOfLastAction(LastActionMemory lastAction) {
+        if(!(lastAction.getSuccessMessage().equals("success")
+                || lastAction.getSuccessMessage().equals("partial_success"))){
+            return 0;
+        }
         int speed;
         if (lastAction.getSuccessMessage().equals("partial_success")){
             speed = 1;
-            //TODO check if any Agent role has more than speed 2, this is unhandled
+            //TODO Explorer for whom it could be 1 or 2 is unhandeld
         } else {
             speed = determineSpeed();
         }

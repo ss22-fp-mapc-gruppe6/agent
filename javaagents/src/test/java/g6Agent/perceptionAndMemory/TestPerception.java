@@ -1,4 +1,4 @@
-package g6Agent.agents.PerceptionAndMemory;
+package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
@@ -102,7 +102,7 @@ public class TestPerception {
         assert (pam.getFriendlyAgents().size() == 1);
         assert (pam.getEnemyAgents().size() == 1);
     }
-
+    /*
     @org.junit.Test
     public void testTasks() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
@@ -116,7 +116,7 @@ public class TestPerception {
         assert (pam.getTasks().get(0).getName().equals("task1"));
         assert (pam.getTasks().get(0).getRequirements().get(0).getBlocktype().equals("B1"));
     }
-
+    */
     @org.junit.Test
     public void testMisc() {
         Percept block = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("block"), new Identifier("B1"));
