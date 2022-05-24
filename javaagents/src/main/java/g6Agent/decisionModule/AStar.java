@@ -23,14 +23,11 @@ public class AStar {
     Point target;
     HashSet<Wrapper> closed = new HashSet<>();
 
-    public static List<Point> findShortestPath(Point start, Point target) {
-        return findShortestPath(start, target, target::euclideanDistanceTo);
+    public static List<Point> findShortestPath(Point start, Point target, Set<Point> obstacles) {
+        return findShortestPath(start, target, obstacles, target::euclideanDistanceTo);
     }
 
-    public static List<Point> findShortestPath(
-            Point start,
-            Point target,
-            Function<Point, Double> heuristic) {
+    public static List<Point> findShortestPath(Point start, Point target, Set<Point> obstacles, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<Point, Wrapper> wrappers = new HashMap<>();
@@ -49,7 +46,7 @@ public class AStar {
             }
             final var neighbours = getNeighbours(currentPoint);
             for (Point neighbour : neighbours) {
-//                System.out.println("neighbour = " + neighbour);
+                if (obstacles.contains(neighbour)) continue;
                 if (visited.contains(neighbour)) continue;
 
                 double cost = 1;
@@ -64,10 +61,7 @@ public class AStar {
                 } else if (totalCost < neighbourWrapped.totalCostFromStart()) {
                     queue.remove(neighbourWrapped);
 
-                    final var replacement = Wrapper.create(neighbourWrapped.point(),
-                                                           currentWrapped,
-                                                           totalCost,
-                                                           neighbourWrapped.minimalRemainingCost());
+                    final var replacement = Wrapper.create(neighbourWrapped.point(), currentWrapped, totalCost, neighbourWrapped.minimalRemainingCost());
 
                     queue.add(replacement);
 

@@ -4,13 +4,11 @@ import g6Agent.services.Point;
 import org.junit.Test;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
 
@@ -68,7 +66,7 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, target);
+        final var shortestPath = AStar.findShortestPath(target, target, Set.of());
         assertEquals(0, shortestPath.size());
         assertEquals(List.of(target), shortestPath);
     }
@@ -77,7 +75,16 @@ public class TestAStar {
     public void test_9_9() {
         Point start = new Point(4, 5);
         Point target = new Point(12, 9);
-        final var shortestPath = AStar.findShortestPath(start, target);
+        final var obstacles = Set.of(
+                new Point(8, 3),
+                new Point(8, 4),
+                new Point(8, 5),
+                new Point(8, 6),
+                new Point(8, 8),
+                new Point(8, 7),
+                new Point(8, 9)
+        );
+        final var shortestPath = AStar.findShortestPath(start, target, obstacles);
         System.out.println("shortestPath = " + shortestPath);
         final var visualize = visualize(shortestPath);
         System.out.println(visualize);
