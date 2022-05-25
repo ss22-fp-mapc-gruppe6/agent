@@ -4,11 +4,8 @@ import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import eis.iilang.Parameter;
 import eis.iilang.Percept;
-import g6Agent.decissionModule.DecisionModule;
-import g6Agent.decissionModule.TheStupidestDecisionModule;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
-import g6Agent.services.Point;
 
 import java.util.ArrayList;
 import java.util.List;
