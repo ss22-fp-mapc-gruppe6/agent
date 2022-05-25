@@ -2,7 +2,6 @@ package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 import g6Agent.MailService;
-import g6Agent.agents.Agent;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Movement;
@@ -22,10 +21,12 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
     private final MailService mailservice;
     private final PerceptionAndMemory perceptionAndMemory;
 
-    private final HashMap<String, Movement> attemptedMovements;
+    private final HashMap<String, StepAndMovement> attemptedMovements;
 
     private final InternalMapOfOtherAgents internalMapOfOtherAgents;
     private final String agentname;
+
+    int lambertClock;
 
     AgentMapCoordinator(MailService mailservice, PerceptionAndMemory perceptionAndMemory, InternalMapOfOtherAgents internalMapOfOtherAgents, String agentname) {
         this.mailservice = mailservice;
@@ -33,19 +34,29 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
         this.internalMapOfOtherAgents = internalMapOfOtherAgents;
         this.agentname = agentname;
         this.attemptedMovements = new HashMap<>();
+        this.lambertClock = 0;
+    }
+
+    private void setClockBeforeSend(){
+        lambertClock = lambertClock +1;
+    }
+    private  void setClockAfterRecieve(int timestamp){
+        this.lambertClock = Math.max(lambertClock, timestamp) + 1;
     }
 
     @Override
     public void processMovementNotification(Percept p, String sender){
+        setClockAfterRecieve(((Numeral)p.getParameters().get(0)).getValue().intValue());
+        int step = ((Numeral)p.getParameters().get(1)).getValue().intValue();
         attemptedMovements.put(sender, null);
         InternalMapEntry entry = internalMapOfOtherAgents.getAgentPosition(sender);
         if (entry != null){
             Movement movement = new Movement(
-                    Direction.fromIdentifier((Identifier)p.getParameters().get(0)),
-                     ((Numeral) p.getParameters().get(1)).getValue().intValue()
+                    Direction.fromIdentifier((Identifier)p.getParameters().get(2)),
+                     ((Numeral) p.getParameters().get(3)).getValue().intValue()
                     );
-            Point nextPosíton = entry.getPosition().add(movement.asVector());
-            entry.setPosition(nextPosíton);
+            Point nextPositon = entry.getPosition().add(movement.asVector());
+            entry.setPosition(nextPositon);
             entry.increaseCounter();
         }
     }
@@ -54,15 +65,7 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
         List<Point> unknownAgents = new ArrayList<>();
         //determine known Agents in sight
         for(Point agentPosition : perceptionAndMemory.getFriendlyAgents()){
-            boolean isIdentified = false;
-            for(AgentNameAndPosition agentInMemory : internalMapOfOtherAgents.knownAgents()){
-                //if movement is known
-                isIdentified = comparePositionWithMovementVectors(agentPosition, agentInMemory);
-                if(isIdentified){
-                    internalMapOfOtherAgents.spottetAgent(agentInMemory.name(), agentPosition);
-                    break;
-                }
-            }
+            boolean isIdentified = comparePositionsInInternalMap(agentPosition);
             if(!isIdentified){
                 unknownAgents.add(agentPosition);
             }
@@ -74,12 +77,25 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
         }
     }
 
+    private boolean comparePositionsInInternalMap(Point agentPosition) {
+        boolean isIdentified = false;
+        for(AgentNameAndPosition agentInMemory : internalMapOfOtherAgents.knownAgents()){
+            //if movement is known
+            isIdentified = comparePositionWithMovementVectors(agentPosition, agentInMemory);
+            if(isIdentified){
+                internalMapOfOtherAgents.spottetAgent(agentInMemory.name(), agentPosition);
+                break;
+            }
+        }
+        return isIdentified;
+    }
+
     private boolean comparePositionWithMovementVectors(Point agentPosition, AgentNameAndPosition agentInMemory) {
         boolean isIdentified = false;
-        Movement attemptedMove = attemptedMovements.get(agentInMemory.name());
+        StepAndMovement attemptedMove = attemptedMovements.get(agentInMemory.name());
         if (attemptedMove != null){
             Point positionBefore = agentInMemory.position();
-            Point positionAfter = agentInMemory.position().add(attemptedMove.asVector());
+            Point positionAfter = agentInMemory.position().add(attemptedMove.movement.asVector());
             if (positionBefore.x == positionAfter.x){
                 int smallerY = (Math.min(positionBefore.y, positionAfter.y));
                 int biggerY = (Math.max(positionBefore.y, positionAfter.y));
@@ -109,16 +125,26 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
     @Override
     public void broadcastActionAttempt(Action action) {
         if (action.getName().equals("move")){
-            mailservice.broadcast(new Percept("MOVEMENT_ATTEMPT", new ParameterList(action.getParameters().get(0), new Numeral(determineSpeed()))), agentname);
+            setClockBeforeSend();
+            mailservice.broadcast(new Percept("MOVEMENT_ATTEMPT",
+                    new ParameterList(
+                            new Numeral(lambertClock),                          //Lambert Clock
+                            new Numeral(perceptionAndMemory.getCurrentStep()), // Step
+                            action.getParameters().get(0),                     // Direction
+                            new Numeral(determineyourOwnSpeed())
+                    )
+            ), agentname);// Speed
         }
     }
 
     @Override
     public void deciferActionAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
-            attemptedMovements.put(sender,
-                    new Movement(Direction.fromIdentifier((Identifier)message.getParameters().get(0)),
-                            ((Numeral) message.getParameters().get(1)).getValue().intValue()));
+            setClockAfterRecieve(((Numeral) message.getParameters().get(0)).getValue().intValue());
+            attemptedMovements.put(sender, new StepAndMovement(
+                    ((Numeral) message.getParameters().get(1)).getValue().intValue(),
+                    new Movement(Direction.fromIdentifier((Identifier)message.getParameters().get(2)),
+                            ((Numeral) message.getParameters().get(3)).getValue().intValue())));
         }
     }
 
@@ -132,7 +158,13 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
                 Direction direction = Direction.fromIdentifier(((Identifier) lastAction.getParameters().get(0)));
                 Movement movement = new Movement(direction, speed);
                 internalMapOfOtherAgents.movedMyself(movement);
-                mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION", movement.asParameterList()), agentname);
+                setClockBeforeSend();
+                mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION", new ParameterList(
+                        new Numeral(lambertClock),
+                        new Numeral(perceptionAndMemory.getCurrentStep()),
+                        movement.direction().getIdentifier(),
+                        new Numeral(movement.speed())
+                )), agentname);
             }
         }
     }
@@ -147,12 +179,12 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
             speed = 1;
             //TODO Explorer for whom it could be 1 or 2 is unhandeld
         } else {
-            speed = determineSpeed();
+            speed = determineyourOwnSpeed();
         }
         return speed;
     }
 
-    private int determineSpeed() {
+    private int determineyourOwnSpeed() {
         int speed;
         if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttached().size()){
             speed = 0;
@@ -171,4 +203,6 @@ class AgentMapCoordinator implements LastActionListener, AgentAgentMapCoordinate
     public void updateMyVisionWithSightingsOfOtherAgents() {
         //TODO get Visions saved (multiple hash maps?) of known Agents, add their relative positions and if they are not in Sight of the current Agent add them to the lists
     }
+
+    record StepAndMovement (int step, Movement movement){}
 }
