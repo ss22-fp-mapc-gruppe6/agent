@@ -29,8 +29,10 @@ public class G6GoalDig implements Goal {
             }
         }
         //if in Range -> clear
-        if (closestObstacle.manhattanDistanceTo(new Point(0,0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()){
-            return new Clear(closestObstacle);
+        if(perceptionAndMemory.getCurrentRole() != null) {
+            if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
+                return new Clear(closestObstacle);
+            }
         }
         //find best way to obstacle
         Direction direction = Direction.WEST;
