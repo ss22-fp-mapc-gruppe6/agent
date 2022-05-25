@@ -56,12 +56,8 @@ public class TheStupidestDecisionModule implements DecisionModule{
                         return currentGoal;
                     }
                 }
-
             }
             if (canDoAttach) {
-                for (String actionName : perceptionAndMemory.getCurrentRole().getPossibleActions()) {
-                    if (actionName.equals("submit")) canDoAttach = true;
-                }
                 //if dispenser is in sight -> retrieve block
                 if (perceptionAndMemory.getDispensers().size() > 0) {
                     currentGoal = (currentGoal.getName().equals("G6GoalRetrieveBlock") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalRetrieveBlock(perceptionAndMemory);
@@ -69,7 +65,6 @@ public class TheStupidestDecisionModule implements DecisionModule{
                 }
             }
         }
-
 
         //if more obstacles than threshold are in sight -> dig
         if (perceptionAndMemory.getObstacles().size() > OBSTACLE_THRESHOLD && perceptionAndMemory.getEnergy() > 50){
@@ -89,6 +84,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
                 for (Block requirement : t.getRequirements()){
                     if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())){
                         hasBlockMatchingTask = true;
+                        break;
                     }
                 }
             }
