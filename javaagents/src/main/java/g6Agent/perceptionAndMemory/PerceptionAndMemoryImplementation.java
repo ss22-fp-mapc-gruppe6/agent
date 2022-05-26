@@ -6,7 +6,9 @@ import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +42,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private final List<LastActionListener> lastActionListeners;
     private AgentVisionReporter visionReporter;
+    private List<Percept> perceptInput;
 
 
-    private record AgentEntry(String team, Point coordinate) {}
+    private record AgentEntry(String team, Point coordinate) {
+    }
 
     public PerceptionAndMemoryImplementation() {
         obstacles = new ArrayList<>();
@@ -67,11 +71,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
         this.lastActionListeners = new ArrayList<>(1);
+        perceptInput = List.of();
     }
 
-    void setVisionReporter(AgentVisionReporter reporter){
+    void setVisionReporter(AgentVisionReporter reporter) {
         this.visionReporter = reporter;
     }
+
     @Override
     public boolean isDeactivated() {
         return isDeactivated;
@@ -80,6 +86,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
+            this.perceptInput = Collections.unmodifiableList(perceptInput);
             clearShortTermMemory();
             try {
                 for (Percept percept : perceptInput) {
@@ -119,10 +126,10 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                         this.currentStep = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
                     } else if (percept.getName().equals("teamSize")) {
                         this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
-                    } else if (percept.getName().equals("attached")){
-                        this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                                ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
-                    }else if (percept.getName().equals("simEnd")){
+                    } else if (percept.getName().equals("attached")) {
+                        this.attached.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                                                    ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
+                    } else if (percept.getName().equals("simEnd")) {
                         lastID = -1;
                         currentId = -1;
                         System.out.println("NEW GAME");
@@ -131,6 +138,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     else if (!(percept.getName().equals("simStart")
                             || percept.getName().equals("requestAction")
                             || percept.getName().equals("deadline")
+                            || percept.getName().equals("simEnd")
+                            || percept.getName().equals("ranking")
                             || percept.getName().equals("timestamp"))
                     ) {
                         System.out.println("UNHANDLED PERCEPT : " + percept);
@@ -140,7 +149,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 e.printStackTrace();
             }
             notifyListenersOfLastAction();
-            if (visionReporter != null){
+            if (visionReporter != null) {
                 visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);
                 visionReporter.updateMyVisionWithSightingsOfOtherAgents();
             }
@@ -148,7 +157,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     }
 
     private void notifyListenersOfLastAction() {
-        for (LastActionListener listener : lastActionListeners){
+        for (LastActionListener listener : lastActionListeners) {
             listener.reportLastAction(lastAction);
         }
     }
@@ -156,7 +165,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
-            throw new Exception("PERCEPTION MODULE: role with unforeseen parameter size : " + percept + "size :" +percept.getParameters().size() );
+            throw new Exception("PERCEPTION MODULE: role with unforeseen parameter size : " + percept + "size :" + percept.getParameters().size());
         }
         //case is the current Role of the Agent
         if (percept.getParameters().size() == 1) {
@@ -191,7 +200,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             throw new Exception("PERCEPTION MODULE: norm with unforeseen parameter size");
         }
         List<Function> listOfParameters = new ArrayList<>();
-        for (Parameter p: (ParameterList) percept.getParameters().get(3)) {
+        for (Parameter p : (ParameterList) percept.getParameters().get(3)) {
             listOfParameters.add((Function) p);
         }
 
@@ -201,7 +210,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 ((Numeral) percept.getParameters().get(2)).getValue().intValue(),
                 listOfParameters,
                 ((Numeral) percept.getParameters().get(4)).getValue().intValue()
-                ));
+        ));
     }
 
     private void handleGoalZone(Percept percept) throws Exception {
@@ -209,8 +218,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             throw new Exception("PERCEPTION MODULE: goalZone with unforeseen parameter size");
         }
         this.goalZones.add(new Point(
-                ((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                ((Numeral)percept.getParameters().get(1)).getValue().intValue()
+                ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                ((Numeral) percept.getParameters().get(1)).getValue().intValue()
         ));
     }
 
@@ -219,8 +228,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             throw new Exception("PERCEPTION MODULE: RoleZone with unforeseen parameter size");
         }
         this.roleZones.add(new Point(
-                ((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                ((Numeral)percept.getParameters().get(1)).getValue().intValue()
+                ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                ((Numeral) percept.getParameters().get(1)).getValue().intValue()
         ));
     }
 
@@ -236,15 +245,15 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             throw new Exception("PERCEPTION MODULE: lastActionResult with unforeseen parameter size");
         }
         lastAction.setSuccessfulMessage(
-             ((Identifier) percept.getParameters().get(0)).toProlog()
-            );
+                ((Identifier) percept.getParameters().get(0)).toProlog()
+        );
     }
 
     private void handleTeam(Percept percept) throws Exception {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: team with unforeseen parameter size");
         }
-        this.team = ((Identifier)percept.getParameters().get(0)).toProlog();
+        this.team = ((Identifier) percept.getParameters().get(0)).toProlog();
     }
 
     private void handleDeactivated(Percept percept) throws Exception {
@@ -269,7 +278,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: energy with unforeseen parameter size");
         }
-        this.energy = ((Numeral)percept.getParameters().get(0)).getValue().intValue();
+        this.energy = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
 
     }
 
@@ -285,7 +294,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: actionID with unforeseen parameter size");
         }
-    Parameter param = percept.getParameters().get(0);
+        Parameter param = percept.getParameters().get(0);
         if (param instanceof Numeral) {
             currentId = ((Numeral) param).getValue().intValue();
         }
@@ -293,15 +302,15 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private void handleThingPercept(Percept percept) throws Exception {
 
-        String identifier = ((Identifier)percept.getParameters().get(2)).toProlog();
+        String identifier = ((Identifier) percept.getParameters().get(2)).toProlog();
         if (percept.getParameters().size() != 4) {
             throw new Exception("PERCEPTION MODULE: obstacle with unforeseen parameter size");
         }
         if ("obstacle".equals(identifier)) {
-                Point positionOfObstacle = new Point(
-                        ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue());
-                obstacles.add(positionOfObstacle);
+            Point positionOfObstacle = new Point(
+                    ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+            obstacles.add(positionOfObstacle);
         } else if ("entity".equals(identifier)) {
             Point positionOfAgent = new Point(
                     ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
@@ -311,22 +320,23 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         } else if ("block".equals(identifier)) {
             this.blocks.add(new Block(
                     new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
+                              ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
                     ((Identifier) percept.getParameters().get(3)).toProlog()));
         } else if ("dispenser".equals(identifier)) {
             this.dispensers.add(new Block(
                     new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
+                              ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
                     ((Identifier) percept.getParameters().get(3)).toProlog()));
-        } else if("marker".equals(identifier)) {
+        } else if ("marker".equals(identifier)) {
             this.markers.add(new Marker(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
-                    ((Identifier) percept.getParameters().get(3)).toProlog()));
-        }else{
-                System.out.println("UNHANDLED PERCEPT : " + percept);
+                                                  ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
+                                        ((Identifier) percept.getParameters().get(3)).toProlog()));
+        } else {
+            System.out.println("UNHANDLED PERCEPT : " + percept);
         }
 
     }
+
     private void handleScorePercept(Percept percept) throws Exception {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: score with unforeseen parameter size");
@@ -341,12 +351,14 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public boolean isReadyForAction() {
         //TODO Checking for deactivation leads to failed server connections search for cause!
         //if (isDeactivated) { return false;}
-        if (!isActionIdCheckedSuccessfully){checkActionID();}
+        if (!isActionIdCheckedSuccessfully) {
+            checkActionID();
+        }
         return isActionIdCheckedSuccessfully;
     }
 
 
-    private void checkActionID(){
+    private void checkActionID() {
         if (currentId > lastID) {
             lastID = currentId;
             this.isActionIdCheckedSuccessfully = true;
@@ -373,7 +385,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public List<Point> getFriendlyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team)){
+            if (agent.team.equals(this.team)) {
                 points.add(agent.coordinate());
             }
         }
@@ -384,7 +396,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public List<Point> getEnemyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (!agent.team.equals(this.team)){
+            if (!agent.team.equals(this.team)) {
                 points.add(agent.coordinate());
             }
         }
@@ -435,7 +447,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Role> getPossibleRoles() {
         List<Role> roles = new ArrayList<>();
-        possibleRoles.forEach( (key, role) -> roles.add(role));
+        possibleRoles.forEach((key, role) -> roles.add(role));
         return roles;
     }
 
@@ -457,12 +469,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Block> getAttachedBlocks() {
         List<Block> blocksAttached = new ArrayList<>(attached.size());
-        if (this.attached.isEmpty()){
+        if (this.attached.isEmpty()) {
             return blocksAttached;
         }
-        for(Point p : attached){
-            for(Block block : blocks){
-                if(block.getCoordinates().equals(p)){
+        for (Point p : attached) {
+            for (Block block : blocks) {
+                if (block.getCoordinates().equals(p)) {
                     blocksAttached.add(block);
                 }
             }
