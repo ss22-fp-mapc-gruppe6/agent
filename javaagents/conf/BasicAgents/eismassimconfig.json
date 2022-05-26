@@ -13,9 +13,9 @@
 
   "multi-entities": [
     {
-      "name-prefix": Connection6, 	// replace * by your teamnumber and remove "//"
-      "username-prefix": Team6, 	// replace * by your teamnumber and remove "//"
-      "password": Team6, 		// replace * by your teamnumber and remove "//"
+      "name-prefix": Connection6, 
+      "username-prefix": Team6, 	
+      "password": Team6, 		
       "print-iilang": false,
       "print-json": false,
       "start-index": 1,
