@@ -15,12 +15,16 @@ public class TestAStar {
     public static String visualize(List<Point> path, List<Point> obstacles) {
         Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
         Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
+        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
+        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
         if (path.isEmpty())
             throw new IllegalArgumentException("list is empty");
-        if (maxXPoint.isEmpty() || maxYPoint.isEmpty())
+        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
             throw new IllegalArgumentException("x or y dimension is empty?");
-        double maxX = maxXPoint.get().getX();
-        double maxY = maxYPoint.get().getY();
+        int maxX = maxXPoint.get().x;
+        int maxY = maxYPoint.get().y;
+        int minX = minXPoint.get().x;
+        int minY = minYPoint.get().y;
 
         Point start = path.get(0);
         Point target = path.get(path.size() - 1);
@@ -35,11 +39,11 @@ public class TestAStar {
         }
         s.append("\n");
 
-        for (int y = 0; y <= maxY; y++) {
+        for (int y = minY; y <= maxY; y++) {
             //y axis legend
             s.append(String.format("%3s", y));
 
-            for (int x = 0; x <= maxX; x++) {
+            for (int x = minX; x <= maxX; x++) {
                 String field = " ";
                 if (start.getX() == x && start.getY() == y)
                     field = "s";
@@ -65,12 +69,33 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, target, List.of());
+        final var shortestPath = AStar.findShortestPath(target, List.of());
         assertEquals(0, shortestPath.size());
         assertEquals(List.of(), shortestPath);
     }
 
-    @Test
+//    @Test
+    public void test_points_to_directions() {
+        Point target = new Point(12, 9);
+        final var obstacles = List.of(
+                new Point(8, 3),
+                new Point(8, 4),
+                new Point(8, 5),
+                new Point(8, 6),
+                new Point(8, 8),
+                new Point(8, 7),
+                new Point(8, 9)
+        );
+        final var shortestPath = AStar.findShortestPath(target, obstacles);
+        System.out.println("shortestPath = " + shortestPath);
+        final var visualize = visualize(shortestPath);
+        System.out.println(visualize);
+
+        final var directions = AStar.directionsFrom(shortestPath);
+        System.out.println("directions = " + directions);
+    }
+
+//    @Test
     public void test_9_9() {
         Point start = new Point(4, 5);
         Point target = new Point(12, 7);
@@ -88,7 +113,7 @@ public class TestAStar {
         final var visualize = visualize(shortestPath, obstacles);
         System.out.println(visualize);
 
-        assertEquals(16, shortestPath.size());
+        assertEquals(4, shortestPath.size());
     }
 
     @Test
