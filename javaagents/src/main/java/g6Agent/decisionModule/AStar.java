@@ -1,33 +1,28 @@
 package g6Agent.decisionModule;
 
+import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class AStar {
 
-    public static final BiFunction<Point, Point, Double> h = Point::euclideanDistanceTo;
-    public static final BiFunction<Point, Point, Integer> g = Point::manhattanDistanceTo;
-
-    Point start = new Point(0, 0);
-    Point target;
-    HashSet<Wrapper> closed = new HashSet<>();
-
-    public static List<Point> findShortestPath(Point start, Point target, Set<Point> obstacles) {
-        return findShortestPath(start, target, obstacles, target::euclideanDistanceTo);
+    public static List<Point> findShortestPath(Point target, List<Point> obstacles) {
+        return findShortestPath(new Point(0, 0), target, obstacles, target::euclideanDistanceTo);
     }
 
-    public static List<Point> findShortestPath(Point start, Point target, Set<Point> obstacles, Function<Point, Double> heuristic) {
+    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<Point, Wrapper> wrappers = new HashMap<>();
@@ -68,14 +63,54 @@ public class AStar {
                 }
             }
         }
-
+        new RuntimeException("No path to " + target + " found.").printStackTrace();
         return List.of();
     }
-
 
     static Collection<Point> getNeighbours(Point p) {
         return Set.of(new Point(p.x, p.y + 1), new Point(p.x, p.y - 1), new Point(p.x + 1, p.y), new Point(p.x - 1, p.y));
     }
 
+    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles) {
+        return findShortestPath(start, target, obstacles, target::euclideanDistanceTo);
+    }
 
+    public static List<Direction> directionsFrom(List<Point> points) {
+        Point previous = new Point(0, 0);
+        List<Direction> directions = new LinkedList<>();
+        for (Point point : points) {
+            int x = point.x - previous.x;
+            int y = point.y - previous.y;
+            final var direction = Direction.fromAdjacentPoint(new Point(x, y));
+            directions.add(direction);
+            previous = point;
+        }
+        return directions;
+    }
+
+    record Wrapper(Point point, AStar.Wrapper predecessor, double costSum, double totalCostFromStart,
+                   double minimalRemainingCost) implements Comparable<Wrapper> {
+
+        public static Wrapper create(Point point, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost) {
+            return new Wrapper(point, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost);
+        }
+
+        @Override
+        public int compareTo(Wrapper o) {
+            final var i = Double.compare(this.costSum, o.costSum);
+            return i;
+        }
+
+
+        List<Point> tracePath() {
+            final var path = new LinkedList<Point>();
+            var wrapper = this;
+            while (wrapper.predecessor != null) {
+                path.add(wrapper.point);
+                wrapper = wrapper.predecessor;
+            }
+            Collections.reverse(path);
+            return path;
+        }
+    }
 }
