@@ -4,9 +4,9 @@
     {
       "count":  7,
       "start-index":  1,
-      "agent-prefix":  6, // replace * by your teamnumber and remove "//"
-      "entity-prefix":  Connection6, // replace * by your teamnumber and remove "//"
-      "team":  6,   // replace * by your teamnumber and remove "//"
+      "agent-prefix":  6,
+      "entity-prefix":  Connection6,
+      "team":  6,
       "class": "BasicAgent"
     }
   ]
