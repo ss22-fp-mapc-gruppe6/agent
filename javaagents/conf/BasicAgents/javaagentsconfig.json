@@ -1,27 +1,12 @@
+
 {
   "agents" : [
     {
-      "count":  20,
+      "count":  7,
       "start-index":  1,
-      "agent-prefix":  "A",
-      "entity-prefix":  "connectionA",
-      "team":  "A",
-      "class": "BasicAgent"
-    },
-    {
-      "count":  30,
-      "start-index":  21,
-      "agent-prefix":  "A",
-      "entity-prefix":  "connectionA",
-      "team":  "A",
-      "class": "BasicAgent"
-    },
-    {
-      "count":  50,
-      "start-index":  1,
-      "agent-prefix":  "B",
-      "entity-prefix":  "connectionB",
-      "team":  "B",
+      "agent-prefix":  6, // replace * by your teamnumber and remove "//"
+      "entity-prefix":  Connection6, // replace * by your teamnumber and remove "//"
+      "team":  6,   // replace * by your teamnumber and remove "//"
       "class": "BasicAgent"
     }
   ]
