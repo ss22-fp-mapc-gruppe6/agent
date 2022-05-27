@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import g6Agent.environment.GridObject;
 
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private LastActionMemory lastAction;
     private List<Point> obstacles;
+
+    private GridObject listOfAllObstacles;
+
     private int lastID;
     private boolean isActionIdCheckedSuccessfully;
     private int score;
@@ -41,7 +45,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     private final List<LastActionListener> lastActionListeners;
     private AgentVisionReporter visionReporter;
 
-
     private record AgentEntry(String team, Point coordinate) {}
 
     public PerceptionAndMemoryImplementation() {
@@ -63,6 +66,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         currentStep = 0;
         teamSize = 0;
         possibleRoles = new HashMap<>();
+        listOfAllObstacles = new GridObject();
         this.lastAction = new LastActionMemory();
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
@@ -302,26 +306,37 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                         ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
                         ((Numeral) percept.getParameters().get(1)).getValue().intValue());
                 obstacles.add(positionOfObstacle);
+                listOfAllObstacles.setListOfAllObstacles(identifier, positionOfObstacle);
         } else if ("entity".equals(identifier)) {
             Point positionOfAgent = new Point(
                     ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
                     ((Numeral) percept.getParameters().get(1)).getValue().intValue());
             String teamName = ((Identifier) percept.getParameters().get(3)).toProlog();
             perceivedAgents.add(new AgentEntry(teamName, positionOfAgent));
+            listOfAllObstacles.setListOfAllObstacles(identifier, positionOfAgent);
+
         } else if ("block".equals(identifier)) {
-            this.blocks.add(new Block(
-                    new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
-                    ((Identifier) percept.getParameters().get(3)).toProlog()));
+            Point pointerBlock = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+
+            this.blocks.add(new Block(pointerBlock, ((Identifier) percept.getParameters().get(3)).toProlog()));
+            listOfAllObstacles.setListOfAllObstacles(identifier, pointerBlock);
+
         } else if ("dispenser".equals(identifier)) {
-            this.dispensers.add(new Block(
-                    new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
-                    ((Identifier) percept.getParameters().get(3)).toProlog()));
+
+            Point pointerDispenser = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+
+            this.dispensers.add(new Block(pointerDispenser,((Identifier) percept.getParameters().get(3)).toProlog()));
+
+            listOfAllObstacles.setListOfAllObstacles(identifier, pointerDispenser);
+
         } else if("marker".equals(identifier)) {
-            this.markers.add(new Marker(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral) percept.getParameters().get(1)).getValue().intValue()),
-                    ((Identifier) percept.getParameters().get(3)).toProlog()));
+            Point pointerMarker = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
+                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+
+            this.markers.add(new Marker(pointerMarker,((Identifier) percept.getParameters().get(3)).toProlog()));
+            listOfAllObstacles.setListOfAllObstacles(identifier, pointerMarker);
         }else{
                 System.out.println("UNHANDLED PERCEPT : " + percept);
         }
@@ -509,6 +524,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public LastActionMemory getLastAction() {
         return lastAction;
     }
+
 
 
 }
