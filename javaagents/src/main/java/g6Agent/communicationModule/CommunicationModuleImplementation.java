@@ -24,7 +24,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
             }
             case "MOVEMENT_ATTEMPT"  -> {
                 for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
-                    agentMapCoordinator.processActionAttempt(message, sender);
+                    agentMapCoordinator.processMovementAttempt(message, sender);
                 }
             }
             case "INTRODUCTION_REQUEST" -> {

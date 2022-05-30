@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface AgentVisionReporter {
 
-    void reportMyVision(List<Block> dispensers, List<Point> roleZones, List<Point> goalZones, List<Point> obstacles);
+    void reportMyVision(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones, List<Point> obstacles);
 
     void updateMyVisionWithSightingsOfOtherAgents();
 

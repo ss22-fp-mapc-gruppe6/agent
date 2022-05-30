@@ -29,7 +29,7 @@ public interface CommunicationModuleAgentMapCoordinatorInterface {
      * @param message the message
      * @param sender the sender
      */
-    void processActionAttempt(Percept message, String sender);
+    void processMovementAttempt(Percept message, String sender);
 
     /**
      * decifers an "INTRODUCTION_REQUEST" message

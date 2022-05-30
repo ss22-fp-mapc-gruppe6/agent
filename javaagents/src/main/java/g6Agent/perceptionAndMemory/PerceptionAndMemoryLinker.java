@@ -17,7 +17,7 @@ public class PerceptionAndMemoryLinker {
         InternalMapOfOtherAgents internalMapOfOtherAgents = new InternalMapOfOtherAgents(agent.getName());
         this.internalMapOfOtherAgentsImplementation = internalMapOfOtherAgents;
         this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
-        this.agentMapCoordinator = new AgentMapCoordinator(mailbox, perceptionAndMemory, internalMapOfOtherAgents, agent.getName());
+        this.agentMapCoordinator = new AgentMapCoordinator(mailbox, perceptionAndMemory, perceptionAndMemory, internalMapOfOtherAgents, agent.getName());
         perceptionAndMemory.addLastActionListener(agentMapCoordinator);
         perceptionAndMemory.setVisionReporter(agentMapCoordinator);
     }

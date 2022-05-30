@@ -5,13 +5,14 @@ import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
 import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemoryInput;
 import g6Agent.services.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
+public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, PerceptionAndMemoryInput {
 
     private LastActionMemory lastAction;
     private List<Point> obstacles;
@@ -144,7 +145,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             }
             notifyListenersOfLastAction();
             if (visionReporter != null){
-                visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);
+                visionReporter.reportMyVision(dispensers, blocks, roleZones, goalZones, obstacles);
                 visionReporter.updateMyVisionWithSightingsOfOtherAgents();
             }
         }
@@ -206,8 +207,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 ((Numeral) percept.getParameters().get(4)).getValue().intValue()
                 ));
     }
-
-    private void handleGoalZone(Percept percept) throws Exception {
+    @Override
+    public void handleGoalZone(Percept percept) throws Exception {
         if (percept.getParameters().size() != 2) {
             throw new Exception("PERCEPTION MODULE: goalZone with unforeseen parameter size");
         }
@@ -216,8 +217,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 ((Numeral)percept.getParameters().get(1)).getValue().intValue()
         ));
     }
-
-    private void handleRoleZone(Percept percept) throws Exception {
+    @Override
+    public void handleRoleZone(Percept percept) throws Exception {
         if (percept.getParameters().size() != 2) {
             throw new Exception("PERCEPTION MODULE: RoleZone with unforeseen parameter size");
         }
@@ -293,13 +294,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             currentId = ((Numeral) param).getValue().intValue();
         }
     }
-
-    private void handleThingPercept(Percept percept) throws Exception {
-
-        String identifier = ((Identifier)percept.getParameters().get(2)).toProlog();
+    @Override
+    public void handleThingPercept(Percept percept) throws Exception {
         if (percept.getParameters().size() != 4) {
             throw new Exception("PERCEPTION MODULE: obstacle with unforeseen parameter size");
         }
+        String identifier = ((Identifier)percept.getParameters().get(2)).toProlog();
         if ("obstacle".equals(identifier)) {
                 Point positionOfObstacle = new Point(
                         ((Numeral) percept.getParameters().get(0)).getValue().intValue(),

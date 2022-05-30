@@ -5,15 +5,14 @@ import g6Agent.MailService;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Movement;
-import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
-import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleAgentMapCoordinatorInterface;
-import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
-import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
+import g6Agent.perceptionAndMemory.Interfaces.*;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgentMapCoordinatorInterface, AgentVisionReporter {
@@ -21,6 +20,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private final MailService mailservice;
     private final PerceptionAndMemory perceptionAndMemory;
 
+    private final PerceptionAndMemoryInput perceptionAndMemoryInput;
     private final HashMap<String, StepAndMovement> attemptedMovements;
 
     private final InternalMapOfOtherAgents internalMapOfOtherAgents;
@@ -29,16 +29,19 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     int lambertClock;
     private List<IntroductionRequest> requestsToAnswer;
     private List<IntroductionRequest> acceptMessagesThisStep;
+    private final HashMap<String, Vison> visions;
 
-    AgentMapCoordinator(MailService mailservice, PerceptionAndMemory perceptionAndMemory, InternalMapOfOtherAgents internalMapOfOtherAgents, String agentname) {
+    AgentMapCoordinator(MailService mailservice, PerceptionAndMemory perceptionAndMemory, PerceptionAndMemoryInput perceptionAndMemoryInput, InternalMapOfOtherAgents internalMapOfOtherAgents, String agentname) {
         this.mailservice = mailservice;
         this.perceptionAndMemory = perceptionAndMemory;
+        this.perceptionAndMemoryInput = perceptionAndMemoryInput;
         this.internalMapOfOtherAgents = internalMapOfOtherAgents;
         this.agentname = agentname;
         this.attemptedMovements = new HashMap<>();
         this.lambertClock = 0;
         this.requestsToAnswer = new ArrayList<>();
         this.acceptMessagesThisStep = new ArrayList<>();
+        this.visions = new HashMap<>();
     }
 
     private void setClockBeforeSend(){
@@ -80,7 +83,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     }
 
     @Override
-    public void processActionAttempt(Percept message, String sender) {
+    public void processMovementAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
             setClockAfterRecieve(((Numeral) message.getParameters().get(0)).getValue().intValue());
             attemptedMovements.put(sender, new StepAndMovement(
@@ -168,23 +171,68 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     @Override
     public void processVisionNotification(Percept message, String sender) {
-        //TODO decipher the message and save the coordinates.
+        if (message.getName().equals("MY_VISION")) {
+            List<Block> dispensers = new ArrayList<>();
+            List<Block> blocks = new ArrayList<>();
+            List<Point> roleZones = new ArrayList<>();
+            List<Point> goalZones = new ArrayList<>();
+            List<Point> obstacles = new ArrayList<>();
+            for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
+                if (parameter instanceof Function function) {
+                    switch (function.getName()) {
+                        case "dispenser" -> dispensers.add(new Block(
+                                new Point(
+                                        ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                        ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                ),
+                                ((Identifier) function.getParameters().get(0)).toProlog()
+                        ));
+                        case "block" -> blocks.add(new Block(
+                                new Point(
+                                        ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                        ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                ),
+                                ((Identifier) function.getParameters().get(0)).toProlog()
+                        ));
+                        case "rolezone" -> roleZones.add(new Point(
+                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                        ));
+                        case "goalzone" -> goalZones.add(new Point(
+                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                        ));
+                        case "obstacle" -> obstacles.add(new Point(
+                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                        ));
+                    }
+                }
+            }
+            this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
+        }
+    }
+    public record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
+                        List<Point> obstacles) {
     }
 
     @Override
-    public void reportMyVision(List<Block> dispensers, List<Point> roleZones, List<Point> goalZones, List<Point> obstacles) {
+    public void reportMyVision(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones, List<Point> obstacles) {
         ParameterList functions = new ParameterList();
         for (Block dispenser : dispensers) {
-            functions.add(new Function("dispenser", new ParameterList(new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y))));
+            functions.add(new Function("dispenser",new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y)));
+        }
+        for (Block dispenser : dispensers) {
+            functions.add(new Function("block", new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y)));
         }
         for (Point roleZone : roleZones){
-            functions.add(new Function("rolezone", new ParameterList(new Numeral(roleZone.getX()), new Numeral(roleZone.getY()))));
+            functions.add(new Function("rolezone", new Numeral(roleZone.getX()), new Numeral(roleZone.getY())));
         }
         for(Point goalZone : goalZones){
-            functions.add(new Function("goalzone", new ParameterList(new Numeral(goalZone.x), new Numeral(goalZone.y))));
+            functions.add(new Function("goalzone", new Numeral(goalZone.x), new Numeral(goalZone.y)));
         }
         for(Point obstacle : obstacles){
-            functions.add(new Function("obstacle", new ParameterList(new Numeral(obstacle.x), new Numeral(obstacle.y))));
+            functions.add(new Function("obstacle", new Numeral(obstacle.x), new Numeral(obstacle.y)));
         }
         mailservice.broadcast(new Percept("MY_VISION", functions), agentname);
     }
@@ -192,6 +240,144 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     @Override
     public void updateMyVisionWithSightingsOfOtherAgents() {
         //TODO get Visions saved (multiple hash maps?) of known Agents, add their relative positions and if they are not in Sight of the current Agent add them to the lists
+        HashSet<Block> uniqueDispensers = new HashSet<>();
+        HashSet<Block> uniqueBlocks = new HashSet<>();
+        HashSet<Point> uniqueGoalZones = new HashSet<>();
+        HashSet<Point> uniqueRoleZones = new HashSet<>();
+        HashSet<Point> uniqueObstacles = new HashSet<>();
+        for (AgentNameAndPosition agent : internalMapOfOtherAgents.knownAgents()) {
+            Vison vison = visions.get(agentname);
+            if (vison != null) {
+                for (Block dispenser : vison.dispensers()) {
+                    Block dispenserWithNewPosition =
+                            new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
+                    if (isOutOfSight(dispenserWithNewPosition)) {
+                        uniqueDispensers.add(dispenserWithNewPosition);
+                    }
+                }
+                for (Block block : vison.blocks()) {
+                    Block blockWithNewPosition =
+                            new Block(block.getCoordinates().add(agent.position()), block.getBlocktype());
+                    if (isOutOfSight(blockWithNewPosition)) {
+                        uniqueBlocks.add(blockWithNewPosition);
+                    }
+                }
+                for (Point goalZone : vison.goalZones()) {
+                    Point goalZoneWithNewPosition = goalZone.add(agent.position());
+                    if (isOutOfSight(goalZoneWithNewPosition)) {
+                        uniqueGoalZones.add(goalZoneWithNewPosition);
+                    }
+                }
+                for (Point roleZone : vison.roleZones()) {
+                    Point roleZoneWithNewPosition = roleZone.add(agent.position());
+                    if (isOutOfSight(roleZoneWithNewPosition)) {
+                        uniqueRoleZones.add(roleZoneWithNewPosition);
+                    }
+                }
+                for (Point obstacle : vison.obstacles()) {
+                    Point obstacleWithNewPosition = obstacle.add(agent.position());
+                    if (isOutOfSight(obstacleWithNewPosition)) {
+                        uniqueObstacles.add(obstacleWithNewPosition);
+                    }
+                }
+            }
+        }
+        for (Block dispenser : uniqueDispensers) {
+            try{
+                addDispenserToPerception(dispenser);
+            } catch (Exception e) {
+                System.out.println(" IN UPDATE VISION : Problem with adding dispenser");
+            }
+        }
+        for (Block block : uniqueBlocks){
+            try{
+                addBlockToPerception(block);
+            } catch (Exception e) {
+                System.out.println(" IN UPDATE VISION : Problem with adding block");
+            }
+        }
+        for (Point obstacle : uniqueObstacles){
+            try{
+                addObstacleToPerception(obstacle);
+            } catch (Exception e) {
+                System.out.println(" IN UPDATE VISION : Problem with adding obstacle");
+            }
+        }
+        for (Point goalzone : uniqueGoalZones){
+            try {
+                addGoalZoneToPerception(goalzone);
+            } catch (Exception e) {
+                System.out.println(" IN UPDATE VISION : Problem with adding goalZone");
+            }
+        }
+        for (Point roleZone : uniqueRoleZones){
+            try {
+                addRoleZoneToPerception(roleZone);
+            } catch (Exception e) {
+                System.out.println(" IN UPDATE VISION : Problem with adding roleZone");
+            }
+        }
+
+    }
+
+    private void addRoleZoneToPerception(Point roleZone) throws Exception {
+        perceptionAndMemoryInput.handleRoleZone(new Percept(
+                "roleZone",
+                new Numeral(roleZone.x),
+                new Numeral(roleZone.y)
+        ));
+    }
+
+    private void addGoalZoneToPerception(Point goalzone) throws Exception {
+        perceptionAndMemoryInput.handleGoalZone(new Percept(
+                "goalZone",
+                new Numeral(goalzone.x),
+                new Numeral(goalzone.y)
+        ));
+    }
+
+    private void addObstacleToPerception(Point obstacle) throws Exception {
+        perceptionAndMemoryInput.handleThingPercept(
+                new Percept("thing",
+                        new Numeral(obstacle.x),
+                        new Numeral(obstacle.y),
+                        new Identifier("obstacle"),
+                        new Identifier("")
+                )
+        );
+    }
+
+    private void addBlockToPerception(Block block) throws Exception {
+        perceptionAndMemoryInput.handleThingPercept(
+                new Percept("thing",
+                        new Numeral(block.getCoordinates().x),
+                        new Numeral(block.getCoordinates().y),
+                        new Identifier("block"),
+                        new Identifier(block.getBlocktype())
+                )
+        );
+    }
+
+
+    private void addDispenserToPerception(Block dispenser) throws Exception {
+                perceptionAndMemoryInput.handleThingPercept(
+                        new Percept("thing",
+                                new Numeral(dispenser.getCoordinates().x),
+                                new Numeral(dispenser.getCoordinates().y),
+                                new Identifier("dispenser"),
+                                new Identifier(dispenser.getBlocktype())
+                        )
+                );
+    }
+
+    private boolean isOutOfSight(Point point) {
+        if (perceptionAndMemory.getCurrentRole() == null) return false; // if no Role ignore
+        return point.manhattanDistanceTo(new Point(0,0)) > perceptionAndMemory.getCurrentRole().getVisionRange();
+    }
+
+    private boolean isOutOfSight(Block block) {
+        if (perceptionAndMemory.getCurrentRole() == null) return false; // if no Role ignore
+        return block.getCoordinates().manhattanDistanceTo(new Point(0, 0)) > perceptionAndMemory.getCurrentRole().getVisionRange();
     }
 
     @Override
@@ -236,7 +422,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         }
         if(acceptMessage != null){
             internalMapOfOtherAgents.spottetAgent(acceptMessage.sender(), acceptMessage.position().invert());
-            System.out.println(agentname +  " SPOTTED AGENT :" + acceptMessage.sender());
         }
     }
 
