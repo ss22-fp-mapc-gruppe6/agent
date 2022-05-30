@@ -3,7 +3,7 @@ package g6Agent.perceptionAndMemory.Interfaces;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 
-public interface AgentAgentMapCoordinaterInterface {
+public interface CommunicationModuleAgentMapCoordinatorInterface {
     /**
      * Processes a message that notifies of the succsessfull movement of another Agent
      * @param message the message
@@ -29,5 +29,15 @@ public interface AgentAgentMapCoordinaterInterface {
      * @param message the message
      * @param sender the sender
      */
-    void deciferActionAttempt(Percept message, String sender);
+    void processActionAttempt(Percept message, String sender);
+
+    /**
+     * decifers an "INTRODUCTION_REQUEST" message
+     * @param message the message
+     * @param sender the sender
+     */
+    void processIntroductionRequest(Percept message, String sender);
+
+
+    void processIntroductionAccept(Percept message, String sender);
 }

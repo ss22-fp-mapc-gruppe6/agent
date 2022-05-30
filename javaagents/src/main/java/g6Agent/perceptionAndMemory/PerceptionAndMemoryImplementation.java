@@ -139,6 +139,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            if (visionReporter != null) {
+                visionReporter.handleStep();
+            }
             notifyListenersOfLastAction();
             if (visionReporter != null){
                 visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);

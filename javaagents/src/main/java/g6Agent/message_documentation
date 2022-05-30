@@ -1,5 +1,13 @@
 AgentMapCoordinator:
 "MOVEMENT_NOTIFICATION" - broadcasted by an Agent to notifiy others of his succesfull movement.  Parameters: {(Numeral) lambertClock, (Numeral)step, (Identifier) direction, (Numeral) speed}
 "MOVEMENT_ATTEMPT" - broadcasted by an Agent, if he attempts to do a movement. Parameters: {(Numeral)lambertClock, (Numeral) step, (Identifier) direction, (Numeral) speed}
+"INTRODUCTION_REQUEST", new ParameterList(
+            new Numeral(this.clock), new Numeral(this.step), new Numeral(this.position.x), new Numeral(this.position.y)
+
+"INTRODUCTION_ACCEPT",
+                            new ParameterList(new Numeral(this.clock), new Numeral(this.step), new Numeral(this.position.x), new Numeral(this.position.y))
+                    ),
+                    this.sender,
+                    sender
 "MY_VISION" - Information on what an Agent sees - NOT IMPLEMENTED
 

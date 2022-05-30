@@ -17,4 +17,5 @@ public interface AgentVisionReporter {
 
     void updateMyVisionWithSightingsOfOtherAgents();
 
+    void handleStep();
 }

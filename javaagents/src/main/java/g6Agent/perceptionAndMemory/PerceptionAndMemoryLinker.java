@@ -2,7 +2,7 @@ package g6Agent.perceptionAndMemory;
 
 import g6Agent.MailService;
 import g6Agent.agents.Agent;
-import g6Agent.perceptionAndMemory.Interfaces.AgentAgentMapCoordinaterInterface;
+import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleAgentMapCoordinatorInterface;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 /**
@@ -22,7 +22,7 @@ public class PerceptionAndMemoryLinker {
         perceptionAndMemory.setVisionReporter(agentMapCoordinator);
     }
 
-    public AgentAgentMapCoordinaterInterface getAgentMapCoordinator(){
+    public CommunicationModuleAgentMapCoordinatorInterface getAgentMapCoordinator(){
         return this.agentMapCoordinator;
     }
     public PerceptionAndMemory getPerceptionAndMemory(){
