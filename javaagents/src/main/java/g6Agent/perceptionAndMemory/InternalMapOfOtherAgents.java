@@ -18,13 +18,23 @@ class InternalMapOfOtherAgents {
         this.relativePositionOfOtherAgents = new HashMap<>();
     }
 
+    public void notifiedOfMovement(String sender, Movement movement) {
+        InternalMapEntry entry = relativePositionOfOtherAgents.get(sender);
+        if (entry != null) {
+            Point nextPositon = entry.getPosition().add(movement.asVector());
+            entry.setPosition(nextPositon);
+            InternalMapEntry updatedEntry = new InternalMapEntry(nextPositon, entry.getCounter());
+            relativePositionOfOtherAgents.put(sender, updatedEntry);
+        }
+    }
+
     /**
      * Used if the Agent spots another Agent
      * @param agentname the agents name
      * @param position the agents position
      */
     public void spottetAgent(String agentname, Point position){
-        updateAgent(agentname, new InternalMapEntry(position));
+        this.relativePositionOfOtherAgents.put(agentname, new InternalMapEntry(position));
     }
 
     /**
