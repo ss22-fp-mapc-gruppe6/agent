@@ -27,7 +27,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private final String agentname;
 
     int lambertClock;
-    private List<IntroductionRequest> requestsSend;
     private List<IntroductionRequest> requestsToAnswer;
     private List<IntroductionRequest> acceptMessagesThisStep;
 
@@ -38,7 +37,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         this.agentname = agentname;
         this.attemptedMovements = new HashMap<>();
         this.lambertClock = 0;
-        this.requestsSend = new ArrayList<>();
         this.requestsToAnswer = new ArrayList<>();
         this.acceptMessagesThisStep = new ArrayList<>();
     }
@@ -72,12 +70,11 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         if (action.getName().equals("move")){
             setClockBeforeSend();
             mailservice.broadcast(new Percept("MOVEMENT_ATTEMPT",
-                    new ParameterList(
                             new Numeral(lambertClock),                          //Lambert Clock
                             new Numeral(perceptionAndMemory.getCurrentStep()), // Step
                             action.getParameters().get(0),                     // Direction
                             new Numeral(determineyourOwnSpeed())
-                    )
+
             ), agentname);// Speed
         }
     }
@@ -130,16 +127,16 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         if (lastAction.getName().equals("move")){
             int speed = determineSpeedOfLastAction(lastAction);
             if (speed > 0){
-                Direction direction = Direction.fromIdentifier(((Identifier) lastAction.getParameters().get(0)));
+                Direction direction = Direction.fromIdentifier(((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)));
                 Movement movement = new Movement(direction, speed);
                 internalMapOfOtherAgents.movedMyself(movement);
                 setClockBeforeSend();
-                mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION", new ParameterList(
+                mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION",
                         new Numeral(lambertClock),
                         new Numeral(perceptionAndMemory.getCurrentStep()),
                         movement.direction().getIdentifier(),
                         new Numeral(movement.speed())
-                )), agentname);
+                ), agentname);
             }
         }
     }
@@ -176,7 +173,20 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     @Override
     public void reportMyVision(List<Block> dispensers, List<Point> roleZones, List<Point> goalZones, List<Point> obstacles) {
-        //TODO broadcast everything as one big Percept -> message MY_VISION
+        ParameterList functions = new ParameterList();
+        for (Block dispenser : dispensers) {
+            functions.add(new Function("dispenser", new ParameterList(new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y))));
+        }
+        for (Point roleZone : roleZones){
+            functions.add(new Function("rolezone", new ParameterList(new Numeral(roleZone.getX()), new Numeral(roleZone.getY()))));
+        }
+        for(Point goalZone : goalZones){
+            functions.add(new Function("goalzone", new ParameterList(new Numeral(goalZone.x), new Numeral(goalZone.y))));
+        }
+        for(Point obstacle : obstacles){
+            functions.add(new Function("obstacle", new ParameterList(new Numeral(obstacle.x), new Numeral(obstacle.y))));
+        }
+        mailservice.broadcast(new Percept("MY_VISION", functions), agentname);
     }
 
     @Override
@@ -192,7 +202,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
         //check accepts, each accept, which is a one of -> add sighting
         compareRequestsSendWithAccepts();
-        this.requestsSend = new ArrayList<>();
         this.acceptMessagesThisStep = new ArrayList<>();
 
         checkForOtherAgents();
@@ -208,6 +217,30 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     private void compareRequestsSendWithAccepts() {
         HashMap<Integer, Integer> accepts = new HashMap<>();
+        countAcceptMessages(accepts);
+        accepts.forEach((key, value) -> {
+            if (value != null){
+                if (value == 1){
+                    acceptOneOf(key);
+                }
+            }
+        });
+    }
+
+    private void acceptOneOf(Integer key) {
+        IntroductionRequest acceptMessage = null;
+        for (IntroductionRequest acceptSend : acceptMessagesThisStep){
+            if (acceptSend.clock() == key){
+                acceptMessage = acceptSend;
+            }
+        }
+        if(acceptMessage != null){
+            internalMapOfOtherAgents.spottetAgent(acceptMessage.sender(), acceptMessage.position().invert());
+            System.out.println(agentname +  " SPOTTED AGENT :" + acceptMessage.sender());
+        }
+    }
+
+    private void countAcceptMessages(HashMap<Integer, Integer> accepts) {
         for (IntroductionRequest acceptMessage : acceptMessagesThisStep) {
             if(accepts.get(acceptMessage.clock()) == null){
                 accepts.put(acceptMessage.clock(), 1);
@@ -216,21 +249,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 accepts.put(acceptMessage.clock(), (count + 1));
             }
         }
-        accepts.forEach((key, value) -> {
-            if (value != null){
-                if (value == 1){
-                    IntroductionRequest request = null;
-                    for (IntroductionRequest requestSend : acceptMessagesThisStep){
-                        if (requestSend.clock() == key){
-                            request = requestSend;
-                        }
-                    }
-                    if(request != null){
-                        internalMapOfOtherAgents.spottetAgent(request.sender(), request.position().invert());
-                    }
-                }
-            }
-        });
     }
 
 
@@ -246,7 +264,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         for(Point unknownAgent : unknownAgents){
             setClockBeforeSend();
             IntroductionRequest request = new IntroductionRequest(lambertClock, perceptionAndMemory.getCurrentStep(), unknownAgent.invert(), agentname);
-            this.requestsSend.add(request);
             request.broadcast(mailservice);
         }
     }
@@ -305,9 +322,9 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
 
         void broadcast(MailService mailservice) {
-            mailservice.broadcast(new Percept("INTRODUCTION_REQUEST", new ParameterList(
+            mailservice.broadcast(new Percept("INTRODUCTION_REQUEST",
             new Numeral(this.clock), new Numeral(this.step), new Numeral(this.position.x), new Numeral(this.position.y)
-            )), this.sender);
+            ), this.sender);
         }
 
         static IntroductionRequest fromMail(Percept percept, String sender){
@@ -327,7 +344,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
             mailService.sendMessage(
                     new Percept(
                             "INTRODUCTION_ACCEPT",
-                            new ParameterList(new Numeral(this.clock), new Numeral(this.step), new Numeral(this.position.x), new Numeral(this.position.y))
+                            new Numeral(this.clock), new Numeral(this.step), new Numeral(this.position.x), new Numeral(this.position.y)
                     ),
                     this.sender,
                     sender
