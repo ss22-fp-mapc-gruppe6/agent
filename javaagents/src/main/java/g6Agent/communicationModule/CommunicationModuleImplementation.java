@@ -52,7 +52,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
 
     @Override
     public void broadcastActionAttempt(Action action) {
-        if (action.getName().equals("move")) {
+        if (action != null && action.getName().equals("move")) {
             for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
                 agentMapCoordinator.broadcastActionAttempt(action);
             }

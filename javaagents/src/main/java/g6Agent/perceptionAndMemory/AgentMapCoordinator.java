@@ -53,18 +53,20 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     @Override
     public void processMovementNotification(Percept p, String sender){
+        if(!sender.equals(agentname)) {
         setClockAfterRecieve(((Numeral)p.getParameters().get(0)).getValue().intValue());
         int step = ((Numeral)p.getParameters().get(1)).getValue().intValue();
         attemptedMovements.remove(sender);
-        InternalMapEntry entry = internalMapOfOtherAgents.getAgentPosition(sender);
-        if (entry != null){
-            Movement movement = new Movement(
-                    Direction.fromIdentifier((Identifier)p.getParameters().get(2)),
-                     ((Numeral) p.getParameters().get(3)).getValue().intValue()
-                    );
-            Point nextPositon = entry.getPosition().add(movement.asVector());
-            entry.setPosition(nextPositon);
-            internalMapOfOtherAgents.updateAgent(sender, entry);
+            InternalMapEntry entry = internalMapOfOtherAgents.getAgentPosition(sender);
+            if (entry != null) {
+                Movement movement = new Movement(
+                        Direction.fromIdentifier((Identifier) p.getParameters().get(2)),
+                        ((Numeral) p.getParameters().get(3)).getValue().intValue()
+                );
+                Point nextPositon = entry.getPosition().add(movement.asVector());
+                entry.setPosition(nextPositon);
+                internalMapOfOtherAgents.updateAgent(sender, entry);
+            }
         }
     }
 
@@ -85,23 +87,27 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     @Override
     public void processMovementAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
-            setClockAfterRecieve(((Numeral) message.getParameters().get(0)).getValue().intValue());
-            attemptedMovements.put(sender, new StepAndMovement(
-                    ((Numeral) message.getParameters().get(1)).getValue().intValue(),
-                    new Movement(Direction.fromIdentifier((Identifier)message.getParameters().get(2)),
-                            ((Numeral) message.getParameters().get(3)).getValue().intValue())));
+            if (!sender.equals(agentname)) {
+                setClockAfterRecieve(((Numeral) message.getParameters().get(0)).getValue().intValue());
+                attemptedMovements.put(sender, new StepAndMovement(
+                        ((Numeral) message.getParameters().get(1)).getValue().intValue(),
+                        new Movement(Direction.fromIdentifier((Identifier) message.getParameters().get(2)),
+                                ((Numeral) message.getParameters().get(3)).getValue().intValue())));
+            }
         }
     }
 
     @Override
     public void processIntroductionRequest(Percept message, String sender) {
         if(message.getName().equals("INTRODUCTION_REQUEST")) {
-            IntroductionRequest request = IntroductionRequest.fromMail(message, sender);
-            setClockAfterRecieve(request.clock());
-            if (request.step == perceptionAndMemory.getCurrentStep()) {
-                answerIntroductionRequest(request);
-            } else {
-                this.requestsToAnswer.add(request);
+            if(!sender.equals(agentname)) {
+                IntroductionRequest request = IntroductionRequest.fromMail(message, sender);
+                setClockAfterRecieve(request.clock());
+                if (request.step == perceptionAndMemory.getCurrentStep()) {
+                    answerIntroductionRequest(request);
+                } else {
+                    this.requestsToAnswer.add(request);
+                }
             }
         }
     }
@@ -171,44 +177,46 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     @Override
     public void processVisionNotification(Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
-            List<Block> dispensers = new ArrayList<>();
-            List<Block> blocks = new ArrayList<>();
-            List<Point> roleZones = new ArrayList<>();
-            List<Point> goalZones = new ArrayList<>();
-            List<Point> obstacles = new ArrayList<>();
-            for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
-                if (parameter instanceof Function function) {
-                    switch (function.getName()) {
-                        case "dispenser" -> dispensers.add(new Block(
-                                new Point(
-                                        ((Numeral) function.getParameters().get(1)).getValue().intValue(),
-                                        ((Numeral) function.getParameters().get(2)).getValue().intValue()
-                                ),
-                                ((Identifier) function.getParameters().get(0)).toProlog()
-                        ));
-                        case "block" -> blocks.add(new Block(
-                                new Point(
-                                        ((Numeral) function.getParameters().get(1)).getValue().intValue(),
-                                        ((Numeral) function.getParameters().get(2)).getValue().intValue()
-                                ),
-                                ((Identifier) function.getParameters().get(0)).toProlog()
-                        ));
-                        case "rolezone" -> roleZones.add(new Point(
-                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                        ));
-                        case "goalzone" -> goalZones.add(new Point(
-                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                        ));
-                        case "obstacle" -> obstacles.add(new Point(
-                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                        ));
+            if (!sender.equals(agentname)) {
+                List<Block> dispensers = new ArrayList<>();
+                List<Block> blocks = new ArrayList<>();
+                List<Point> roleZones = new ArrayList<>();
+                List<Point> goalZones = new ArrayList<>();
+                List<Point> obstacles = new ArrayList<>();
+                for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
+                    if (parameter instanceof Function function) {
+                        switch (function.getName()) {
+                            case "dispenser" -> dispensers.add(new Block(
+                                    new Point(
+                                            ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                            ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                    ),
+                                    ((Identifier) function.getParameters().get(0)).toProlog()
+                            ));
+                            case "block" -> blocks.add(new Block(
+                                    new Point(
+                                            ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                            ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                    ),
+                                    ((Identifier) function.getParameters().get(0)).toProlog()
+                            ));
+                            case "rolezone" -> roleZones.add(new Point(
+                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                            ));
+                            case "goalzone" -> goalZones.add(new Point(
+                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                            ));
+                            case "obstacle" -> obstacles.add(new Point(
+                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                            ));
+                        }
                     }
                 }
+                this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
             }
-            this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
         }
     }
     public record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
