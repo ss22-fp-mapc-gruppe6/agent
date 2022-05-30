@@ -63,9 +63,9 @@ class InternalMapOfOtherAgents {
             return;
         }
         //Case new lastSeenCounter is more recent
-        if (relativePositionOfOtherAgents.get(agentname).getCounter() > entry.getCounter()) {
-            relativePositionOfOtherAgents.replace(agentname, entry);
-        }
+       // if (relativePositionOfOtherAgents.get(agentname).getCounter() > entry.getCounter()) {
+            relativePositionOfOtherAgents.put(agentname, entry);
+        //}
     }
 
     public InternalMapEntry getAgentPosition(String agentname) {

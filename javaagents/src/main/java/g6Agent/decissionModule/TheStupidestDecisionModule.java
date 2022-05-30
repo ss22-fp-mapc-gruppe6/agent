@@ -4,6 +4,7 @@ import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
+import g6Agent.services.Point;
 
 public class TheStupidestDecisionModule implements DecisionModule{
 
@@ -67,9 +68,17 @@ public class TheStupidestDecisionModule implements DecisionModule{
         }
 
         //if more obstacles than threshold are in sight -> dig
-        if (perceptionAndMemory.getObstacles().size() > OBSTACLE_THRESHOLD && perceptionAndMemory.getEnergy() > 50){
-            currentGoal =  (currentGoal.getName().equals("G6GoalDig")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalDig(perceptionAndMemory);
-            return currentGoal;
+        if (perceptionAndMemory.getCurrentRole() != null) {
+            int counter = 0;
+            for (Point obstacle : perceptionAndMemory.getObstacles()) {
+                if (obstacle.manhattanDistanceTo(new Point(0,0)) <= perceptionAndMemory.getCurrentRole().getVisionRange()){
+                    counter++;
+                }
+            }
+            if (counter > OBSTACLE_THRESHOLD && perceptionAndMemory.getEnergy() > 50) {
+                currentGoal = (currentGoal.getName().equals("G6GoalDig") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalDig(perceptionAndMemory);
+                return currentGoal;
+            }
         }
 
         //if nothing else -> Explore

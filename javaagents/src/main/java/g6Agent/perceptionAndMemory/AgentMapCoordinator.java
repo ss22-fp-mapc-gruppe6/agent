@@ -55,7 +55,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     public void processMovementNotification(Percept p, String sender){
         setClockAfterRecieve(((Numeral)p.getParameters().get(0)).getValue().intValue());
         int step = ((Numeral)p.getParameters().get(1)).getValue().intValue();
-        attemptedMovements.put(sender, null);
+        attemptedMovements.remove(sender);
         InternalMapEntry entry = internalMapOfOtherAgents.getAgentPosition(sender);
         if (entry != null){
             Movement movement = new Movement(
@@ -64,7 +64,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                     );
             Point nextPositon = entry.getPosition().add(movement.asVector());
             entry.setPosition(nextPositon);
-            entry.increaseCounter();
+            internalMapOfOtherAgents.updateAgent(sender, entry);
         }
     }
 
@@ -149,14 +149,13 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 || lastAction.getSuccessMessage().equals("partial_success"))){
             return 0;
         }
-        int speed;
+
         if (lastAction.getSuccessMessage().equals("partial_success")){
-            speed = 1;
+            return 1;
             //TODO Explorer for whom it could be 1 or 2 is unhandeld
         } else {
-            speed = determineyourOwnSpeed();
+            return determineyourOwnSpeed();
         }
-        return speed;
     }
 
     private int determineyourOwnSpeed() {
@@ -239,7 +238,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     @Override
     public void updateMyVisionWithSightingsOfOtherAgents() {
-        //TODO get Visions saved (multiple hash maps?) of known Agents, add their relative positions and if they are not in Sight of the current Agent add them to the lists
         HashSet<Block> uniqueDispensers = new HashSet<>();
         HashSet<Block> uniqueBlocks = new HashSet<>();
         HashSet<Point> uniqueGoalZones = new HashSet<>();
