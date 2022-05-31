@@ -86,8 +86,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
-            this.perceptInput = Collections.unmodifiableList(perceptInput);
             clearShortTermMemory();
+            this.perceptInput = Collections.unmodifiableList(perceptInput);
             try {
                 for (Percept percept : perceptInput) {
                     if (percept.getName().equals("actionID")) {
@@ -379,6 +379,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         norms = new ArrayList<>();
         markers = new ArrayList<>();
         attached = new ArrayList<>();
+        perceptInput = new ArrayList<>();
     }
 
     @Override

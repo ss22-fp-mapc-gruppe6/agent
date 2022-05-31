@@ -37,7 +37,7 @@ public class G6GoalRetrieveBlock implements Goal {
             }else {
                 //move to next block
                 final List<Point> obstacles = perceptionAndMemory.getObstacles();
-                final List<Point> shortestPath = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles);
+                final List<Point> shortestPath = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles, 1);
                 final List<Direction> directions = AStar.directionsFrom(shortestPath);
                 return moveTo(directions.get(0));
             }

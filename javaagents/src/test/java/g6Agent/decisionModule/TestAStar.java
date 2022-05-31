@@ -1,8 +1,10 @@
 package g6Agent.decisionModule;
 
+import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +13,30 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class TestAStar {
+    @Test
+    public void test_unobstructed_directions() {
+        /*  obstructions:
+            - - - - - - - - -
+            - - - - b - - - -
+            b - - - x - b - -
+            - - - - b - - - -
+            - - - - - - - - -
+            expected: n:0, e:1, s:0, w:3
+            but instead of int formatted as point
+            so n:(0,0), e:(1,0), s:(0,0), w:(-3,0)
+         */
+        final var obstructions = List.of(
+                new Point(0, 1),
+                new Point(2, 0),
+                new Point(0, -1),
+                new Point(0, -4)
+        );
+        final var directions = AStar.getUnobstructedDirections(obstructions);
+        assertEquals(List.of(
+
+        ), directions);
+
+    }
 
     public static String visualize(List<Point> path) {
         Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
@@ -70,12 +96,12 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, List.of());
+        final var shortestPath = AStar.findShortestPath(target, List.of(), 1);
         assertEquals(0, shortestPath.size());
         assertEquals(List.of(), shortestPath);
     }
 
-//    @Test
+    //    @Test
     public void test_points_to_directions() {
         Point target = new Point(12, 9);
         final var obstacles = List.of(
@@ -87,7 +113,7 @@ public class TestAStar {
                 new Point(8, 7),
                 new Point(8, 9)
         );
-        final var shortestPath = AStar.findShortestPath(target, obstacles);
+        final var shortestPath = AStar.findShortestPath(target, obstacles, 1);
         System.out.println("shortestPath = " + shortestPath);
         final var visualize = visualize(shortestPath);
         System.out.println(visualize);
@@ -96,7 +122,7 @@ public class TestAStar {
         System.out.println("directions = " + directions);
     }
 
-//    @Test
+    //    @Test
     public void test_9_9() {
         Point start = new Point(4, 5);
         Point target = new Point(12, 9);
@@ -109,7 +135,7 @@ public class TestAStar {
                 new Point(8, 7),
                 new Point(8, 9)
         );
-        final var shortestPath = AStar.findShortestPath(start, target, obstacles);
+        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 1);
         System.out.println("shortestPath = " + shortestPath);
         final var visualize = visualize(shortestPath);
 //        System.out.println(visualize);
@@ -118,7 +144,7 @@ public class TestAStar {
         assertEquals(4, shortestPath.size());
     }
 
-//    @Test
+    //    @Test
     public void test_ascii() {
         List<Point> path = List.of(
                 new Point(1, 1),

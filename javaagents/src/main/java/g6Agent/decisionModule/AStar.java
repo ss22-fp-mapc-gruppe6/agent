@@ -10,19 +10,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class AStar {
 
-    public static List<Point> findShortestPath(Point target, List<Point> obstacles) {
-        return findShortestPath(new Point(0, 0), target, obstacles, target::euclideanDistanceTo);
+
+    public static List<Point> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
+        return findShortestPath(new Point(0, 0), target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles, Function<Point, Double> heuristic) {
+    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<Point, Wrapper> wrappers = new HashMap<>();
@@ -39,6 +38,7 @@ public class AStar {
             if (currentPoint.equals(target)) {
                 return currentWrapped.tracePath();
             }
+            getUnobstructedDirections(obstacles);
             final var neighbours = getNeighbours(currentPoint);
             for (Point neighbour : neighbours) {
                 if (obstacles.contains(neighbour)) continue;
@@ -67,12 +67,31 @@ public class AStar {
         return List.of();
     }
 
+    static ArrayList<Point> getUnobstructedDirections(List<Point> obstacles) {
+        final var directionsToGo = new ArrayList<Point>(4);
+        for (Direction direction : Direction.values()) {
+            final Point d = direction.getNextCoordinate();
+            // either 0 or 1
+            final var dx = d.x;
+            final var dy = d.y;
+
+            final var temp = new Point(d.x, d.y);
+            for (int i = 0;
+                 i < 3 && !obstacles.contains(temp);
+                 i++, temp.translate(dx, dy)
+            ) {
+                directionsToGo.add(temp);
+            }
+        }
+        return directionsToGo;
+    }
+
     static Collection<Point> getNeighbours(Point p) {
         return Set.of(new Point(p.x, p.y + 1), new Point(p.x, p.y - 1), new Point(p.x + 1, p.y), new Point(p.x - 1, p.y));
     }
 
-    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles) {
-        return findShortestPath(start, target, obstacles, target::euclideanDistanceTo);
+    public static List<Point> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
+        return findShortestPath(start, target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
     public static List<Direction> directionsFrom(List<Point> points) {
