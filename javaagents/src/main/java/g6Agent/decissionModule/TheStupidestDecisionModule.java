@@ -67,6 +67,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
             }
         }
 
+        /*
         //if more obstacles than threshold are in sight -> dig
         if (perceptionAndMemory.getCurrentRole() != null) {
             int counter = 0;
@@ -81,6 +82,8 @@ public class TheStupidestDecisionModule implements DecisionModule{
             }
         }
 
+
+         */
         //if nothing else -> Explore
         currentGoal = (currentGoal.getName().equals("G6GoalExplore")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalExplore(perceptionAndMemory);
         return currentGoal;
