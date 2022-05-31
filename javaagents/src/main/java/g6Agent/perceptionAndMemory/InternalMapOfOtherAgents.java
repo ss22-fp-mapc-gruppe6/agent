@@ -21,7 +21,11 @@ class InternalMapOfOtherAgents {
     public void notifiedOfMovement(String sender, Movement movement) {
         InternalMapEntry entry = relativePositionOfOtherAgents.get(sender);
         if (entry != null) {
+            System.out.println("MOVEMENT NOTIFIED : " + sender + " " + movement.direction().getIdentifier() + " " + movement.speed());
+            System.out.println("pos before " + entry.getPosition().x  + " " + entry.getPosition().y);
+            System.out.println("movement " + movement.asVector());
             Point nextPositon = entry.getPosition().add(movement.asVector());
+            System.out.println("pos after " + nextPositon.x  + " " + nextPositon.y);
             entry.setPosition(nextPositon);
             InternalMapEntry updatedEntry = new InternalMapEntry(nextPositon, entry.getCounter());
             relativePositionOfOtherAgents.put(sender, updatedEntry);

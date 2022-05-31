@@ -60,8 +60,8 @@ public class Point extends java.awt.Point{
      */
     public Point multiply(int multiplier) {
         return new Point(
-        this.x = x * multiplier,
-        this.y = y * multiplier
+        x * multiplier,
+        y * multiplier
         );
     }
 
