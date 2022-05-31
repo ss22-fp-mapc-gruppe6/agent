@@ -11,11 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 
 class InternalMapOfOtherAgents {
-    private final String agentname;
+
     private final HashMap<String, InternalMapEntry> relativePositionOfOtherAgents;
 
-    public InternalMapOfOtherAgents(String agentname) {
-        this.agentname = agentname;
+    public InternalMapOfOtherAgents() {
         this.relativePositionOfOtherAgents = new HashMap<>();
     }
 

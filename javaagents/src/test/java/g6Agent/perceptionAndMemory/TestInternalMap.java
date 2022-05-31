@@ -9,7 +9,7 @@ public class TestInternalMap {
 
     @org.junit.Test
     public void internalMapTest() {
-        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents("");
+        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents();
         InternalMapEntry pos = map.getAgentPosition("A1");
         assert (pos == null);
         //tests for Spotting Agents
@@ -35,19 +35,19 @@ public class TestInternalMap {
 
     @org.junit.Test
     public void movementTest(){
-        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents("");
+        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents();
         map.spottetAgent("A1", new Point(1,1));
         map.movedMyself(new Movement(Direction.EAST, 1));
         assert (map.getAgentPosition("A1").getPosition().equals(new Point(1, 1).add(Direction.EAST.getNextCoordinate().invert())));
-        map = new InternalMapOfOtherAgents("");
+        map = new InternalMapOfOtherAgents();
         map.spottetAgent("A1", new Point(1,1));
         map.movedMyself(new Movement(Direction.WEST, 1));
         assert (map.getAgentPosition("A1").getPosition().equals(new Point(1,1).add(Direction.WEST.getNextCoordinate().invert())));
-        map = new InternalMapOfOtherAgents("");
+        map = new InternalMapOfOtherAgents();
         map.spottetAgent("A1", new Point(1,1));
         map.movedMyself(new Movement(Direction.SOUTH, 1));
         assert (map.getAgentPosition("A1").getPosition().equals(new Point(1,1).add(Direction.SOUTH.getNextCoordinate().invert())));
-        map = new InternalMapOfOtherAgents("");
+        map = new InternalMapOfOtherAgents();
         map.spottetAgent("A1", new Point(1,1));
         map.movedMyself(new Movement(Direction.NORTH, 1));
         assert (map.getAgentPosition("A1").getPosition().equals(new Point(1,1).add(Direction.NORTH.getNextCoordinate().invert())));
@@ -56,7 +56,7 @@ public class TestInternalMap {
     @org.junit.Test
     public void movementNotificationTest(){
 
-        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents("");
+        InternalMapOfOtherAgents map = new InternalMapOfOtherAgents();
         map.spottetAgent("A1", new Point(1,1));
         map.notifiedOfMovement("A1", new Movement(Direction.WEST, 1));
         assert (map.getAgentPosition("A1").getPosition().equals(new Point(1,1).add(Direction.WEST.getNextCoordinate())));

@@ -11,13 +11,12 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 public class PerceptionAndMemoryLinker {
     PerceptionAndMemoryImplementation perceptionAndMemory;
     AgentMapCoordinator agentMapCoordinator;
-    InternalMapOfOtherAgents internalMapOfOtherAgentsImplementation;
+
 
     public PerceptionAndMemoryLinker(Agent agent, MailService mailbox) {
-        InternalMapOfOtherAgents internalMapOfOtherAgents = new InternalMapOfOtherAgents(agent.getName());
-        this.internalMapOfOtherAgentsImplementation = internalMapOfOtherAgents;
+
         this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
-        this.agentMapCoordinator = new AgentMapCoordinator(mailbox, perceptionAndMemory, perceptionAndMemory, internalMapOfOtherAgents, agent.getName());
+        this.agentMapCoordinator = new AgentMapCoordinator(mailbox, perceptionAndMemory, perceptionAndMemory, agent.getName());
         perceptionAndMemory.addLastActionListener(agentMapCoordinator);
         perceptionAndMemory.setVisionReporter(agentMapCoordinator);
     }

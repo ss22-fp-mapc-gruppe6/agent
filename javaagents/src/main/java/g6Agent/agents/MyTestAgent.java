@@ -31,8 +31,8 @@ public class MyTestAgent extends Agent{
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation();
-        communicationModule.addAgentMapCoordinator(linker.getAgentMapCoordinator());
-        this.decisionModule = new TheStupidestDecisionModule(perceptionAndMemory);
+        this.communicationModule.addAgentMapCoordinator(linker.getAgentMapCoordinator());
+        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
     }
 
 /*
@@ -57,6 +57,16 @@ public class MyTestAgent extends Agent{
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
+
+            say("DISPENSERS " + perceptionAndMemory.getDispensers().size());
+            say("BLOCKS     " + perceptionAndMemory.getBlocks().size());
+            say("ROLEZONES  " + perceptionAndMemory.getRoleZones().size());
+            say("GOALZONES  " + perceptionAndMemory.getGoalZones().size());
+            say("OBSTACLES  " + perceptionAndMemory.getObstacles().size());
+            say("KNOWN AGENTS :  " + perceptionAndMemory.getKnownAgents().size());
+            for (var agent : perceptionAndMemory.getKnownAgents()){
+                System.out.println(agent);
+            }
         }
         return (eis.iilang.Action) action;
     }
