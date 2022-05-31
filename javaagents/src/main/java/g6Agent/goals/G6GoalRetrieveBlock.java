@@ -27,7 +27,7 @@ public class G6GoalRetrieveBlock implements Goal {
 
         Clear blockingobstacle = IfRotateFailedBreakFree();
         if (blockingobstacle != null) return blockingobstacle;
-        if (!perceptionAndMemory.getBlocks().isEmpty()){
+        if (!perceptionAndMemory.getBlocks().isEmpty()) {
             //determine next block
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
             for (Block block : perceptionAndMemory.getBlocks()) {
@@ -48,13 +48,10 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 } else {
                     //move to next block
-                    Direction direction = Direction.WEST;
-                    for (Direction d : Direction.allDirections()) {
-                        if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
-                            direction = d;
-                        }
-                    }
-                    return moveTo(direction);
+                    final List<Point> obstacles = perceptionAndMemory.getObstacles();
+                    final List<Point> shortestPath = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles);
+                    final List<Direction> directions = AStar.directionsFrom(shortestPath);
+                    return moveTo(directions.get(0));
                 }
             }
         }

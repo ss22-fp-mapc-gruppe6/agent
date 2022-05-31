@@ -4,8 +4,6 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
-import g6Agent.communicationModule.CommunicationModule;
-import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
 import g6Agent.decisionModule.DecisionModuleImplementation;
 import g6Agent.decisionModule.TheStupidestDecisionModule;
