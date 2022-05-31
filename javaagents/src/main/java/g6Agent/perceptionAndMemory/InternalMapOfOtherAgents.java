@@ -1,6 +1,7 @@
 package g6Agent.perceptionAndMemory;
 
 
+import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
 import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;

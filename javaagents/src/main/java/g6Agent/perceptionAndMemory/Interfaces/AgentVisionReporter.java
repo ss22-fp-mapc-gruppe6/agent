@@ -1,5 +1,6 @@
 package g6Agent.perceptionAndMemory.Interfaces;
 
+import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.services.Point;
 
@@ -18,4 +19,6 @@ public interface AgentVisionReporter {
     void updateMyVisionWithSightingsOfOtherAgents();
 
     void handleStep();
+
+    List<AgentNameAndPosition> getKnownAgentPositions();
 }

@@ -1,6 +1,8 @@
 package g6Agent.services;
 
 
+import java.util.Objects;
+
 public class Point extends java.awt.Point{
 
     public Point(int x, int y) {
@@ -91,5 +93,10 @@ public class Point extends java.awt.Point{
         }
         //can not happen
         return null;
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(x,y);
     }
 }

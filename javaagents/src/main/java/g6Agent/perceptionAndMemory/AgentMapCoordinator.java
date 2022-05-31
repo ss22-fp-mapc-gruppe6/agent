@@ -2,6 +2,7 @@ package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
 import g6Agent.MailService;
+import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Movement;
@@ -163,6 +164,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     }
 
     private int determineyourOwnSpeed() {
+        if (perceptionAndMemory.getCurrentRole() == null) return 1;
         int speed;
         if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttached().size()) {
             speed = 0;
@@ -176,6 +178,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     public void processVisionNotification(Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
             if (!sender.equals(agentname)) {
+                new Thread( () -> {
                 List<Block> dispensers = new ArrayList<>();
                 List<Block> blocks = new ArrayList<>();
                 List<Point> roleZones = new ArrayList<>();
@@ -214,6 +217,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                     }
                 }
                 this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
+            }).start();
             }
         }
     }
@@ -228,18 +232,24 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         for (Block dispenser : dispensers) {
             functions.add(new Function("dispenser", new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y)));
         }
+
         for (Block dispenser : dispensers) {
             functions.add(new Function("block", new Identifier(dispenser.getBlocktype()), new Numeral(dispenser.getCoordinates().x), new Numeral(dispenser.getCoordinates().y)));
         }
+
         for (Point roleZone : roleZones) {
             functions.add(new Function("rolezone", new Numeral(roleZone.getX()), new Numeral(roleZone.getY())));
         }
         for (Point goalZone : goalZones) {
             functions.add(new Function("goalzone", new Numeral(goalZone.x), new Numeral(goalZone.y)));
         }
+        //TODO obstacles disabled
+        /*
         for (Point obstacle : obstacles) {
             functions.add(new Function("obstacle", new Numeral(obstacle.x), new Numeral(obstacle.y)));
         }
+
+         */
         mailservice.broadcast(new Percept("MY_VISION", functions), agentname);
     }
 
@@ -251,39 +261,46 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         HashSet<Point> uniqueRoleZones = new HashSet<>();
         HashSet<Point> uniqueObstacles = new HashSet<>();
         for (AgentNameAndPosition agent : internalMapOfOtherAgents.knownAgents()) {
-            Vison vison = visions.get(agentname);
-            if (vison != null) {
-                for (Block dispenser : vison.dispensers()) {
-                    Block dispenserWithNewPosition =
-                            new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
-                    if (isOutOfSight(dispenserWithNewPosition)) {
-                        uniqueDispensers.add(dispenserWithNewPosition);
+            if(agent.position() != null) {
+                Vison vison = visions.get(agentname);
+                if (vison != null) {
+
+                    for (Block dispenser : vison.dispensers()) {
+                        Block dispenserWithNewPosition =
+                                new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
+                        if (isOutOfSight(dispenserWithNewPosition)) {
+                            uniqueDispensers.add(dispenserWithNewPosition);
+                        }
                     }
-                }
-                for (Block block : vison.blocks()) {
-                    Block blockWithNewPosition =
-                            new Block(block.getCoordinates().add(agent.position()), block.getBlocktype());
-                    if (isOutOfSight(blockWithNewPosition)) {
-                        uniqueBlocks.add(blockWithNewPosition);
+                    for (Block block : vison.blocks()) {
+                        Block blockWithNewPosition =
+                                new Block(block.getCoordinates().add(agent.position()), block.getBlocktype());
+                        if (isOutOfSight(blockWithNewPosition)) {
+                            uniqueBlocks.add(blockWithNewPosition);
+                        }
                     }
-                }
-                for (Point goalZone : vison.goalZones()) {
-                    Point goalZoneWithNewPosition = goalZone.add(agent.position());
-                    if (isOutOfSight(goalZoneWithNewPosition)) {
-                        uniqueGoalZones.add(goalZoneWithNewPosition);
+                    for (Point goalZone : vison.goalZones()) {
+                        Point goalZoneWithNewPosition = goalZone.add(agent.position());
+                        if (isOutOfSight(goalZoneWithNewPosition)) {
+                            uniqueGoalZones.add(goalZoneWithNewPosition);
+                        }
                     }
-                }
-                for (Point roleZone : vison.roleZones()) {
-                    Point roleZoneWithNewPosition = roleZone.add(agent.position());
-                    if (isOutOfSight(roleZoneWithNewPosition)) {
-                        uniqueRoleZones.add(roleZoneWithNewPosition);
+                    for (Point roleZone : vison.roleZones()) {
+                        Point roleZoneWithNewPosition = roleZone.add(agent.position());
+                        if (isOutOfSight(roleZoneWithNewPosition)) {
+                            uniqueRoleZones.add(roleZoneWithNewPosition);
+                        }
                     }
-                }
+                    //TODO Obstacles disabled
+                /*
                 for (Point obstacle : vison.obstacles()) {
                     Point obstacleWithNewPosition = obstacle.add(agent.position());
                     if (isOutOfSight(obstacleWithNewPosition)) {
                         uniqueObstacles.add(obstacleWithNewPosition);
                     }
+                }
+
+                 */
                 }
             }
         }
@@ -292,6 +309,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 addDispenserToPerception(dispenser);
             } catch (Exception e) {
                 System.out.println(" IN UPDATE VISION : Problem with adding dispenser");
+                e.printStackTrace();
             }
         }
         for (Block block : uniqueBlocks) {
@@ -299,6 +317,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 addBlockToPerception(block);
             } catch (Exception e) {
                 System.out.println(" IN UPDATE VISION : Problem with adding block");
+                e.printStackTrace();
             }
         }
         for (Point obstacle : uniqueObstacles) {
@@ -306,6 +325,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 addObstacleToPerception(obstacle);
             } catch (Exception e) {
                 System.out.println(" IN UPDATE VISION : Problem with adding obstacle");
+                e.printStackTrace();
             }
         }
         for (Point goalzone : uniqueGoalZones) {
@@ -313,6 +333,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 addGoalZoneToPerception(goalzone);
             } catch (Exception e) {
                 System.out.println(" IN UPDATE VISION : Problem with adding goalZone");
+                e.printStackTrace();
             }
         }
         for (Point roleZone : uniqueRoleZones) {
@@ -320,6 +341,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                 addRoleZoneToPerception(roleZone);
             } catch (Exception e) {
                 System.out.println(" IN UPDATE VISION : Problem with adding roleZone");
+                e.printStackTrace();
             }
         }
 
@@ -396,6 +418,11 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         this.acceptMessagesThisStep = new ArrayList<>();
 
         checkForOtherAgents();
+    }
+
+    @Override
+    public List<AgentNameAndPosition> getKnownAgentPositions() {
+        return internalMapOfOtherAgents.knownAgents();
     }
 
     private void handleUnanseweredRequests() {

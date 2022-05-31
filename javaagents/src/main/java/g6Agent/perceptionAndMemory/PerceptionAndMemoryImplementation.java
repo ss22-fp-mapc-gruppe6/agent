@@ -484,6 +484,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public List<AgentNameAndPosition> getKnownAgents() {
+        if (this.visionReporter == null) return new ArrayList<>();
+        return visionReporter.getKnownAgentPositions();
+    }
+
+    @Override
     public List<Point> getObstacles() {
         return obstacles;
     }

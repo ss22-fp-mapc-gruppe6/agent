@@ -149,4 +149,10 @@ public interface PerceptionAndMemory {
      */
     void addLastActionListener(LastActionListener listener);
 
+    /**
+     *
+     * @return the Names and positions of the known agents.
+     */
+    List<AgentNameAndPosition> getKnownAgents();
+
 }
