@@ -135,9 +135,15 @@ public interface PerceptionAndMemory {
 
     /**
      *
-     * @return the blocks attached to the agent;
+     * @return the blocks attached to the agent, and agents next to him;
      */
     List<Block> getAttachedBlocks();
+
+    /**
+     *
+     * @return the blocks attached to this agent.
+     */
+    List<Block> getBlocksAttachedToSelf();
     /**
      *
      * @return the norms
