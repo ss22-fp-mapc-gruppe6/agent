@@ -152,10 +152,10 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private int determineyourOwnSpeed() {
         if (perceptionAndMemory.getCurrentRole() == null) return 1;
         int speed;
-        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttached().size()) {
+        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttachedBlocksToSelf().size()) {
             speed = 0;
         } else {
-            speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getAttached().size());
+            speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getAttachedBlocksToSelf().size());
         }
         return speed;
     }
@@ -486,6 +486,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     }
 
     private boolean comparePositionWithMovementVectors(Point agentPosition, AgentNameAndPosition agentInMemory) {
+        //TODO Confirm this works
         boolean isIdentified = false;
         StepAndMovement attemptedMove = attemptedMovements.get(agentInMemory.name());
         if (attemptedMove != null) {

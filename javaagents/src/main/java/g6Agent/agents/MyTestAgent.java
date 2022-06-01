@@ -52,21 +52,6 @@ public class MyTestAgent extends Agent{
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-            if (!perceptionAndMemory.getAttachedBlocksToSelf().isEmpty()){
-                say("BLOCKS ATTACHED : " + perceptionAndMemory.getAttachedBlocksToSelf());
-            }
-
-            if (perceptionAndMemory.getAttachedBlocks().size() != perceptionAndMemory.getAttachedBlocksToSelf().size()){
-                try {
-                    throw new Exception();
-                } catch (Exception e) {
-                    for (Block b: perceptionAndMemory.getAttachedBlocks()   ) {
-                        say(b.getCoordinates().toString());
-                    }
-                    say("BLOCKS NOT MATCHING : " + perceptionAndMemory.getAttachedBlocks().size() + " : " + perceptionAndMemory.getAttachedBlocksToSelf().size());
-                    //throw new RuntimeException(e);
-                }
-            }
         }
         return (eis.iilang.Action) action;
     }

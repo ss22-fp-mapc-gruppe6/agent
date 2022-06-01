@@ -454,10 +454,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         return teamSize;
     }
 
+    /*
     @Override
     public List<Point> getAttached() {
         return attached;
     }
+    */
+
 
     @Override
     public List<Block> getAttachedBlocks() {

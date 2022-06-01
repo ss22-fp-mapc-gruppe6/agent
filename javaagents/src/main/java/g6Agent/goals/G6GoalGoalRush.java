@@ -31,7 +31,7 @@ public class G6GoalGoalRush implements Goal {
         List<Task> possibleTasks = new ArrayList<>();
         for (Task task : perceptionAndMemory.getTasks()) {
             for (Block b : task.getRequirements()) {
-                for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
+                for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
                     if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
                         possibleTasks.add(task);
                         break;
@@ -91,12 +91,12 @@ public class G6GoalGoalRush implements Goal {
             G6Action actionToMoveIn = moveToCenterOfGoalZone(direction);
             if (actionToMoveIn != null) return actionToMoveIn;
         }
-        for (Block attached : perceptionAndMemory.getAttachedBlocks()) {
+        for (Block attached : perceptionAndMemory.getAttachedBlocksToSelf()) {
             if (requirement.getBlocktype().equals(attached.getBlocktype()) &&
                     requirement.getCoordinates().equals(attached.getCoordinates())) {
                 return new Submit(task);
             } else {
-                for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
+                for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
                     for (Point obstacle : perceptionAndMemory.getObstacles()) {
                         if (obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.CLOCKWISE))
                                 || obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE))) {
@@ -170,7 +170,7 @@ public class G6GoalGoalRush implements Goal {
     }
 
     private G6Action moveTo(Direction direction) {
-        for (Block attachedBlock : perceptionAndMemory.getAttachedBlocks()) {
+        for (Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()) {
             if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
                 for (Point obstacle : perceptionAndMemory.getObstacles()) {
                     if (obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate())
@@ -217,7 +217,7 @@ public class G6GoalGoalRush implements Goal {
     @Override
     public boolean isSucceding() {
         //Has no Blocks Attached
-        if (perceptionAndMemory.getAttachedBlocks().isEmpty()) {
+        if (perceptionAndMemory.getAttachedBlocksToSelf().isEmpty()) {
             return false;
         }
         //Has no chosen Task
@@ -241,7 +241,7 @@ public class G6GoalGoalRush implements Goal {
         }
         //Has Blocks matching Task
         for (Block b : task.getRequirements()) {
-            for (Block blockAttached : perceptionAndMemory.getAttachedBlocks()) {
+            for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
                 if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
                     return true;
                 }

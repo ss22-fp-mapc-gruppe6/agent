@@ -130,7 +130,7 @@ public interface PerceptionAndMemory {
      *
      * @return positions at which something is attached to the Agent
      */
-    List<Point> getAttached();
+    //List<Point> getAttached();
 
     /**
      *  Returns he blocks attached to all Agents in sight. including himself.

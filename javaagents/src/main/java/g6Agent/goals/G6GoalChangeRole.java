@@ -45,7 +45,7 @@ public class G6GoalChangeRole implements Goal{
     }
 
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocks()){
+        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 return new Rotate(Rotation.CLOCKWISE);
             }

@@ -41,7 +41,7 @@ public class G6GoalExplore implements Goal {
         return action;
     }
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocks()){
+        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 for (Point obstacle : perceptionAndMemory.getObstacles()){
                     if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){

@@ -50,7 +50,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
             }
             if (canDoSubmit) {
                 //if has blocks attached -> Go for Goal
-                if (perceptionAndMemory.getAttached().size() > 0) {
+                if (perceptionAndMemory.getAttachedBlocksToSelf().size() > 0) {
                     boolean hasBlockMatchingTask = checkIfBlockMatchingTask();
                     if (hasBlockMatchingTask) {
                         currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
@@ -91,7 +91,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
 
     private boolean checkIfBlockMatchingTask() {
         boolean hasBlockMatchingTask = false;
-        for (Block attchedBlock : perceptionAndMemory.getAttachedBlocks()){
+        for (Block attchedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
             for (Task t : perceptionAndMemory.getTasks()){
                 for (Block requirement : t.getRequirements()){
                     if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())){
