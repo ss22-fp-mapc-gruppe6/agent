@@ -41,6 +41,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     private final List<LastActionListener> lastActionListeners;
     private AgentVisionReporter visionReporter;
+    private List<Block> attachedBlocks;
 
 
     private record AgentEntry(String team, Point coordinate) {}
@@ -370,6 +371,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         norms = new ArrayList<>();
         markers = new ArrayList<>();
         attached = new ArrayList<>();
+        attachedBlocks = null;
     }
 
     @Override
@@ -459,6 +461,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     @Override
     public List<Block> getAttachedBlocks() {
+        if (this.attachedBlocks != null) return this.attachedBlocks;
         List<Block> blocksAttached = new ArrayList<>(attached.size());
         if (this.attached.isEmpty()){
             return blocksAttached;
@@ -470,6 +473,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                 }
             }
         }
+        this.attachedBlocks = blocksAttached;
         return blocksAttached;
     }
 
