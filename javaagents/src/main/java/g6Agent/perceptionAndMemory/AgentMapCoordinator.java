@@ -164,46 +164,47 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     public void processVisionNotification(Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
             if (!sender.equals(agentname)) {
-                new Thread( () -> {
-                List<Block> dispensers = new ArrayList<>();
-                List<Block> blocks = new ArrayList<>();
-                List<Point> roleZones = new ArrayList<>();
-                List<Point> goalZones = new ArrayList<>();
-                List<Point> obstacles = new ArrayList<>();
-                for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
-                    if (parameter instanceof Function function) {
-                        switch (function.getName()) {
-                            case "dispenser" -> dispensers.add(new Block(
-                                    new Point(
-                                            ((Numeral) function.getParameters().get(1)).getValue().intValue(),
-                                            ((Numeral) function.getParameters().get(2)).getValue().intValue()
-                                    ),
-                                    ((Identifier) function.getParameters().get(0)).toProlog()
-                            ));
-                            case "block" -> blocks.add(new Block(
-                                    new Point(
-                                            ((Numeral) function.getParameters().get(1)).getValue().intValue(),
-                                            ((Numeral) function.getParameters().get(2)).getValue().intValue()
-                                    ),
-                                    ((Identifier) function.getParameters().get(0)).toProlog()
-                            ));
-                            case "rolezone" -> roleZones.add(new Point(
-                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                            ));
-                            case "goalzone" -> goalZones.add(new Point(
-                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                            ));
-                            case "obstacle" -> obstacles.add(new Point(
-                                    ((Numeral) function.getParameters().get(0)).getValue().intValue(),
-                                    ((Numeral) function.getParameters().get(1)).getValue().intValue()
-                            ));
+                if (internalMapOfOtherAgents.getAgentPosition(sender) != null) {
+                    List<Block> dispensers = new ArrayList<>();
+                    List<Block> blocks = new ArrayList<>();
+                    List<Point> roleZones = new ArrayList<>();
+                    List<Point> goalZones = new ArrayList<>();
+                    List<Point> obstacles = new ArrayList<>();
+                    //parse Percept and write to lists, save as vision
+                    for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
+                        if (parameter instanceof Function function) {
+                            switch (function.getName()) {
+                                case "dispenser" -> dispensers.add(new Block(
+                                        new Point(
+                                                ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                                ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                        ),
+                                        ((Identifier) function.getParameters().get(0)).toProlog()
+                                ));
+                                case "block" -> blocks.add(new Block(
+                                        new Point(
+                                                ((Numeral) function.getParameters().get(1)).getValue().intValue(),
+                                                ((Numeral) function.getParameters().get(2)).getValue().intValue()
+                                        ),
+                                        ((Identifier) function.getParameters().get(0)).toProlog()
+                                ));
+                                case "rolezone" -> roleZones.add(new Point(
+                                        ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                        ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                                ));
+                                case "goalzone" -> goalZones.add(new Point(
+                                        ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                        ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                                ));
+                                case "obstacle" -> obstacles.add(new Point(
+                                        ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                        ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                                ));
+                            }
                         }
                     }
+                    this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
                 }
-                this.visions.put(sender, new Vison(dispensers, blocks, roleZones, goalZones, obstacles));
-            }).start();
             }
         }
     }
@@ -230,12 +231,11 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
             functions.add(new Function("goalzone", new Numeral(goalZone.x), new Numeral(goalZone.y)));
         }
         //TODO obstacles disabled
-        /*
+
         for (Point obstacle : obstacles) {
             functions.add(new Function("obstacle", new Numeral(obstacle.x), new Numeral(obstacle.y)));
         }
 
-         */
         mailservice.broadcast(new Percept("MY_VISION", functions), agentname);
     }
 
@@ -248,9 +248,8 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
         HashSet<Point> uniqueObstacles = new HashSet<>();
         for (AgentNameAndPosition agent : internalMapOfOtherAgents.knownAgents()) {
             if(agent.position() != null) {
-                Vison vison = visions.get(agentname);
+                Vison vison = visions.get(agent.name());
                 if (vison != null) {
-
                     for (Block dispenser : vison.dispensers()) {
                         Block dispenserWithNewPosition =
                                 new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
@@ -278,7 +277,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                         }
                     }
                     //TODO Obstacles disabled
-                /*
+
                 for (Point obstacle : vison.obstacles()) {
                     Point obstacleWithNewPosition = obstacle.add(agent.position());
                     if (isOutOfSight(obstacleWithNewPosition)) {
@@ -286,14 +285,10 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
                     }
                 }
 
-                 */
+
                 }
             }
         }
-        System.out.println("DISPENSERS TO ADD : " + uniqueDispensers.size());
-        System.out.println("BLOCKS     TO ADD : " + uniqueBlocks.size());
-        System.out.println("GOALZONES  TO ADD : " + uniqueGoalZones.size());
-        System.out.println("ROLEZONES  TO ADD : " + uniqueRoleZones.size());
         for (Block dispenser : uniqueDispensers) {
             try {
                 addDispenserToPerception(dispenser);
@@ -399,14 +394,6 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
 
     @Override
     public void handleStep() {
-        System.out.println("ACCEPT MESSAGES    :" + this.acceptMessagesThisStep.size());
-        for (var message : acceptMessagesThisStep){
-            System.out.println(message);
-        }
-        System.out.println("REQUESTS TO ANSWER :" + this.requestsToAnswer.size());
-        for (var message : requestsToAnswer){
-            System.out.println(message);
-        }
         internalMapOfOtherAgents.incrementAllCounters();
         handleUnanseweredRequests();
         this.requestsToAnswer = new ArrayList<>();
