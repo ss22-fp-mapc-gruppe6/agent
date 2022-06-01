@@ -1,7 +1,6 @@
 package g6Agent.perceptionAndMemory.Interfaces;
 
 import eis.iilang.Percept;
-import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
@@ -134,8 +133,11 @@ public interface PerceptionAndMemory {
     List<Point> getAttached();
 
     /**
-     *
-     * @return the blocks attached to the agent, and agents next to him;
+     *  Returns he blocks attached to all Agents in sight. including himself.
+     *  If you only want the Blocks attached to this Agent,
+     *  use:
+     *  getAttachedBlocksToSelf()
+     * @return the blocks attached to all Agents in sight. including himself;
      */
     List<Block> getAttachedBlocks();
 
@@ -143,7 +145,7 @@ public interface PerceptionAndMemory {
      *
      * @return the blocks attached to this agent.
      */
-    List<Block> getBlocksAttachedToSelf();
+    List<Block> getAttachedBlocksToSelf();
     /**
      *
      * @return the norms

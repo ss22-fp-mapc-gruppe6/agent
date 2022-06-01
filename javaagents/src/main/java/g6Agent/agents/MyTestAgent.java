@@ -8,14 +8,9 @@ import g6Agent.decissionModule.DecisionModule;
 import g6Agent.decissionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.MailService;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
-import g6Agent.services.Direction;
-import g6Agent.services.Point;
-import g6Agent.services.Rotation;
 
 
 public class MyTestAgent extends Agent{
@@ -57,15 +52,20 @@ public class MyTestAgent extends Agent{
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
+            if (!perceptionAndMemory.getAttachedBlocksToSelf().isEmpty()){
+                say("BLOCKS ATTACHED : " + perceptionAndMemory.getAttachedBlocksToSelf());
+            }
 
-            say("DISPENSERS " + perceptionAndMemory.getDispensers().size());
-            say("BLOCKS     " + perceptionAndMemory.getBlocks().size());
-            say("ROLEZONES  " + perceptionAndMemory.getRoleZones().size());
-            say("GOALZONES  " + perceptionAndMemory.getGoalZones().size());
-            say("OBSTACLES  " + perceptionAndMemory.getObstacles().size());
-            say("KNOWN AGENTS :  " + perceptionAndMemory.getKnownAgents().size());
-            for (var agent : perceptionAndMemory.getKnownAgents()){
-                System.out.println(agent);
+            if (perceptionAndMemory.getAttachedBlocks().size() != perceptionAndMemory.getAttachedBlocksToSelf().size()){
+                try {
+                    throw new Exception();
+                } catch (Exception e) {
+                    for (Block b: perceptionAndMemory.getAttachedBlocks()   ) {
+                        say(b.getCoordinates().toString());
+                    }
+                    say("BLOCKS NOT MATCHING : " + perceptionAndMemory.getAttachedBlocks().size() + " : " + perceptionAndMemory.getAttachedBlocksToSelf().size());
+                    //throw new RuntimeException(e);
+                }
             }
         }
         return (eis.iilang.Action) action;

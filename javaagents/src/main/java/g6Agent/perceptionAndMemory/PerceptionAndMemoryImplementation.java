@@ -478,7 +478,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
-    public List<Block> getBlocksAttachedToSelf() {
+    public List<Block> getAttachedBlocksToSelf() {
         return getAttachedBlocks().stream().filter(block -> block.getCoordinates().isAdjacent()).collect(Collectors.toList());
     }
 
