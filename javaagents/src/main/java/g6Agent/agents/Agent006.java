@@ -10,6 +10,9 @@ import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 
+import java.util.Collection;
+import java.util.List;
+
 
 /**
  * The 2. best Agent
@@ -33,22 +36,29 @@ public class Agent006 extends Agent{
 
     @Override
     public void handlePercept(Percept percept) {
+        System.out.println("Agent006.handlePercept");
+        System.out.println("percept = " + percept);
 
     }
 
     @Override
     public Action step() {
-        G6Action action = null;
-        perceptionAndMemory.handlePercepts(getPercepts());
-        if (perceptionAndMemory.isReadyForAction()){
-            Goal currentGoal = decisionModule.revalidateGoal();
-            action = currentGoal.getNextAction();
-        }
-        return (eis.iilang.Action) action;
+        final var percepts = getPercepts();
+        return step(percepts);
     }
 
     @Override
     public void handleMessage(Percept message, String sender) {
 
+    }
+
+    public Action step(List<Percept> percepts){
+        G6Action action = null;
+        perceptionAndMemory.handlePercepts(percepts);
+//        if (perceptionAndMemory.isReadyForAction()){
+            Goal currentGoal = decisionModule.revalidateGoal();
+            action = currentGoal.getNextAction();
+//        }
+        return (eis.iilang.Action) action;
     }
 }
