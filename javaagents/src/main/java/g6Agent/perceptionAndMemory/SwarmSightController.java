@@ -15,7 +15,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgentMapCoordinatorInterface, AgentVisionReporter {
+/**
+ * Controller for determining the relative Positions of other Agents and Communicating their Vision
+ */
+class SwarmSightController implements LastActionListener, CommunicationModuleSwarmSightControllerInterface, AgentVisionReporter {
 
     private final MailService mailservice;
     private final PerceptionAndMemory perceptionAndMemory;
@@ -23,7 +26,7 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private final PerceptionAndMemoryInput perceptionAndMemoryInput;
     private final HashMap<String, StepAndMovement> attemptedMovements;
 
-    private final InternalMapOfOtherAgents internalMapOfOtherAgents;
+    private final SwarmSightModel internalMapOfOtherAgents;
     private final String agentname;
 
     int messageCounter;
@@ -31,11 +34,11 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private List<IntroductionRequest> acceptMessagesThisStep;
     private final HashMap<String, Vison> visions;
 
-    AgentMapCoordinator(MailService mailservice, PerceptionAndMemory perceptionAndMemory, PerceptionAndMemoryInput perceptionAndMemoryInput, String agentname) {
+    SwarmSightController(MailService mailservice, PerceptionAndMemory perceptionAndMemory, PerceptionAndMemoryInput perceptionAndMemoryInput, String agentname) {
         this.mailservice = mailservice;
         this.perceptionAndMemory = perceptionAndMemory;
         this.perceptionAndMemoryInput = perceptionAndMemoryInput;
-        this.internalMapOfOtherAgents = new InternalMapOfOtherAgents();
+        this.internalMapOfOtherAgents = new SwarmSightModel();
         this.agentname = agentname;
         this.attemptedMovements = new HashMap<>();
         this.messageCounter = 0;
@@ -152,10 +155,10 @@ class AgentMapCoordinator implements LastActionListener, CommunicationModuleAgen
     private int determineyourOwnSpeed() {
         if (perceptionAndMemory.getCurrentRole() == null) return 1;
         int speed;
-        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getAttachedBlocksToSelf().size()) {
+        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getDirectlyAttachedBlocks().size()) {
             speed = 0;
         } else {
-            speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getAttachedBlocksToSelf().size());
+            speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getDirectlyAttachedBlocks().size());
         }
         return speed;
     }

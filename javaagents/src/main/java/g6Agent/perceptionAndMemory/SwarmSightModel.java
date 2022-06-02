@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class InternalMapOfOtherAgents {
+class SwarmSightModel {
 
     private final HashMap<String, InternalMapEntry> relativePositionOfOtherAgents;
 
-    public InternalMapOfOtherAgents() {
+    public SwarmSightModel() {
         this.relativePositionOfOtherAgents = new HashMap<>();
     }
 

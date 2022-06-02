@@ -22,25 +22,30 @@ public class G6GoalRetrieveBlock implements Goal {
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
             for (Block block : perceptionAndMemory.getBlocks()){
                 if (block.getCoordinates().manhattanDistanceTo(new Point(0,0)) < closestBlock.getCoordinates().manhattanDistanceTo(new Point(0,0))){
-                    closestBlock = block;
+                    boolean isNotCloseToOtherAgent = checkIfNotCloseToOtherAgent(block);
+                    if(isNotCloseToOtherAgent) {
+                        closestBlock = block;
+                    }
                 }
             }
-            //if adjacent attach
-            if (closestBlock.getCoordinates().isAdjacent()){
-                for (Direction direction : Direction.allDirections()) {
-                    if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
-                        return new Attach(direction);
+            if(checkIfNotCloseToOtherAgent(closestBlock)) {
+                //if adjacent attach
+                if (closestBlock.getCoordinates().isAdjacent()) {
+                    for (Direction direction : Direction.allDirections()) {
+                        if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
+                            return new Attach(direction);
+                        }
                     }
-                }
-            }else {
-                //move to next block
-                Direction direction = Direction.WEST;
-                for (Direction d : Direction.allDirections()) {
-                    if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
-                        direction = d;
+                } else {
+                    //move to next block
+                    Direction direction = Direction.WEST;
+                    for (Direction d : Direction.allDirections()) {
+                        if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
+                            direction = d;
+                        }
                     }
+                    return moveTo(direction);
                 }
-                return moveTo(direction);
             }
         }
 
@@ -79,10 +84,22 @@ public class G6GoalRetrieveBlock implements Goal {
             }
         }
 
-        return null;
+        return new Skip();
     }
+
+    private boolean checkIfNotCloseToOtherAgent(Block block) {
+        for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
+            if(agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0,0))){
+                return false;
+            }
+        }
+        return true;
+    }
+
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
+
+        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
+
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 for (Point obstacle : perceptionAndMemory.getObstacles()){
                     if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){
@@ -92,6 +109,8 @@ public class G6GoalRetrieveBlock implements Goal {
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
+
+
         for(Point obstacle : perceptionAndMemory.getObstacles()){
             if(direction.getNextCoordinate().equals(obstacle)){
                 return new Clear(obstacle);
@@ -109,7 +128,7 @@ public class G6GoalRetrieveBlock implements Goal {
 
     @Override
     public boolean isFullfilled() {
-        return !perceptionAndMemory.getAttachedBlocksToSelf().isEmpty();
+        return !perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty();
     }
 
     @Override

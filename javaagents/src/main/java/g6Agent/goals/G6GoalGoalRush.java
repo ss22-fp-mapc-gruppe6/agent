@@ -29,9 +29,9 @@ public class G6GoalGoalRush implements Goal {
 
     private void chooseTask() {
         List<Task> possibleTasks = new ArrayList<>();
-        for (Task task : perceptionAndMemory.getTasks()) {
+        for (Task task : perceptionAndMemory.getActiveTasks()) {
             for (Block b : task.getRequirements()) {
-                for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
+                for (Block blockAttached : perceptionAndMemory.getDirectlyAttachedBlocks()) {
                     if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
                         possibleTasks.add(task);
                         break;
@@ -57,7 +57,7 @@ public class G6GoalGoalRush implements Goal {
             if (task == null) chooseTask();
             if (task == null) return moveToGoalZone();
             boolean isTaskStillActive = false;
-            for (Task t : perceptionAndMemory.getTasks()) {
+            for (Task t : perceptionAndMemory.getActiveTasks()) {
                 if (t.getName().equals(task.getName())) {
                     isTaskStillActive = true;
                     break;
@@ -91,12 +91,12 @@ public class G6GoalGoalRush implements Goal {
             G6Action actionToMoveIn = moveToCenterOfGoalZone(direction);
             if (actionToMoveIn != null) return actionToMoveIn;
         }
-        for (Block attached : perceptionAndMemory.getAttachedBlocksToSelf()) {
+        for (Block attached : perceptionAndMemory.getDirectlyAttachedBlocks()) {
             if (requirement.getBlocktype().equals(attached.getBlocktype()) &&
                     requirement.getCoordinates().equals(attached.getCoordinates())) {
                 return new Submit(task);
             } else {
-                for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
+                for (Block blockAttached : perceptionAndMemory.getDirectlyAttachedBlocks()) {
                     for (Point obstacle : perceptionAndMemory.getObstacles()) {
                         if (obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.CLOCKWISE))
                                 || obstacle.equals(blockAttached.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE))) {
@@ -147,7 +147,19 @@ public class G6GoalGoalRush implements Goal {
         }
 
         Direction direction = Direction.WEST;
-        for (Direction d : Direction.allDirections()) {
+
+        List<Direction> directionsUnblockedByFriendlyAgents =new ArrayList<>(4);
+        for (Direction d : Direction.allDirections()){
+            boolean isUnblocked = true;
+            for (Point agentposition : perceptionAndMemory.getFriendlyAgents()){
+                if (agentposition.equals(d.getNextCoordinate())){
+                    isUnblocked = false;
+                    break;
+                }
+            }
+            if (isUnblocked) directionsUnblockedByFriendlyAgents.add(d);
+        }
+        for (Direction d : directionsUnblockedByFriendlyAgents) {
             if (d.getNextCoordinate().manhattanDistanceTo(closestGoalZone) < direction.getNextCoordinate().manhattanDistanceTo(closestGoalZone)) {
                 boolean isBlocked = checkIfBlockedByFriendlyAgents(d);
                 if (!isBlocked) {
@@ -170,7 +182,7 @@ public class G6GoalGoalRush implements Goal {
     }
 
     private G6Action moveTo(Direction direction) {
-        for (Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()) {
+        for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
             if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
                 for (Point obstacle : perceptionAndMemory.getObstacles()) {
                     if (obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate())
@@ -200,12 +212,13 @@ public class G6GoalGoalRush implements Goal {
      * @return the Movement Direction
      */
     private G6Action fibbonacciWalk() {
+        if (perceptionAndMemory.getLastAction()!= null
+                && perceptionAndMemory.getLastAction().getName().equals("move")
+                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")){
+            skipToNextDirection();
+        }
         if (fibbbonacciwalkCounter == fibonnaciWalkCurrent) {
-            int temp = fibonnaciWalkCurrent;
-            fibonnaciWalkCurrent = fibonnaciWalkCurrent + fibbonacciWalkFormer;
-            fibbonacciWalkFormer = temp;
-            fibonacciWalkDirection = fibonacciWalkDirection.rotate(Rotation.CLOCKWISE);
-            fibbbonacciwalkCounter = 0;
+            skipToNextDirection();
         }
         G6Action action = moveTo(fibonacciWalkDirection);
         if (action instanceof Move) {
@@ -214,10 +227,18 @@ public class G6GoalGoalRush implements Goal {
         return action;
     }
 
+    private void skipToNextDirection() {
+        int temp = fibonnaciWalkCurrent;
+        fibonnaciWalkCurrent = fibonnaciWalkCurrent + fibbonacciWalkFormer;
+        fibbonacciWalkFormer = temp;
+        fibonacciWalkDirection = fibonacciWalkDirection.rotate(Rotation.CLOCKWISE);
+        fibbbonacciwalkCounter = 0;
+    }
+
     @Override
     public boolean isSucceding() {
         //Has no Blocks Attached
-        if (perceptionAndMemory.getAttachedBlocksToSelf().isEmpty()) {
+        if (perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty()) {
             return false;
         }
         //Has no chosen Task
@@ -226,7 +247,7 @@ public class G6GoalGoalRush implements Goal {
         }
         //Chosen Task is still active
         boolean taskStillActive = false;
-        for (Task t : perceptionAndMemory.getTasks()) {
+        for (Task t : perceptionAndMemory.getActiveTasks()) {
             if (t.getName().equals(task.getName())) {
                 taskStillActive = true;
                 break;
@@ -241,7 +262,7 @@ public class G6GoalGoalRush implements Goal {
         }
         //Has Blocks matching Task
         for (Block b : task.getRequirements()) {
-            for (Block blockAttached : perceptionAndMemory.getAttachedBlocksToSelf()) {
+            for (Block blockAttached : perceptionAndMemory.getDirectlyAttachedBlocks()) {
                 if (blockAttached.getBlocktype().equals(b.getBlocktype())) {
                     return true;
                 }

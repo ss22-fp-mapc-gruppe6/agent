@@ -4,7 +4,6 @@ import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-import g6Agent.services.Point;
 
 public class TheStupidestDecisionModule implements DecisionModule{
 
@@ -39,7 +38,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
         if(perceptionAndMemory.getCurrentRole() != null) {
             //if rolezone in sight -> become a worker
             if ((!perceptionAndMemory.getCurrentRole().getName().equals("worker")) && perceptionAndMemory.getRoleZones().size() > 0) {
-                currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
+               currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
                 return currentGoal;
             }
             boolean canDoAttach = false;
@@ -50,7 +49,7 @@ public class TheStupidestDecisionModule implements DecisionModule{
             }
             if (canDoSubmit) {
                 //if has blocks attached -> Go for Goal
-                if (perceptionAndMemory.getAttachedBlocksToSelf().size() > 0) {
+                if (perceptionAndMemory.getDirectlyAttachedBlocks().size() > 0) {
                     boolean hasBlockMatchingTask = checkIfBlockMatchingTask();
                     if (hasBlockMatchingTask) {
                         currentGoal = (currentGoal.getName().equals("G6GoalGoalRush") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalGoalRush(perceptionAndMemory);
@@ -91,8 +90,8 @@ public class TheStupidestDecisionModule implements DecisionModule{
 
     private boolean checkIfBlockMatchingTask() {
         boolean hasBlockMatchingTask = false;
-        for (Block attchedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
-            for (Task t : perceptionAndMemory.getTasks()){
+        for (Block attchedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
+            for (Task t : perceptionAndMemory.getActiveTasks()){
                 for (Block requirement : t.getRequirements()){
                     if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())){
                         hasBlockMatchingTask = true;

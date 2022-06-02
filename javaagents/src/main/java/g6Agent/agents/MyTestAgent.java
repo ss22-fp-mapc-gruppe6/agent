@@ -53,6 +53,10 @@ public class MyTestAgent extends Agent{
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
         }
+        say( "  " + perceptionAndMemory.getDirectlyAttachedBlocks().size());
+        for (var a : perceptionAndMemory.getDirectlyAttachedBlocks()){
+            System.out.println(a.getBlocktype() + " " +a.getCoordinates());
+        }
         return (eis.iilang.Action) action;
     }
 

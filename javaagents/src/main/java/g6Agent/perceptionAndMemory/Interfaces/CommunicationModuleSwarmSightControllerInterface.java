@@ -3,7 +3,7 @@ package g6Agent.perceptionAndMemory.Interfaces;
 import eis.iilang.Action;
 import eis.iilang.Percept;
 
-public interface CommunicationModuleAgentMapCoordinatorInterface {
+public interface CommunicationModuleSwarmSightControllerInterface {
     /**
      * Processes a message that notifies of the succsessfull movement of another Agent
      * @param message the message

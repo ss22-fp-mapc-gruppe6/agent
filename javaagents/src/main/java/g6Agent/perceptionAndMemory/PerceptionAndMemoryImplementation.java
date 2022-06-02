@@ -43,6 +43,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private AgentVisionReporter visionReporter;
     private List<Block> attachedBlocks;
 
+    private final AttachedBlocksModule attachedBlocksController;
+
 
     private record AgentEntry(String team, Point coordinate) {}
 
@@ -68,7 +70,10 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         this.lastAction = new LastActionMemory();
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
-        this.lastActionListeners = new ArrayList<>(1);
+        this.lastActionListeners = new ArrayList<>(2);
+
+        this.attachedBlocksController = new AttachedBlocksModule(this);
+        addLastActionListener(attachedBlocksController);
     }
 
     void setVisionReporter(AgentVisionReporter reporter){
@@ -145,6 +150,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                 visionReporter.handleStep();
             }
             notifyListenersOfLastAction();
+            attachedBlocksController.checkClearConditions();
             if (visionReporter != null){
                 visionReporter.reportMyVision(dispensers, blocks, roleZones, goalZones, obstacles);
                 visionReporter.updateMyVisionWithSightingsOfOtherAgents();
@@ -397,9 +403,14 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
-    public List<Task> getTasks() {
+    public List<Task> getActiveTasks() {
 
         return tasks.stream().filter(t -> t.getEnd() >= currentStep).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Task> getAllTasks() {
+        return tasks;
     }
 
     @Override
@@ -481,8 +492,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
-    public List<Block> getAttachedBlocksToSelf() {
-        return getAttachedBlocks().stream().filter(block -> block.getCoordinates().isAdjacent()).collect(Collectors.toList());
+    public List<Block> getDirectlyAttachedBlocks() {
+        //return getAttachedBlocks().stream().filter(block -> block.getCoordinates().isAdjacent()).collect(Collectors.toList());
+        return attachedBlocksController.getAttachedBlocks();
     }
 
     @Override

@@ -10,6 +10,7 @@ import g6Agent.services.Rotation;
 public class G6GoalChangeRole implements Goal{
     String roleName;
     PerceptionAndMemory perceptionAndMemory;
+    Point roleZoneMovedToLast;
 
     public G6GoalChangeRole(String roleName, PerceptionAndMemory perceptionAndMemory) {
         this.roleName = roleName;
@@ -29,15 +30,23 @@ public class G6GoalChangeRole implements Goal{
 
     private G6Action moveToRoleZone() {
         Point closestRoleZone = perceptionAndMemory.getRoleZones().get(0);
-        for (Point goalZone : perceptionAndMemory.getRoleZones()){
-            if(goalZone.manhattanDistanceTo(new Point(0,0)) < closestRoleZone.manhattanDistanceTo(new Point(0,0))){
-                closestRoleZone = goalZone;
+        for (Point rolelZone : perceptionAndMemory.getRoleZones()){
+            if(rolelZone.manhattanDistanceTo(new Point(0,0)) < closestRoleZone.manhattanDistanceTo(new Point(0,0))){
+                if (roleZoneMovedToLast == null) {
+                    closestRoleZone = rolelZone;
+                } else {
+                    if (rolelZone.manhattanDistanceTo(closestRoleZone) < closestRoleZone.manhattanDistanceTo(roleZoneMovedToLast)){
+                        closestRoleZone = rolelZone;
+                    }
+                }
             }
         }
+        roleZoneMovedToLast = closestRoleZone;
 
         Direction direction = Direction.WEST;
         for (Direction d : Direction.allDirections()){
             if (d.getNextCoordinate().manhattanDistanceTo(closestRoleZone) < direction.getNextCoordinate().manhattanDistanceTo(closestRoleZone)){
+
                 direction = d;
             }
         }
@@ -45,7 +54,7 @@ public class G6GoalChangeRole implements Goal{
     }
 
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocksToSelf()){
+        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 return new Rotate(Rotation.CLOCKWISE);
             }

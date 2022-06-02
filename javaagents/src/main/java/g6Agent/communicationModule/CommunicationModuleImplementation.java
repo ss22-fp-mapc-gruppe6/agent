@@ -2,13 +2,13 @@ package g6Agent.communicationModule;
 
 import eis.iilang.Action;
 import eis.iilang.Percept;
-import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleAgentMapCoordinatorInterface;
+import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommunicationModuleImplementation implements CommunicationModule{
-    List<CommunicationModuleAgentMapCoordinatorInterface> agentMapCordinators;
+    List<CommunicationModuleSwarmSightControllerInterface> agentMapCordinators;
 
     public CommunicationModuleImplementation() {
         this.agentMapCordinators = new ArrayList<>();
@@ -18,27 +18,27 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     public void handleMessage(Percept message, String sender) {
         switch (message.getName()){
             case "MOVEMENT_NOTIFICATION"  -> {
-                for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
             case "MOVEMENT_ATTEMPT"  -> {
-                for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                     agentMapCoordinator.processMovementAttempt(message, sender);
                 }
             }
             case "INTRODUCTION_REQUEST" -> {
-                for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                     agentMapCoordinator.processIntroductionRequest(message, sender);
                 }
             }
             case "INTRODUCTION_ACCEPT" -> {
-                for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                     agentMapCoordinator.processIntroductionAccept(message, sender);
                 }
             }
             case "MY_VISION" -> {
-                for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
@@ -46,14 +46,14 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     }
 
     @Override
-    public void addAgentMapCoordinator(CommunicationModuleAgentMapCoordinatorInterface agentmapcoordinator) {
+    public void addAgentMapCoordinator(CommunicationModuleSwarmSightControllerInterface agentmapcoordinator) {
         agentMapCordinators.add(agentmapcoordinator);
     }
 
     @Override
     public void broadcastActionAttempt(Action action) {
         if (action != null && action.getName().equals("move")) {
-            for (CommunicationModuleAgentMapCoordinatorInterface agentMapCoordinator : agentMapCordinators) {
+            for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
                 agentMapCoordinator.broadcastActionAttempt(action);
             }
         }
