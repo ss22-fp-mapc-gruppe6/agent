@@ -7,7 +7,6 @@ import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decissionModule.DecisionModule;
 import g6Agent.decissionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
-import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.MailService;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
@@ -26,7 +25,7 @@ public class MyTestAgent extends Agent{
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation();
-        this.communicationModule.addAgentMapCoordinator(linker.getAgentMapCoordinator());
+        this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
         this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
     }
 
@@ -52,10 +51,6 @@ public class MyTestAgent extends Agent{
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-        }
-        say( "  " + perceptionAndMemory.getDirectlyAttachedBlocks().size());
-        for (var a : perceptionAndMemory.getDirectlyAttachedBlocks()){
-            System.out.println(a.getBlocktype() + " " +a.getCoordinates());
         }
         return (eis.iilang.Action) action;
     }

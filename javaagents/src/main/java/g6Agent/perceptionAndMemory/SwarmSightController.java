@@ -67,12 +67,11 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     public void broadcastActionAttempt(Action action) {
         if (action.getName().equals("move")) {
             mailservice.broadcast(new Percept("MOVEMENT_ATTEMPT",
-                    new Numeral(messageCounter),                          //Lambert Clock
+                    new Numeral(messageCounter),                        //Clock
                     new Numeral(perceptionAndMemory.getCurrentStep()), // Step
                     action.getParameters().get(0),                     // Direction
-                    new Numeral(determineyourOwnSpeed())
-
-            ), agentname);// Speed
+                    new Numeral(determineyourOwnSpeed())                // Speed
+            ), agentname);
         }
     }
 
@@ -213,7 +212,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
     record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
-                        List<Point> obstacles) {
+                 List<Point> obstacles) {
     }
 
     @Override
@@ -233,12 +232,9 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         for (Point goalZone : goalZones) {
             functions.add(new Function("goalzone", new Numeral(goalZone.x), new Numeral(goalZone.y)));
         }
-        //TODO obstacles disabled
-
         for (Point obstacle : obstacles) {
             functions.add(new Function("obstacle", new Numeral(obstacle.x), new Numeral(obstacle.y)));
         }
-
         mailservice.broadcast(new Percept("MY_VISION", functions), agentname);
     }
 
@@ -250,48 +246,17 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         HashSet<Point> uniqueRoleZones = new HashSet<>();
         HashSet<Point> uniqueObstacles = new HashSet<>();
         for (AgentNameAndPosition agent : internalMapOfOtherAgents.knownAgents()) {
-            if(agent.position() != null) {
+            if (agent.position() != null) {
                 Vison vison = visions.get(agent.name());
                 if (vison != null) {
-                    for (Block dispenser : vison.dispensers()) {
-                        Block dispenserWithNewPosition =
-                                new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
-                        if (isOutOfSight(dispenserWithNewPosition)) {
-                            uniqueDispensers.add(dispenserWithNewPosition);
-                        }
-                    }
-                    for (Block block : vison.blocks()) {
-                        Block blockWithNewPosition =
-                                new Block(block.getCoordinates().add(agent.position()), block.getBlocktype());
-                        if (isOutOfSight(blockWithNewPosition)) {
-                            uniqueBlocks.add(blockWithNewPosition);
-                        }
-                    }
-                    for (Point goalZone : vison.goalZones()) {
-                        Point goalZoneWithNewPosition = goalZone.add(agent.position());
-                        if (isOutOfSight(goalZoneWithNewPosition)) {
-                            uniqueGoalZones.add(goalZoneWithNewPosition);
-                        }
-                    }
-                    for (Point roleZone : vison.roleZones()) {
-                        Point roleZoneWithNewPosition = roleZone.add(agent.position());
-                        if (isOutOfSight(roleZoneWithNewPosition)) {
-                            uniqueRoleZones.add(roleZoneWithNewPosition);
-                        }
-                    }
-                    //TODO Obstacles disabled
-
-                for (Point obstacle : vison.obstacles()) {
-                    Point obstacleWithNewPosition = obstacle.add(agent.position());
-                    if (isOutOfSight(obstacleWithNewPosition)) {
-                        uniqueObstacles.add(obstacleWithNewPosition);
-                    }
-                }
-
-
+                    addVisionToHashSets(uniqueDispensers, uniqueBlocks, uniqueGoalZones, uniqueRoleZones, uniqueObstacles, agent, vison);
                 }
             }
         }
+        flushHashSetsToPerceptionAndMemory(uniqueDispensers, uniqueBlocks, uniqueGoalZones, uniqueRoleZones, uniqueObstacles);
+    }
+
+    private void flushHashSetsToPerceptionAndMemory(HashSet<Block> uniqueDispensers, HashSet<Block> uniqueBlocks, HashSet<Point> uniqueGoalZones, HashSet<Point> uniqueRoleZones, HashSet<Point> uniqueObstacles) {
         for (Block dispenser : uniqueDispensers) {
             try {
                 addDispenserToPerception(dispenser);
@@ -332,7 +297,46 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
                 e.printStackTrace();
             }
         }
+    }
 
+    private void addVisionToHashSets(HashSet<Block> uniqueDispensers, HashSet<Block> uniqueBlocks, HashSet<Point> uniqueGoalZones, HashSet<Point> uniqueRoleZones, HashSet<Point> uniqueObstacles, AgentNameAndPosition agent, Vison vison) {
+        //add dispensers to uniqueDispensers
+        for (Block dispenser : vison.dispensers()) {
+            Block dispenserWithNewPosition =
+                    new Block(dispenser.getCoordinates().add(agent.position()), dispenser.getBlocktype());
+            if (isOutOfSight(dispenserWithNewPosition)) {
+                uniqueDispensers.add(dispenserWithNewPosition);
+            }
+        }
+        //add blocks to uniqueBlocks
+        for (Block block : vison.blocks()) {
+            Block blockWithNewPosition =
+                    new Block(block.getCoordinates().add(agent.position()), block.getBlocktype());
+            if (isOutOfSight(blockWithNewPosition)) {
+                uniqueBlocks.add(blockWithNewPosition);
+            }
+        }
+        //add goalzones to uniqueGoalzones
+        for (Point goalZone : vison.goalZones()) {
+            Point goalZoneWithNewPosition = goalZone.add(agent.position());
+            if (isOutOfSight(goalZoneWithNewPosition)) {
+                uniqueGoalZones.add(goalZoneWithNewPosition);
+            }
+        }
+        //add rolezones to uniqueRoleZones
+        for (Point roleZone : vison.roleZones()) {
+            Point roleZoneWithNewPosition = roleZone.add(agent.position());
+            if (isOutOfSight(roleZoneWithNewPosition)) {
+                uniqueRoleZones.add(roleZoneWithNewPosition);
+            }
+        }
+        //add obstacles to uniqueObstacles
+        for (Point obstacle : vison.obstacles()) {
+            Point obstacleWithNewPosition = obstacle.add(agent.position());
+            if (isOutOfSight(obstacleWithNewPosition)) {
+                uniqueObstacles.add(obstacleWithNewPosition);
+            }
+        }
     }
 
     private void addRoleZoneToPerception(Point roleZone) throws Exception {
@@ -468,7 +472,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         }
         for (Point unknownAgent : unknownAgents) {
             if (!unknownAgent.equals(new Point(0, 0))) {
-                messageCounter = messageCounter +1;
+                messageCounter = messageCounter + 1;
                 IntroductionRequest request = new IntroductionRequest(messageCounter, perceptionAndMemory.getCurrentStep(), unknownAgent.invert(), agentname);
                 request.broadcast(mailservice);
             }

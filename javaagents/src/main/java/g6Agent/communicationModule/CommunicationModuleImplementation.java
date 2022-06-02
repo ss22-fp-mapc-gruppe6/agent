@@ -8,37 +8,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommunicationModuleImplementation implements CommunicationModule{
-    List<CommunicationModuleSwarmSightControllerInterface> agentMapCordinators;
+    List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
     public CommunicationModuleImplementation() {
-        this.agentMapCordinators = new ArrayList<>();
+        this.swarmSightControllers = new ArrayList<>();
     }
 
     @Override
     public void handleMessage(Percept message, String sender) {
         switch (message.getName()){
             case "MOVEMENT_NOTIFICATION"  -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
             case "MOVEMENT_ATTEMPT"  -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementAttempt(message, sender);
                 }
             }
             case "INTRODUCTION_REQUEST" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processIntroductionRequest(message, sender);
                 }
             }
             case "INTRODUCTION_ACCEPT" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processIntroductionAccept(message, sender);
                 }
             }
             case "MY_VISION" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
@@ -46,14 +46,14 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     }
 
     @Override
-    public void addAgentMapCoordinator(CommunicationModuleSwarmSightControllerInterface agentmapcoordinator) {
-        agentMapCordinators.add(agentmapcoordinator);
+    public void addSwarmSightController(CommunicationModuleSwarmSightControllerInterface swarmSightController) {
+        swarmSightControllers.add(swarmSightController);
     }
 
     @Override
     public void broadcastActionAttempt(Action action) {
         if (action != null && action.getName().equals("move")) {
-            for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : agentMapCordinators) {
+            for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
                 agentMapCoordinator.broadcastActionAttempt(action);
             }
         }

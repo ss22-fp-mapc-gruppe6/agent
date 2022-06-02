@@ -4,11 +4,14 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
+import g6Agent.communicationModule.CommunicationModule;
+import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decissionModule.DecisionModule;
 import g6Agent.decissionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
+import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 
 
 /**
@@ -17,6 +20,8 @@ import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 public class Agent006 extends Agent{
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
+
+    private final CommunicationModule communicationModule;
 
 
     /**
@@ -27,8 +32,11 @@ public class Agent006 extends Agent{
      */
     public Agent006(String name, MailService mailbox) {
         super(name, mailbox);
-        this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
-        this.decisionModule = new TheStupidestDecisionModule(perceptionAndMemory);
+        PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
+        this.perceptionAndMemory = linker.getPerceptionAndMemory();
+        this.communicationModule = new CommunicationModuleImplementation();
+        this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
+        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
     }
 
     @Override
@@ -43,12 +51,13 @@ public class Agent006 extends Agent{
         if (perceptionAndMemory.isReadyForAction()){
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
+            communicationModule.broadcastActionAttempt((Action) action);
         }
         return (eis.iilang.Action) action;
     }
 
     @Override
     public void handleMessage(Percept message, String sender) {
-
+        communicationModule.handleMessage(message, sender);
     }
 }

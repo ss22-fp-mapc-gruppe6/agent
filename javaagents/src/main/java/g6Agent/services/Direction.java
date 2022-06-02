@@ -49,10 +49,19 @@ public enum Direction {
         return direction;
     }
 
+    /**
+     *
+     * @return a list of all possible directions
+     */
     public static Direction[] allDirections(){
        return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
     }
 
+    /**
+     * returns a new direction, which is this direction, rotated in the given rotation
+     * @param rotation the rotation
+     * @return the new direction
+     */
     public Direction rotate(Rotation rotation) {
         switch (rotation){
             case CLOCKWISE -> {

@@ -10,19 +10,19 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
  */
 public class PerceptionAndMemoryLinker {
     PerceptionAndMemoryImplementation perceptionAndMemory;
-    SwarmSightController agentMapCoordinator;
+    SwarmSightController swarmSightController;
 
 
     public PerceptionAndMemoryLinker(Agent agent, MailService mailbox) {
 
         this.perceptionAndMemory = new PerceptionAndMemoryImplementation();
-        this.agentMapCoordinator = new SwarmSightController(mailbox, perceptionAndMemory, perceptionAndMemory, agent.getName());
-        perceptionAndMemory.addLastActionListener(agentMapCoordinator);
-        perceptionAndMemory.setVisionReporter(agentMapCoordinator);
+        this.swarmSightController = new SwarmSightController(mailbox, perceptionAndMemory, perceptionAndMemory, agent.getName());
+        perceptionAndMemory.addLastActionListener(swarmSightController);
+        perceptionAndMemory.setVisionReporter(swarmSightController);
     }
 
-    public CommunicationModuleSwarmSightControllerInterface getAgentMapCoordinator(){
-        return this.agentMapCoordinator;
+    public CommunicationModuleSwarmSightControllerInterface getSwarmSightController(){
+        return this.swarmSightController;
     }
     public PerceptionAndMemory getPerceptionAndMemory(){
         return this.perceptionAndMemory;
