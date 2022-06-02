@@ -6,7 +6,7 @@
       "agent-prefix":  "A",
       "entity-prefix":  "connectionA",
       "team":  "A",
-      "class": "BasicAgent"
+      "class": "Agent006"
     },
     {
       "count":  20,
@@ -14,7 +14,7 @@
       "agent-prefix":  "B",
       "entity-prefix":  "connectionB",
       "team":  "B",
-      "class": "MyTestAgent"
+      "class": "Agent006"
     }
   ]
 }

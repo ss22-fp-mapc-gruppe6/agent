@@ -2,7 +2,7 @@
   "scenario": "assemble2020",
   "host": "localhost",
   "port": 12300,
-  "scheduling": true,
+  "scheduling": false,
   "only-once": true,
   "timeout": 3000,
   "times": false,
