@@ -78,6 +78,9 @@ public class SimulationTest {
         agents.put("agentB1", new Agent006("agentB1", mailService));
         agents.put("agentB2", new Agent006("agentB2", mailService));
 
+        var startTime = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+        handleSimState(sim.getName(), startTime,sim.getStaticData(), monitor, replayWriter);
+        handleSimState(sim.getName(), startTime,sim.getSnapshot(), monitor, replayWriter);
         for (int i = 0; i < steps; i++) {
             Log.log(Log.Level.NORMAL, "Simulation at step " + i);
             //no server inputs
@@ -105,19 +108,13 @@ public class SimulationTest {
 //            Map<String, ActionMessage> actions = Map.of();
             sim.step(i, actions); // execute step with agent actions
 
-            Thread.sleep(100);
             //no handle Simstate
 //            handleSimState(sim.getName(), startTime, sim.getSnapshot());
-            var startTime = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-            handleSimState(sim.getName(), startTime,sim.getStaticData(), monitor, replayWriter);
             handleSimState(sim.getName(), startTime,sim.getSnapshot(), monitor, replayWriter);
         }
         var finalPercepts = sim.finish();
         final var result = sim.getResult();
-
-
-        System.out.println("simulation = " + sim);
-
+        System.out.println("result = " + result);
     }
 
     private void handleSimState(String simId, String startTime, JSONObject world, Monitor monitor, ReplayWriter replayWriter) {
