@@ -73,6 +73,12 @@
             <version>2.4</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>massim</groupId>
+            <artifactId>server</artifactId>
+            <version>2020-2.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
