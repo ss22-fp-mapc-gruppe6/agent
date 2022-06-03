@@ -53,7 +53,7 @@ public class SimulationTest {
         IILElement.toProlog = true;
 
         final var sampleConfigJson = IOUtil.readJSONObjectWithImport("../server/conf/SampleConfig.json");
-        final var replayPath = sampleConfigJson.getJSONObject("server").getString("replayPath");
+        final var replayPath = "./target/" + sampleConfigJson.getJSONObject("server").getString("replayPath");
         ReplayWriter replayWriter = null;
         if (replayPath != null) {
             replayWriter = new ReplayWriter(replayPath);
