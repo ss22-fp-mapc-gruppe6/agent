@@ -1,10 +1,8 @@
 package g6Agent.decisionModule;
 
-import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +14,9 @@ public class TestAStar {
     @Test
     public void test_unobstructed_directions() {
         /*  obstructions:
-            - - - - - - - - -
             - - - - b - - - -
-            b - - - x - b - -
+            - - - - - - - - -
+            b - - - x - - b -
             - - - - b - - - -
             - - - - - - - - -
             expected: n:0, e:1, s:0, w:3
@@ -26,12 +24,12 @@ public class TestAStar {
             so n:(0,0), e:(1,0), s:(0,0), w:(-3,0)
          */
         final var obstructions = List.of(
-                new Point(0, 1),
-                new Point(2, 0),
+                new Point(0, 2),
+                new Point(3, 0),
                 new Point(0, -1),
-                new Point(0, -4)
+                new Point(-4, 0)
         );
-        final var directions = AStar.getUnobstructedDirections(obstructions);
+        final var directions = AStar.getMaxUnobstructedSteps(obstructions, 3);
         assertEquals(List.of(
 
         ), directions);
@@ -101,7 +99,7 @@ public class TestAStar {
         assertEquals(List.of(), shortestPath);
     }
 
-    //    @Test
+        @Test
     public void test_points_to_directions() {
         Point target = new Point(12, 9);
         final var obstacles = List.of(
