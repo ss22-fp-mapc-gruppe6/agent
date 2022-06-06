@@ -27,12 +27,13 @@ public class G6GoalExplore implements Goal {
     }
 
     private G6Action fibbonacciWalk() {
-        if (fibbbonacciwalkCounter == fibonnaciWalkCurrent){
-            int temp = fibonnaciWalkCurrent;
-            fibonnaciWalkCurrent = fibonnaciWalkCurrent + fibbonacciWalkFormer;
-            fibbonacciWalkFormer = temp;
-            fibonacciWalkDirection = fibonacciWalkDirection.rotate(Rotation.CLOCKWISE);
-            fibbbonacciwalkCounter = 0;
+        if (perceptionAndMemory.getLastAction()!= null
+                && perceptionAndMemory.getLastAction().getName().equals("move")
+                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")){
+            skipToNextDirection();
+        }
+        if (fibbbonacciwalkCounter == fibonnaciWalkCurrent ){
+            skipToNextDirection();
         }
         G6Action action = moveTo(fibonacciWalkDirection);
         if(action instanceof Move){
@@ -40,8 +41,17 @@ public class G6GoalExplore implements Goal {
         }
         return action;
     }
+
+    private void skipToNextDirection() {
+        int temp = fibonnaciWalkCurrent;
+        fibonnaciWalkCurrent = fibonnaciWalkCurrent + fibbonacciWalkFormer;
+        fibbonacciWalkFormer = temp;
+        fibonacciWalkDirection = fibonacciWalkDirection.rotate(Rotation.CLOCKWISE);
+        fibbbonacciwalkCounter = 0;
+    }
+
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocks()){
+        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 for (Point obstacle : perceptionAndMemory.getObstacles()){
                     if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){

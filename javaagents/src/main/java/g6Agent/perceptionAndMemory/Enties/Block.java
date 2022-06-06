@@ -5,6 +5,8 @@ import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import g6Agent.services.Point;
 
+import java.util.Objects;
+
 public class Block {
     private final String blocktype;
     private final Point coordinates;
@@ -42,5 +44,11 @@ public class Block {
      */
     public Point getCoordinates() {
         return coordinates;
+    }
+
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(blocktype, coordinates.x, coordinates.y);
     }
 }

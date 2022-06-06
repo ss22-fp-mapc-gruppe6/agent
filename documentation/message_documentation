@@ -1,0 +1,16 @@
+AgentMapCoordinator:
+"MOVEMENT_NOTIFICATION" - broadcasted by an Agent to notifiy others of his succesfull movement.  Parameters: {(Numeral) lambertClock, (Numeral)step, (Identifier) direction, (Numeral) speed}
+"MOVEMENT_ATTEMPT" - broadcasted by an Agent, if he attempts to do a movement. Parameters: {(Numeral)lambertClock, (Numeral) step, (Identifier) direction, (Numeral) speed}
+"INTRODUCTION_REQUEST" - brodcastet bay an Agent to ask other Agents if they have an Agent at this position
+             {(ParameterList){
+                    (Numeral)clock, (Numeral)step, (Numeral)position.x, (Numeral)position.y}
+            }
+
+"INTRODUCTION_ACCEPT" - Positive Answer to INTRODUCTION_REQUEST
+                    {
+                    (ParameterList) {(Numeral) clock, (Numeral)step), (Numeral) position.x , (Numeral) position.y)),
+                    (Identifier)reciever,
+                    (Identifier) sender}
+                    }
+"MY_VISION" - Information on what an Agent sees (Parameterlist){(Function)}
+
