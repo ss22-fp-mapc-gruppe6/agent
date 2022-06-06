@@ -1,18 +1,15 @@
 package g6Agent.agents;
 
-import eis.iilang.*;
-import g6Agent.actions.*;
-import g6Agent.decissionModule.DecisionModule;
-import g6Agent.decissionModule.TheStupidestDecisionModule;
+import eis.iilang.Action;
+import eis.iilang.Percept;
+import g6Agent.MailService;
+import g6Agent.actions.G6Action;
+import g6Agent.decisionModule.DecisionModule;
+import g6Agent.decisionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
-import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-import g6Agent.MailService;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
-import g6Agent.services.Direction;
-import g6Agent.services.Point;
-import g6Agent.services.Rotation;
 
 
 public class MyTestAgent extends Agent{
