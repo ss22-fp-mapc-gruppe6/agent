@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TestAStar {
 
-    public static String visualize(List<Point> path) {
+    public static String visualize(List<Point> path, List<Point> obstacles) {
         Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
         Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
         if (path.isEmpty())
@@ -46,12 +46,11 @@ public class TestAStar {
                 else if (target.getX() == x && target.getY() == y)
                     field = "t";
                 else {
-                    for (int i = 1; i < path.size(); i++) {
-                        Point p = path.get(i);
-                        if (p.getX() == x && p.getY() == y) {
-                            field = String.valueOf(i);
-                            break;
-                        }
+                    final var p = new Point(x, y);
+                    if (path.contains(p))
+                        field = String.valueOf(path.indexOf(p));
+                    else if (obstacles.contains(p)) {
+                        field = "b";
                     }
                 }
                 String fieldFormat = String.format("%5s", field);
@@ -66,16 +65,16 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, target, Set.of());
+        final var shortestPath = AStar.findShortestPath(target, target, List.of());
         assertEquals(0, shortestPath.size());
-        assertEquals(List.of(target), shortestPath);
+        assertEquals(List.of(), shortestPath);
     }
 
     @Test
     public void test_9_9() {
         Point start = new Point(4, 5);
-        Point target = new Point(12, 9);
-        final var obstacles = Set.of(
+        Point target = new Point(12, 7);
+        final var obstacles = List.of(
                 new Point(8, 3),
                 new Point(8, 4),
                 new Point(8, 5),
@@ -86,38 +85,11 @@ public class TestAStar {
         );
         final var shortestPath = AStar.findShortestPath(start, target, obstacles);
         System.out.println("shortestPath = " + shortestPath);
-        final var visualize = visualize(shortestPath);
+        final var visualize = visualize(shortestPath, obstacles);
         System.out.println(visualize);
 
-        assertEquals(4, shortestPath.size());
-//        assertEquals(List.of(new Point(1, 0), new Point(1, 1)), shortestPath);
+        assertEquals(16, shortestPath.size());
     }
-
-    @Test
-    public void test_ascii() {
-        List<Point> path = List.of(
-                new Point(1, 1),
-                new Point(2, 1),
-                new Point(2, 2),
-                new Point(2, 3),
-                new Point(9, 9),
-                new Point(3, 3));
-        String expected = """
-                     0   1   2   3   4   5   6   7   8   9
-                 0  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 1  [ ] [s] [1] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 2  [ ] [ ] [2] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 3  [ ] [ ] [3] [t] [ ] [ ] [ ] [ ] [ ] [ ]
-                 4  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 5  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 6  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 7  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 8  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
-                 9  [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [4]
-                """;
-        assertEquals(expected, visualize(path));
-    }
-
 
     @Test
     public void getNeighbours() {
