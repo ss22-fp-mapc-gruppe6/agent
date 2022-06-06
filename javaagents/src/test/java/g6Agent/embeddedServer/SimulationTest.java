@@ -2,7 +2,6 @@ package g6Agent.embeddedServer;
 
 import eis.iilang.Action;
 import eis.iilang.Function;
-import eis.iilang.IILElement;
 import eis.iilang.Identifier;
 import eis.iilang.Numeral;
 import eis.iilang.ParameterList;
@@ -22,6 +21,7 @@ import massim.protocol.messages.scenario.StepPercept;
 import massim.util.IOUtil;
 import massim.util.Log;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -41,36 +41,21 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class SimulationTest {
+public class SimulationTest extends SimulationTestUtil {
 
-    private Simulation sim;
+    private Simulation sim = new Simulation();
 
     record Tuple(String name, Action action) {
     }
 
+    @Before
+    public void setUp() throws Exception {
+        System.out.println("SimulationTest.setUp");
+    }
+
     @Test
     public void name() throws IOException, ExecutionException, InterruptedException {
-        IILElement.toProlog = true;
 
-        final var sampleConfigJson = IOUtil.readJSONObjectWithImport("../server/conf/SampleConfig.json");
-        final var replayPath = "./target/" + sampleConfigJson.getJSONObject("server").getString("replayPath");
-        ReplayWriter replayWriter = null;
-        if (replayPath != null) {
-            replayWriter = new ReplayWriter(replayPath);
-        }
-        final var sim1Json = IOUtil.readJSONObjectWithImport("../server/conf/sim/sim1.json");
-
-        sim1Json.getJSONObject("entities").put("standard", 2);
-
-        var config = Server.parseServerConfig(sampleConfigJson);
-        sim = new Simulation();
-        Set<TeamConfig> matchTeams = new HashSet<>();
-        for (int index : IntStream.rangeClosed(0, config.teamsPerMatch - 1).toArray())
-            matchTeams.add(config.teams.get(index));
-        int steps = sim1Json.getInt("steps");
-        var initialPercepts = sim.init(steps, sim1Json, matchTeams);
-
-        final var monitor = new Monitor(8000);
         final var agents = new HashMap<String, Agent>();
         final var mailService = new MailService();
         agents.put("agentA1", new Agent006("agentA1", mailService));
@@ -78,9 +63,21 @@ public class SimulationTest {
         agents.put("agentB1", new Agent006("agentB1", mailService));
         agents.put("agentB2", new Agent006("agentB2", mailService));
 
+        extracted(monitor, agents);
+    }
+
+    private void extracted(Monitor monitor, HashMap<String, Agent> agents) throws IOException {
+        var config = Server.parseServerConfig(this.config);
+        Set<TeamConfig> matchTeams = new HashSet<>();
+        for (int index : IntStream.rangeClosed(0, config.teamsPerMatch - 1).toArray())
+            matchTeams.add(config.teams.get(index));
+        final var sim1Json = IOUtil.readJSONObjectWithImport("../server/conf/sim/sim1.json");
+        sim1Json.getJSONObject("entities").put("standard", 2);
+        int steps = sim1Json.getInt("steps");
+        var initialPercepts = sim.init(steps, sim1Json, matchTeams);
         var startTime = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-        handleSimState(sim.getName(), startTime,sim.getStaticData(), monitor, replayWriter);
-        handleSimState(sim.getName(), startTime,sim.getSnapshot(), monitor, replayWriter);
+        handleSimState(sim.getName(), startTime, sim.getStaticData(), monitor, replayWriter);
+        handleSimState(sim.getName(), startTime, sim.getSnapshot(), monitor, replayWriter);
         for (int i = 0; i < steps; i++) {
             Log.log(Log.Level.NORMAL, "Simulation at step " + i);
             //no server inputs
@@ -98,7 +95,6 @@ public class SimulationTest {
                              final var requestActionPercepts = new ArrayList<>(List.of(new Percept("requestAction")));
                              requestActionPercepts.addAll(requestActionToIIL((RequestActionMessage) requestFromJson));
                              final var action = agent.step(requestActionPercepts);
-
                              return new Tuple(agentId, action);
                          }
 
@@ -110,7 +106,7 @@ public class SimulationTest {
 
             //no handle Simstate
 //            handleSimState(sim.getName(), startTime, sim.getSnapshot());
-            handleSimState(sim.getName(), startTime,sim.getSnapshot(), monitor, replayWriter);
+            handleSimState(sim.getName(), startTime, sim.getSnapshot(), monitor, replayWriter);
         }
         var finalPercepts = sim.finish();
         final var result = sim.getResult();
