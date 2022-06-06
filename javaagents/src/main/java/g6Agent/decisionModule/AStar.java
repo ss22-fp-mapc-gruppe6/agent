@@ -38,8 +38,8 @@ public class AStar {
             if (currentPoint.equals(target)) {
                 return currentWrapped.tracePath();
             }
-            getUnobstructedDirections(obstacles);
-            final var neighbours = getNeighbours(currentPoint);
+            final var neighbours = getMaxUnobstructedSteps(obstacles, 2);
+//            final var neighbours = getNeighbours(currentPoint);
             for (Point neighbour : neighbours) {
                 if (obstacles.contains(neighbour)) continue;
                 if (visited.contains(neighbour)) continue;
@@ -67,7 +67,7 @@ public class AStar {
         return List.of();
     }
 
-    static ArrayList<Point> getUnobstructedDirections(List<Point> obstacles) {
+    static ArrayList<Point> getMaxUnobstructedSteps(List<Point> obstacles, int stepSize) {
         final var directionsToGo = new ArrayList<Point>(4);
         for (Direction direction : Direction.values()) {
             final Point d = direction.getNextCoordinate();
@@ -75,12 +75,14 @@ public class AStar {
             final var dx = d.x;
             final var dy = d.y;
 
-            final var temp = new Point(d.x, d.y);
-            for (int i = 0;
-                 i < 3 && !obstacles.contains(temp);
-                 i++, temp.translate(dx, dy)
-            ) {
-                directionsToGo.add(temp);
+            Point success = null;
+            int i = 0;
+            while (!obstacles.contains(d) && i++ < stepSize) {
+                success = new Point(d.x, d.y);
+                d.translate(dx, dy);
+            }
+            if (success != null) {
+                directionsToGo.add(success);
             }
         }
         return directionsToGo;
