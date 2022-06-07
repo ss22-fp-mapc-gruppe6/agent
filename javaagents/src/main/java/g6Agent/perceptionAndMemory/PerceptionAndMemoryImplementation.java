@@ -1,15 +1,19 @@
 package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
+import g6Agent.ourPercepts.*;
+import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
 import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import g6Agent.environment.GridObject;
 
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
@@ -45,7 +49,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     private final List<LastActionListener> lastActionListeners;
     private AgentVisionReporter visionReporter;
 
-    private record AgentEntry(String team, Point coordinate) {}
+    private record AgentEntry(String team, Point coordinate) {
+    }
 
     public PerceptionAndMemoryImplementation() {
         obstacles = new ArrayList<>();
@@ -73,9 +78,10 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         this.lastActionListeners = new ArrayList<>(1);
     }
 
-    void setVisionReporter(AgentVisionReporter reporter){
+    void setVisionReporter(AgentVisionReporter reporter) {
         this.visionReporter = reporter;
     }
+
     @Override
     public boolean isDeactivated() {
         return isDeactivated;
@@ -83,12 +89,19 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
-        if (!perceptInput.isEmpty()) {
+        clearShortTermMemory();
+        final ArrayList<Object> objects = new ArrayList<>();
+        for (Percept percept : perceptInput) {
+            final List<Parameter> p = percept.getParameters();
+            objects.add(OurPerceptUtil.translate(percept));
+        }
+        if (!objects.isEmpty())
+            handleOurPercepts(objects);
+        else if (!perceptInput.isEmpty()) {
             clearShortTermMemory();
             try {
                 for (Percept percept : perceptInput) {
                     if (percept.getName().equals("actionID")) {
-                        handleActionIDPercept(percept);
                     } else if (percept.getName().equals("thing")) {
                         handleThingPercept(percept);
                     } else if (percept.getName().equals("score")) {
@@ -123,10 +136,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                         this.currentStep = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
                     } else if (percept.getName().equals("teamSize")) {
                         this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
-                    } else if (percept.getName().equals("attached")){
-                        this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                                ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
-                    }else if (percept.getName().equals("simEnd")){
+                    } else if (percept.getName().equals("attached")) {
+                        this.attached.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
+                    } else if (percept.getName().equals("simEnd")) {
                         lastID = -1;
                         currentId = -1;
                         System.out.println("NEW GAME");
@@ -135,8 +147,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                     else if (!(percept.getName().equals("simStart")
                             || percept.getName().equals("requestAction")
                             || percept.getName().equals("deadline")
-                            || percept.getName().equals("timestamp"))
-                    ) {
+                            || percept.getName().equals("timestamp"))) {
                         System.out.println("UNHANDLED PERCEPT : " + percept);
                     }
                 }
@@ -144,15 +155,161 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 e.printStackTrace();
             }
             notifyListenersOfLastAction();
-            if (visionReporter != null){
+            if (visionReporter != null) {
                 visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);
                 visionReporter.updateMyVisionWithSightingsOfOtherAgents();
             }
         }
     }
 
+    private void handleOurPercepts(ArrayList<Object> objects) {
+        for (Object object : objects) {
+            switch (object) {
+                case ActionID actionID -> handleActionID(actionID);
+                case Attached attached -> handleAttached(attached);
+                case Deactivated deactivated -> handleDeactivated(deactivated);
+                case Energy energy -> handleEnergy(energy);
+                case GoalZone goalZone -> handleGoalZone(goalZone);
+                case LastAction lastAction -> handleLastAction(lastAction);
+                case LastActionParameters lap -> handleLastActionParameters(lap);
+                case LastActionResult lar -> handleLastActionResult(lar);
+                case Name name -> handleName(name);
+                case Norm norm -> handleNorm(norm);
+                case Role role -> handleRole(role);
+                case RoleZone roleZone -> handleRoleZone(roleZone);
+                case YourRole yourRole -> handleYourRole(yourRole);
+                case Score score -> handleScore(score);
+                case Step step -> handleStep(step);
+                case Steps steps -> handleSteps(steps);
+                case Task task -> handleTask(task);
+                case Team team -> handleTeam(team);
+                case TeamSize teamSize -> handleTeamSize(teamSize);
+                case g6Agent.ourPercepts.Thing thing -> handleThing(thing);
+                case Ranking ranking -> {
+                }
+                case SimStart simStart -> {
+                }
+                case Timestamp timestamp -> {
+                }
+                case Deadline deadline -> {
+                }
+                case RequestAction requestAction -> {
+                }
+                case Violation violation -> {
+
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + object);
+            }
+        }
+    }
+
+    private void handleGoalZone(GoalZone goalZone) {
+        goalZones.add(goalZone.point());
+    }
+
+    private void handleAttached(Attached attached) {
+        this.attached.add(attached.point());
+    }
+
+    private void handleRoleZone(RoleZone roleZone) {
+        roleZones.add(roleZone.point());
+    }
+
+    private void handleTeam(Team team) {
+        this.team = team.value();
+    }
+
+    private void handleNorm(Norm norm) {
+        norms.add(norm);
+    }
+
+    private void handleEnergy(Energy energy) {
+        this.energy = energy.value();
+    }
+
+    private void handleScore(Score score) {
+        this.score = score.value();
+    }
+
+    private void handleYourRole(YourRole yourRole) {
+        currentRoleName = yourRole.name();
+    }
+
+    private void handleLastAction(LastAction lastAction) {
+        this.lastAction.setName(lastAction.name());
+    }
+
+    private void handleName(Name name) {
+        this.name = name.value();
+    }
+
+    private void handleSteps(Steps steps) {
+        this.steps = steps.value();
+    }
+
+    private void handleLastActionResult(LastActionResult lar) {
+        lastAction.setSuccessfulMessage(lar.value());
+    }
+
+    private void handleTeamSize(TeamSize teamSize) {
+        this.teamSize = teamSize.size();
+    }
+
+    private void handleLastActionParameters(LastActionParameters lastActionParameters) {
+        lastAction.setLastActionParameters(lastActionParameters.value());
+    }
+
+    private void handleStep(Step step) {
+        currentStep = step.value();
+    }
+
+    private void handleRole(Role role) {
+        possibleRoles.putIfAbsent(role.getName(), role);
+    }
+
+    private void handleDeactivated(Deactivated deactivated) {
+        isDeactivated = deactivated.value();
+    }
+
+    private void handleThing(g6Agent.ourPercepts.Thing thing) {
+        final Point position = new Point(thing.x(), thing.y());
+        final Thing.Type type = thing.type();
+        listOfAllObstacles.setListOfAllObstacles(type.name(), position);
+        switch (type.name()) {
+            case "obstacle" -> obstacles.add(position);
+            case "entity" -> perceivedAgents.add(new AgentEntry(thing.details(), position));
+            case "block" -> blocks.add(new Block(position, thing.type().name()));
+            case "dispenser" -> dispensers.add(new Block(position, thing.type().name()));
+            case "marker" -> markers.add(new Marker(position, thing.details()));
+            default -> new IllegalArgumentException("unhandleed \"thing\"").printStackTrace();
+        }
+
+    }
+
+    private void handleActionID(ActionID actionID) {
+        currentId = actionID.id();
+    }
+
+    private void handleTask(Task task) {
+        tasks.add(task);
+    }
+
+    private void handle(Deadline from) {
+        new Throwable().printStackTrace();
+    }
+
+    private Object handle(YourRole yourRole) {
+        new Throwable().printStackTrace();
+        return null;
+    }
+
+    private Object handle(Role role) {
+        new Throwable().printStackTrace();
+        return null;
+    }
+
     private void notifyListenersOfLastAction() {
-        for (LastActionListener listener : lastActionListeners){
+        for (LastActionListener listener : lastActionListeners) {
             listener.reportLastAction(lastAction);
         }
     }
@@ -160,7 +317,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
-            throw new Exception("PERCEPTION MODULE: role with unforeseen parameter size : " + percept + "size :" +percept.getParameters().size() );
+            throw new Exception("PERCEPTION MODULE: role with unforeseen parameter size : " + percept + "size :" + percept.getParameters().size());
         }
         //case is the current Role of the Agent
         if (percept.getParameters().size() == 1) {
@@ -177,14 +334,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
                 for (Parameter p : (ParameterList) percept.getParameters().get(3)) {
                     movement.add(((Numeral) p).getValue().intValue());
                 }
-                Role role = new Role(
-                        ((Identifier) percept.getParameters().get(0)).toProlog(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
-                        possibleActions,
-                        movement,
-                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),
-                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()
-                );
+                Role role = new Role(((Identifier) percept.getParameters().get(0)).toProlog(), ((Numeral) percept.getParameters().get(1)).getValue().intValue(), possibleActions, movement, ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(), ((Numeral) percept.getParameters().get(5)).getValue().intValue());
                 this.possibleRoles.put(role.getName(), role);
             }
         }
@@ -194,38 +344,21 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         if (percept.getParameters().size() != 5) {
             throw new Exception("PERCEPTION MODULE: norm with unforeseen parameter size");
         }
-        List<Function> listOfParameters = new ArrayList<>();
-        for (Parameter p: (ParameterList) percept.getParameters().get(3)) {
-            listOfParameters.add((Function) p);
-        }
-
-        this.norms.add(new Norm(
-                ((Identifier) percept.getParameters().get(0)).toProlog(),
-                ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
-                ((Numeral) percept.getParameters().get(2)).getValue().intValue(),
-                listOfParameters,
-                ((Numeral) percept.getParameters().get(4)).getValue().intValue()
-                ));
+        this.norms.add(Norm.from(percept));
     }
 
     private void handleGoalZone(Percept percept) throws Exception {
         if (percept.getParameters().size() != 2) {
             throw new Exception("PERCEPTION MODULE: goalZone with unforeseen parameter size");
         }
-        this.goalZones.add(new Point(
-                ((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                ((Numeral)percept.getParameters().get(1)).getValue().intValue()
-        ));
+        this.goalZones.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
     }
 
     private void handleRoleZone(Percept percept) throws Exception {
         if (percept.getParameters().size() != 2) {
             throw new Exception("PERCEPTION MODULE: RoleZone with unforeseen parameter size");
         }
-        this.roleZones.add(new Point(
-                ((Numeral)percept.getParameters().get(0)).getValue().intValue(),
-                ((Numeral)percept.getParameters().get(1)).getValue().intValue()
-        ));
+        this.roleZones.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
     }
 
     private void handleTask(Percept percept) throws Exception {
@@ -240,15 +373,15 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
             throw new Exception("PERCEPTION MODULE: lastActionResult with unforeseen parameter size");
         }
         lastAction.setSuccessfulMessage(
-             ((Identifier) percept.getParameters().get(0)).toProlog()
-            );
+                ((Identifier) percept.getParameters().get(0)).toProlog()
+        );
     }
 
     private void handleTeam(Percept percept) throws Exception {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: team with unforeseen parameter size");
         }
-        this.team = ((Identifier)percept.getParameters().get(0)).toProlog();
+        this.team = ((Identifier) percept.getParameters().get(0)).toProlog();
     }
 
     private void handleDeactivated(Percept percept) throws Exception {
@@ -273,7 +406,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: energy with unforeseen parameter size");
         }
-        this.energy = ((Numeral)percept.getParameters().get(0)).getValue().intValue();
+        this.energy = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
 
     }
 
@@ -289,59 +422,57 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: actionID with unforeseen parameter size");
         }
-    Parameter param = percept.getParameters().get(0);
+        Parameter param = percept.getParameters().get(0);
         if (param instanceof Numeral) {
             currentId = ((Numeral) param).getValue().intValue();
         }
     }
 
+    private void handle(ActionID actionId) {
+        currentId = actionId.id();
+    }
+
     private void handleThingPercept(Percept percept) throws Exception {
 
-        String identifier = ((Identifier)percept.getParameters().get(2)).toProlog();
+        String identifier = ((Identifier) percept.getParameters().get(2)).toProlog();
         if (percept.getParameters().size() != 4) {
             throw new Exception("PERCEPTION MODULE: obstacle with unforeseen parameter size");
         }
         if ("obstacle".equals(identifier)) {
-                Point positionOfObstacle = new Point(
-                        ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue());
-                obstacles.add(positionOfObstacle);
-                listOfAllObstacles.setListOfAllObstacles(identifier, positionOfObstacle);
+            Point positionOfObstacle = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+            obstacles.add(positionOfObstacle);
+            listOfAllObstacles.setListOfAllObstacles(identifier, positionOfObstacle);
         } else if ("entity".equals(identifier)) {
-            Point positionOfAgent = new Point(
-                    ((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+            Point positionOfAgent = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue());
             String teamName = ((Identifier) percept.getParameters().get(3)).toProlog();
             perceivedAgents.add(new AgentEntry(teamName, positionOfAgent));
             listOfAllObstacles.setListOfAllObstacles(identifier, positionOfAgent);
 
         } else if ("block".equals(identifier)) {
-            Point pointerBlock = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+            Point pointerBlock = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue());
 
             this.blocks.add(new Block(pointerBlock, ((Identifier) percept.getParameters().get(3)).toProlog()));
             listOfAllObstacles.setListOfAllObstacles(identifier, pointerBlock);
 
         } else if ("dispenser".equals(identifier)) {
 
-            Point pointerDispenser = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+            Point pointerDispenser = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue());
 
-            this.dispensers.add(new Block(pointerDispenser,((Identifier) percept.getParameters().get(3)).toProlog()));
+            this.dispensers.add(new Block(pointerDispenser, ((Identifier) percept.getParameters().get(3)).toProlog()));
 
             listOfAllObstacles.setListOfAllObstacles(identifier, pointerDispenser);
 
-        } else if("marker".equals(identifier)) {
-            Point pointerMarker = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
-                    ((Numeral) percept.getParameters().get(1)).getValue().intValue());
+        } else if ("marker".equals(identifier)) {
+            Point pointerMarker = new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(), ((Numeral) percept.getParameters().get(1)).getValue().intValue());
 
-            this.markers.add(new Marker(pointerMarker,((Identifier) percept.getParameters().get(3)).toProlog()));
+            this.markers.add(new Marker(pointerMarker, ((Identifier) percept.getParameters().get(3)).toProlog()));
             listOfAllObstacles.setListOfAllObstacles(identifier, pointerMarker);
-        }else{
-                System.out.println("UNHANDLED PERCEPT : " + percept);
+        } else {
+            System.out.println("UNHANDLED PERCEPT : " + percept);
         }
 
     }
+
     private void handleScorePercept(Percept percept) throws Exception {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: score with unforeseen parameter size");
@@ -352,16 +483,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
         }
     }
 
+    private void handle(Score score) {
+        this.score = score.value();
+    }
+
     @Override
     public boolean isReadyForAction() {
         //TODO Checking for deactivation leads to failed server connections search for cause!
         //if (isDeactivated) { return false;}
-        if (!isActionIdCheckedSuccessfully){checkActionID();}
+        if (!isActionIdCheckedSuccessfully) {
+            checkActionID();
+        }
         return isActionIdCheckedSuccessfully;
     }
 
 
-    private void checkActionID(){
+    private void checkActionID() {
         if (currentId > lastID) {
             lastID = currentId;
             this.isActionIdCheckedSuccessfully = true;
@@ -388,7 +525,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public List<Point> getFriendlyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team)){
+            if (agent.team.equals(this.team)) {
                 points.add(agent.coordinate());
             }
         }
@@ -399,7 +536,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public List<Point> getEnemyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (!agent.team.equals(this.team)){
+            if (!agent.team.equals(this.team)) {
                 points.add(agent.coordinate());
             }
         }
@@ -450,7 +587,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Role> getPossibleRoles() {
         List<Role> roles = new ArrayList<>();
-        possibleRoles.forEach( (key, role) -> roles.add(role));
+        possibleRoles.forEach((key, role) -> roles.add(role));
         return roles;
     }
 
@@ -472,12 +609,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     @Override
     public List<Block> getAttachedBlocks() {
         List<Block> blocksAttached = new ArrayList<>(attached.size());
-        if (this.attached.isEmpty()){
+        if (this.attached.isEmpty()) {
             return blocksAttached;
         }
-        for(Point p : attached){
-            for(Block block : blocks){
-                if(block.getCoordinates().equals(p)){
+        for (Point p : attached) {
+            for (Block block : blocks) {
+                if (block.getCoordinates().equals(p)) {
                     blocksAttached.add(block);
                 }
             }
@@ -524,7 +661,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
     public LastActionMemory getLastAction() {
         return lastAction;
     }
-
 
 
 }

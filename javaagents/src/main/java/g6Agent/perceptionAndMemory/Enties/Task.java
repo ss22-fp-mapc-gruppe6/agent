@@ -14,6 +14,13 @@ public class Task {
     private final int end, reward;
     private final List<Block> requirements;
 
+    public Task(String name, int end, int reward, List<Block> requirements) {
+        this.name = name;
+        this.end = end;
+        this.reward = reward;
+        this.requirements = requirements;
+    }
+
     public Task(Percept p){
         name = ((Identifier)p.getParameters().get(0)).toProlog();
         end = ((Numeral) p.getParameters().get(1)).getValue().intValue();

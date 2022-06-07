@@ -1,8 +1,9 @@
 package g6Agent.perceptionAndMemory.Enties;
 
-import eis.iilang.Function;
+import eis.iilang.*;
 
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * Class to represent a Norm
@@ -54,9 +55,22 @@ public class Norm {
 
     /**
      * INTEGER VALUE NOT UNDERSTOOD TODO
-     * @return  whether the norm applies to individual agents or a team of agents
+     *
+     * @return whether the norm applies to individual agents or a team of agents
      */
     public int getLevel() {
         return level;
+    }
+
+    public static Norm from(Percept percept) {
+        return new Norm(
+                ((Identifier) percept.getParameters().get(0)).getValue(),
+                ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
+                ((Numeral) percept.getParameters().get(2)).getValue().intValue(),
+                StreamSupport.stream(((ParameterList) percept.getParameters().get(3)).spliterator(), false)
+                        .map(p -> ((Function) p))
+                        .toList(),
+                ((Numeral) percept.getParameters().get(4)).getValue().intValue()
+        );
     }
 }
