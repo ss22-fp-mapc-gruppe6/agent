@@ -96,6 +96,35 @@ public class TestAStar {
     }
 
     @Test
+    public void test_unobstructed_directions() {
+        /*  obstructions:
+            - - - - b - - - -
+            - - - - - - - - -
+            b - - - x - - b -
+            - - - - b - - - -
+            - - - - - - - - -
+            expected: n:1, e:2, s:no value, w:3
+            but instead of int formatted as xy-point with negative north
+            so n:(0,-1), e:(2,0), w:(-3,0)
+         */
+        final var obstructions = List.of(
+                new Point(0, -2),
+                new Point(3, 0),
+                new Point(0, 1),
+                new Point(-4, 0)
+        );
+        final var directions = AStar.getMaxUnobstructedSteps(obstructions, 3);
+        final List<Point> expected = List.of(
+                new Point(0, -1),
+                new Point(2, 0),
+                new Point(-3, 0)
+        );
+        expected.forEach(e -> assertTrue(directions.contains(e)));
+        assertEquals( 3, directions.size());
+
+    }
+
+    @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
         final var shortestPath = AStar.findShortestPath(target, List.of(), 1);
