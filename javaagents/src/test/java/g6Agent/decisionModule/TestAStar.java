@@ -1,13 +1,14 @@
 package g6Agent.decisionModule;
 
 import g6Agent.services.Point;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -96,7 +97,7 @@ public class TestAStar {
     }
 
     @Test
-    public void test_unobstructed_directions() {
+    public void test_unobstructed_directions_max() {
         /*  obstructions:
             - - - - b - - - -
             - - - - - - - - -
@@ -113,14 +114,46 @@ public class TestAStar {
                 new Point(0, 1),
                 new Point(-4, 0)
         );
-        final var directions = AStar.getMaxUnobstructedSteps(obstructions, 3);
+        final var directions = AStar.getUnobstructedStepsMax(new HashSet<>(obstructions), 3);
         final List<Point> expected = List.of(
                 new Point(0, -1),
                 new Point(2, 0),
                 new Point(-3, 0)
         );
-        expected.forEach(e -> assertTrue(directions.contains(e)));
-        assertEquals( 3, directions.size());
+        assertThat(directions, containsInAnyOrder(expected.toArray()));
+        assertEquals(3, directions.size());
+
+    }
+
+    @Test
+    public void test_unobstructed_directions_all() {
+        /*  obstructions:
+            - - - - b - - - -
+            - - - - - - - - -
+            b - - - x - - b -
+            - - - - b - - - -
+            - - - - - - - - -
+            expected: n:1; e:1,2; s:no value; w:1,2,3
+            but instead of int formatted as xy-point with negative north
+            so n:(0,-1); e:(1,0),(2,0); w:(-1,0),(-2,0),(-3,0)
+         */
+        final var obstructions = List.of(
+                new Point(0, -2),
+                new Point(3, 0),
+                new Point(0, 1),
+                new Point(-4, 0)
+        );
+        final var directions = AStar.getUnobstructedStepsAll(obstructions, 3);
+        final List<Point> expected = List.of(
+                new Point(0, -1),
+                new Point(1, 0),
+                new Point(2, 0),
+                new Point(-1, 0),
+                new Point(-2, 0),
+                new Point(-3, 0)
+        );
+        assertThat(directions, containsInAnyOrder(expected.toArray()));
+//        assertEquals(6, directions.size());
 
     }
 
@@ -153,7 +186,7 @@ public class TestAStar {
         System.out.println("directions = " + directions);
     }
 
-    //    @Test
+        @Test
     public void test_9_9() {
         Point start = new Point(4, 5);
         Point target = new Point(12, 7);

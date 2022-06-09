@@ -38,7 +38,10 @@ public class AStar {
             if (currentPoint.equals(target)) {
                 return currentWrapped.tracePath();
             }
-            final var neighbours = getMaxUnobstructedSteps(obstacles, 2);
+            final HashSet<Point> obstaclesAndVisited = new HashSet<>();
+            obstaclesAndVisited.addAll(obstacles);
+            obstaclesAndVisited.addAll(visited);
+            final var neighbours = getUnobstructedStepsMax(currentPoint, obstaclesAndVisited, 2);
 //            final var neighbours = getNeighbours(currentPoint);
             for (Point neighbour : neighbours) {
                 if (obstacles.contains(neighbour)) continue;
@@ -67,7 +70,29 @@ public class AStar {
         return List.of();
     }
 
-    static ArrayList<Point> getMaxUnobstructedSteps(List<Point> obstacles, int stepSize) {
+    static ArrayList<Point> getUnobstructedStepsAll(List<Point> obstacles, int stepSize) {
+        final var directionsToGo = new ArrayList<Point>(4 * stepSize);
+        for (Direction direction : Direction.values()) {
+            final Point d = direction.getNextCoordinate();
+            // either 0 or 1
+            final var dx = d.x;
+            final var dy = d.y;
+
+            int i = 0;
+            while (!obstacles.contains(d) && i++ < stepSize) {
+                Point success = new Point(d.x, d.y);
+                directionsToGo.add(success);
+                d.translate(dx, dy);
+            }
+        }
+        return directionsToGo;
+    }
+
+    static ArrayList<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize) {
+        return getUnobstructedStepsMax(new Point(0, 0), obstacles, stepSize);
+    }
+
+    static ArrayList<Point> getUnobstructedStepsMax(Point origin, Set<Point> obstacles, int stepSize) {
         final var directionsToGo = new ArrayList<Point>(4);
         for (Direction direction : Direction.values()) {
             final Point d = direction.getNextCoordinate();
@@ -84,6 +109,9 @@ public class AStar {
             if (success != null) {
                 directionsToGo.add(success);
             }
+        }
+        for (Point direction : directionsToGo) {
+            direction.translate(origin.x, origin.y);
         }
         return directionsToGo;
     }
@@ -111,6 +139,10 @@ public class AStar {
 
     record Wrapper(Point point, AStar.Wrapper predecessor, double costSum, double totalCostFromStart,
                    double minimalRemainingCost) implements Comparable<Wrapper> {
+        @Override
+        public String toString() {
+            return "(" + point.x + "," + point.y + ")-"+costSum;
+        }
 
         public static Wrapper create(Point point, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost) {
             return new Wrapper(point, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost);
