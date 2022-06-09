@@ -1,4 +1,4 @@
-package g6Agent.decissionModule;
+package g6Agent.decisionModule;
 
 import g6Agent.goals.Goal;
 

@@ -49,6 +49,14 @@ public enum Direction {
         return direction;
     }
 
+    public static Direction fromAdjacentPoint(Point p){
+        if (p.x == 0 && p.y == 1) return Direction.SOUTH;
+        if (p.x == 1 && p.y == 0) return Direction.EAST;
+        if (p.x == 0 && p.y == -1) return Direction.NORTH;
+        if (p.x == -1 && p.y == 0) return Direction.WEST;
+        throw new IllegalArgumentException("Point " + p + " was not adjacent as expected");
+    }
+
     /**
      *
      * @return a list of all possible directions

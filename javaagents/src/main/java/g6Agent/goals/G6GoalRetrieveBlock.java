@@ -1,11 +1,14 @@
 package g6Agent.goals;
 
 import g6Agent.actions.*;
+import g6Agent.decisionModule.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+
+import java.util.List;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
@@ -28,24 +31,19 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 }
             }
-            if(checkIfNotCloseToOtherAgent(closestBlock)) {
-                //if adjacent attach
-                if (closestBlock.getCoordinates().isAdjacent()) {
-                    for (Direction direction : Direction.allDirections()) {
-                        if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
-                            return new Attach(direction);
-                        }
+            //if adjacent attach
+            if (closestBlock.getCoordinates().isAdjacent()){
+                for (Direction direction : Direction.allDirections()) {
+                    if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
+                        return new Attach(direction);
                     }
-                } else {
-                    //move to next block
-                    Direction direction = Direction.WEST;
-                    for (Direction d : Direction.allDirections()) {
-                        if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
-                            direction = d;
-                        }
-                    }
-                    return moveTo(direction);
                 }
+            }else {
+                //move to next block
+                final List<Point> obstacles = perceptionAndMemory.getObstacles();
+                final List<Point> shortestPath = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles);
+                final List<Direction> directions = AStar.directionsFrom(shortestPath);
+                return moveTo(directions.get(0));
             }
         }
 
@@ -109,8 +107,6 @@ public class G6GoalRetrieveBlock implements Goal {
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
-
-
         for(Point obstacle : perceptionAndMemory.getObstacles()){
             if(direction.getNextCoordinate().equals(obstacle)){
                 return new Clear(obstacle);

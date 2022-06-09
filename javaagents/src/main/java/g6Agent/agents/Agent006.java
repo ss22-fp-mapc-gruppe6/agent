@@ -6,11 +6,10 @@ import g6Agent.MailService;
 import g6Agent.actions.G6Action;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
-import g6Agent.decissionModule.DecisionModule;
-import g6Agent.decissionModule.TheStupidestDecisionModule;
+import g6Agent.decisionModule.DecisionModule;
+import g6Agent.decisionModule.TheStupidestDecisionModule;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 
 
@@ -51,7 +50,6 @@ public class Agent006 extends Agent{
         if (perceptionAndMemory.isReadyForAction()){
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
-            communicationModule.broadcastActionAttempt((Action) action);
         }
         return (eis.iilang.Action) action;
     }
