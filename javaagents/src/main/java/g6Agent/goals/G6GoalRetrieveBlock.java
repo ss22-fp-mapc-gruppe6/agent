@@ -12,6 +12,7 @@ import java.util.List;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
+    private Block lastDispenserMovedTo;
 
     public G6GoalRetrieveBlock(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
@@ -24,7 +25,10 @@ public class G6GoalRetrieveBlock implements Goal {
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
             for (Block block : perceptionAndMemory.getBlocks()){
                 if (block.getCoordinates().manhattanDistanceTo(new Point(0,0)) < closestBlock.getCoordinates().manhattanDistanceTo(new Point(0,0))){
-                    closestBlock = block;
+                    boolean isNotCloseToOtherAgent = checkIfNotCloseToOtherAgent(block);
+                    if(isNotCloseToOtherAgent) {
+                        closestBlock = block;
+                    }
                 }
             }
             //if adjacent attach
@@ -48,9 +52,17 @@ public class G6GoalRetrieveBlock implements Goal {
             Block closestDispenser = perceptionAndMemory.getDispensers().get(0);
             for (Block dispenser : perceptionAndMemory.getDispensers()){
                 if (dispenser.getCoordinates().manhattanDistanceTo(new Point(0,0)) < closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0))){
-                    closestDispenser = dispenser;
+                    if (this.lastDispenserMovedTo == null) {
+                        closestDispenser = dispenser;
+                    } else {
+                        //check if last dispenser
+                        if (dispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates()) < closestDispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates())){
+                            closestDispenser = dispenser;
+                        }
+                    }
                 }
             }
+            lastDispenserMovedTo = closestDispenser;
             //if adjacent attach
             if (closestDispenser.getCoordinates().isAdjacent()){
                 for (Direction direction : Direction.allDirections()) {
@@ -59,7 +71,7 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 }
             }else {
-                //move to next block
+                //move to next dispenser
                 Direction direction = Direction.WEST;
                 for (Direction d : Direction.allDirections()) {
                     if (d.getNextCoordinate().manhattanDistanceTo(closestDispenser.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestDispenser.getCoordinates())) {
@@ -70,10 +82,22 @@ public class G6GoalRetrieveBlock implements Goal {
             }
         }
 
-        return null;
+        return new Skip();
     }
+
+    private boolean checkIfNotCloseToOtherAgent(Block block) {
+        for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
+            if(agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0,0))){
+                return false;
+            }
+        }
+        return true;
+    }
+
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getAttachedBlocks()){
+
+        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
+
             if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
                 for (Point obstacle : perceptionAndMemory.getObstacles()){
                     if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){
@@ -100,7 +124,7 @@ public class G6GoalRetrieveBlock implements Goal {
 
     @Override
     public boolean isFullfilled() {
-        return !perceptionAndMemory.getAttached().isEmpty();
+        return !perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty();
     }
 
     @Override

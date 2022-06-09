@@ -57,10 +57,19 @@ public enum Direction {
         throw new IllegalArgumentException("Point " + p + " was not adjacent as expected");
     }
 
+    /**
+     *
+     * @return a list of all possible directions
+     */
     public static Direction[] allDirections(){
        return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
     }
 
+    /**
+     * returns a new direction, which is this direction, rotated in the given rotation
+     * @param rotation the rotation
+     * @return the new direction
+     */
     public Direction rotate(Rotation rotation) {
         switch (rotation){
             case CLOCKWISE -> {

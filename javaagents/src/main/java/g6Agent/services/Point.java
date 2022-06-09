@@ -1,6 +1,8 @@
 package g6Agent.services;
 
 
+import java.util.Objects;
+
 public class Point extends java.awt.Point{
 
     public Point(int x, int y) {
@@ -58,8 +60,8 @@ public class Point extends java.awt.Point{
      */
     public Point multiply(int multiplier) {
         return new Point(
-        this.x = x * multiplier,
-        this.y = y * multiplier
+        x * multiplier,
+        y * multiplier
         );
     }
 
@@ -83,13 +85,23 @@ public class Point extends java.awt.Point{
     public Point rotate(Rotation rotation) {
         switch (rotation){
             case CLOCKWISE -> {
-                return new Point(-this.y, this.x);
+                return new Point(-(int) this.getY(), (int) this.getX());
             }
             case COUNTERCLOCKWISE -> {
-                return new Point(this.y, -this.x);
+                return new Point((int) this.getY(), -(int) this.getX());
             }
         }
         //can not happen
         return null;
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(x,y);
+    }
+
+    @Override
+    public String toString(){
+        return "(" + x + "," + y + ")";
     }
 }
