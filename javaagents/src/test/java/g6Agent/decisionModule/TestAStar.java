@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
     @Test
@@ -19,20 +20,24 @@ public class TestAStar {
             b - - - x - - b -
             - - - - b - - - -
             - - - - - - - - -
-            expected: n:0, e:1, s:0, w:3
-            but instead of int formatted as point
-            so n:(0,0), e:(1,0), s:(0,0), w:(-3,0)
+            expected: n:1, e:2, s:no value, w:3
+            but instead of int formatted as xy-point with negative north
+            so n:(0,-1), e:(2,0), w:(-3,0)
          */
         final var obstructions = List.of(
-                new Point(0, 2),
+                new Point(0, -2),
                 new Point(3, 0),
-                new Point(0, -1),
+                new Point(0, 1),
                 new Point(-4, 0)
         );
         final var directions = AStar.getMaxUnobstructedSteps(obstructions, 3);
-        assertEquals(List.of(
-
-        ), directions);
+        final List<Point> expected = List.of(
+                new Point(0, -1),
+                new Point(2, 0),
+                new Point(-3, 0)
+        );
+        expected.forEach(e -> assertTrue(directions.contains(e)));
+        assertEquals( 3, directions.size());
 
     }
 
@@ -98,7 +103,7 @@ public class TestAStar {
         assertEquals(List.of(), shortestPath);
     }
 
-        @Test
+    @Test
     public void test_points_to_directions() {
         Point target = new Point(12, 9);
         final var obstacles = List.of(
