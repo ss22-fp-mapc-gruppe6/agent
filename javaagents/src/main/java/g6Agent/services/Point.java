@@ -5,6 +5,24 @@ import java.util.Objects;
 
 public class Point extends java.awt.Point {
 
+
+    public Point(java.awt.Point p) {
+        this(p.x, p.y);
+    }
+
+    /**
+     * Dangerous! Use {@link #add(int, int)} or {@link #add(Point)} instead!
+     */
+    @Deprecated
+    @Override
+    public void translate(int dx, int dy)  {
+        throw new IllegalStateException("please don't use this method! Use `add(int, int)` instead");
+    }
+
+    public Point add(int dx, int dy) {
+        return new Point(x + dx, y + dy);
+    }
+
     public Point(int x, int y) {
         super(x, y);
     }
