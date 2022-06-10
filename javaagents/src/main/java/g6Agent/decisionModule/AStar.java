@@ -41,13 +41,13 @@ public class AStar {
             final HashSet<Point> obstaclesAndVisited = new HashSet<>();
             obstaclesAndVisited.addAll(obstacles);
             obstaclesAndVisited.addAll(visited);
-            final var neighbours = getUnobstructedStepsMax(currentPoint, obstaclesAndVisited, 2);
+            final var neighbours = getUnobstructedStepsMax(obstaclesAndVisited, stepSize, currentPoint);
 //            final var neighbours = getNeighbours(currentPoint);
             for (Point neighbour : neighbours) {
                 if (obstacles.contains(neighbour)) continue;
                 if (visited.contains(neighbour)) continue;
 
-                double cost = 1;
+                final int cost = currentPoint.manhattanDistanceTo(neighbour);
                 final double totalCost = currentWrapped.totalCostFromStart() + cost;
 
                 var neighbourWrapped = wrappers.get(neighbour);
@@ -74,45 +74,38 @@ public class AStar {
         final var directionsToGo = new ArrayList<Point>(4 * stepSize);
         for (Direction direction : Direction.values()) {
             final Point d = direction.getNextCoordinate();
-            // either 0 or 1
-            final var dx = d.x;
-            final var dy = d.y;
-
+            Point temp = new Point(d);
             int i = 0;
-            while (!obstacles.contains(d) && i++ < stepSize) {
-                Point success = new Point(d.x, d.y);
+            while (!obstacles.contains(temp) && i++ < stepSize) {
+                Point success = new Point(temp);
                 directionsToGo.add(success);
-                d.translate(dx, dy);
+                temp = temp.add(d);
             }
         }
         return directionsToGo;
     }
 
-    static ArrayList<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize) {
-        return getUnobstructedStepsMax(new Point(0, 0), obstacles, stepSize);
+    static List<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize) {
+        return getUnobstructedStepsMax(obstacles, stepSize, new Point(0, 0));
     }
 
-    static ArrayList<Point> getUnobstructedStepsMax(Point origin, Set<Point> obstacles, int stepSize) {
-        final var directionsToGo = new ArrayList<Point>(4);
-        for (Direction direction : Direction.values()) {
-            final Point d = direction.getNextCoordinate();
-            // either 0 or 1
-            final var dx = d.x;
-            final var dy = d.y;
+    static List<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize, Point origin) {
+        List<Point> directionsToGo = new ArrayList<>(4);
+        for (Direction direction : Direction.allDirections()) {
+            Point d = new Point(direction.getNextCoordinate());
+            Point temp = new Point(d);
 
             Point success = null;
             int i = 0;
-            while (!obstacles.contains(d) && i++ < stepSize) {
-                success = new Point(d.x, d.y);
-                d.translate(dx, dy);
+            while (!obstacles.contains(temp) && i++ < stepSize) {
+                success = new Point(temp);
+                temp = temp.add(d);
             }
             if (success != null) {
                 directionsToGo.add(success);
             }
         }
-        for (Point direction : directionsToGo) {
-            direction.translate(origin.x, origin.y);
-        }
+        directionsToGo = directionsToGo.stream().map(e -> e.add(origin)).toList();
         return directionsToGo;
     }
 
@@ -141,7 +134,7 @@ public class AStar {
                    double minimalRemainingCost) implements Comparable<Wrapper> {
         @Override
         public String toString() {
-            return "(" + point.x + "," + point.y + ")-"+costSum;
+            return "(" + point.x + "," + point.y + ")-" + costSum;
         }
 
         public static Wrapper create(Point point, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost) {
