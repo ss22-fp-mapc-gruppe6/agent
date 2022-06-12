@@ -12,34 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
-    @Test
-    public void test_unobstructed_directions() {
-        /*  obstructions:
-            - - - - b - - - -
-            - - - - - - - - -
-            b - - - x - - b -
-            - - - - b - - - -
-            - - - - - - - - -
-            expected: n:1, e:2, s:no value, w:3
-            but instead of int formatted as xy-point with negative north
-            so n:(0,-1), e:(2,0), w:(-3,0)
-         */
-        final var obstructions = Set.of(
-                new Point(0, -2),
-                new Point(3, 0),
-                new Point(0, 1),
-                new Point(-4, 0)
-        );
-        final var directions = AStar.getUnobstructedStepsMax(obstructions, 3);
-        final List<Point> expected = List.of(
-                new Point(0, -1),
-                new Point(2, 0),
-                new Point(-3, 0)
-        );
-        expected.forEach(e -> assertTrue(directions.contains(e)));
-        assertEquals(3, directions.size());
-
-    }
 
     public static String visualize(List<Point> path, List<Point> obstacles) {
         return visualize(path, obstacles, null);
@@ -127,7 +99,66 @@ public class TestAStar {
         );
         assertThat(directions, containsInAnyOrder(expected.toArray()));
         assertEquals(3, directions.size());
-
+    }
+    @Test
+    public void test_unobstructed_directions_max_2() {
+        /*  obstructions:
+            - - - - b - - - -
+            - - - - - - - - -
+            - - - - - - - - -
+            b - - - x - - - b
+            - - - - - - - - -
+            - - - - b - - - -
+            - - - - - - - - -
+            expected: n:2, e:3, s:1, w:3
+            but instead of int formatted as xy-point with negative north
+            so n:(0,-2), e:(3,0), s:(-1,0), w:(-3,0)
+         */
+        final var obstructions = List.of(
+                new Point(0, -3),
+                new Point(4, 0),
+                new Point(0, 2),
+                new Point(-4, 0)
+        );
+        final var directions = AStar.getUnobstructedStepsMax(new HashSet<>(obstructions), 3);
+        final List<Point> expected = List.of(
+                new Point(0, -2),
+                new Point(3, 0),
+                new Point(-3, 0),
+                new Point(0, 1)
+        );
+        assertThat(directions, containsInAnyOrder(expected.toArray()));
+        assertEquals(4, directions.size());
+    }
+    @Test
+    public void test_unobstructed_directions_max_step_1() {
+        /*  obstructions:
+            - - - - b - - - -
+            - - - - - - - - -
+            - - - - - - - - -
+            b - - - x - - - b
+            - - - - - - - - -
+            - - - - b - - - -
+            - - - - - - - - -
+            expected: n:1, e:1, s:1, w:1
+            but instead of int formatted as xy-point with negative north
+            so n:(0,-1), e:(1,0), s:(-1,0), w:(-1,0)
+         */
+        final var obstructions = List.of(
+                new Point(0, -3),
+                new Point(4, 0),
+                new Point(0, 2),
+                new Point(-4, 0)
+        );
+        final var directions = AStar.getUnobstructedStepsMax(new HashSet<>(obstructions), 1);
+        final List<Point> expected = List.of(
+                new Point(0, -1),
+                new Point(1, 0),
+                new Point(-1, 0),
+                new Point(0, 1)
+        );
+        assertThat(directions, containsInAnyOrder(expected.toArray()));
+        assertEquals(4, directions.size());
     }
 
     @Test
@@ -142,13 +173,13 @@ public class TestAStar {
             but instead of int formatted as xy-point with negative north
             so n:(0,-1); e:(1,0),(2,0); w:(-1,0),(-2,0),(-3,0)
          */
-        final var obstructions = List.of(
+        final var obstructions = Set.of(
                 new Point(0, -2),
                 new Point(3, 0),
                 new Point(0, 1),
                 new Point(-4, 0)
         );
-        final var directions = AStar.getUnobstructedStepsAll(obstructions, 3);
+        final var directions = AStar.getUnobstructedSteps(obstructions, 3, new Point(0,0), AStar.Steps.ALL_STEPS);
         final List<Point> expected = List.of(
                 new Point(0, -1),
                 new Point(1, 0),
@@ -158,7 +189,7 @@ public class TestAStar {
                 new Point(-3, 0)
         );
         assertThat(directions, containsInAnyOrder(expected.toArray()));
-//        assertEquals(6, directions.size());
+        assertEquals(6, directions.size());
 
     }
 
@@ -172,15 +203,15 @@ public class TestAStar {
 
     @Test
     public void test_points_to_directions() {
-        Point target = new Point(12, 9);
-        final var obstacles = List.of(
-                new Point(8, 3),
-                new Point(8, 4),
-                new Point(8, 5),
-                new Point(8, 6),
-                new Point(8, 8),
-                new Point(8, 7),
-                new Point(8, 9)
+        Point target = new Point(2, 3);
+        final List<Point> obstacles = List.of(
+//                new Point(8, 3),
+//                new Point(8, 4),
+//                new Point(8, 5),
+//                new Point(8, 6),
+//                new Point(8, 8),
+//                new Point(8, 7),
+//                new Point(8, 9)
         );
         final var shortestPath = AStar.findShortestPath(target, obstacles, 1);
         System.out.println("shortestPath = " + shortestPath);
@@ -193,7 +224,7 @@ public class TestAStar {
 
     @Test
     public void test_9_9() {
-        Point start = new Point(4, 5);
+        Point start = new Point(5, 5);
         Point target = new Point(12, 7);
         final var obstacles = List.of(
                 new Point(8, 3),
@@ -204,11 +235,11 @@ public class TestAStar {
                 new Point(8, 7),
                 new Point(8, 9)
         );
-        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
+        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 2);
         System.out.println("shortestPath = " + shortestPath);
         final var visualize = visualize(shortestPath, obstacles, start);
         System.out.println(visualize);
-//        assertEquals(4, shortestPath.size());
+        assertEquals(4, shortestPath.size());
     }
 
     @Test
