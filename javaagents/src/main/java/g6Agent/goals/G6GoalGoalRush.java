@@ -44,7 +44,7 @@ public class G6GoalGoalRush implements Goal {
             if (t.getRequirements().size() == 1) {
                 this.task = t;
             }
-        } //TODO Tasks with more than one block
+        }
     }
 
 
@@ -54,6 +54,7 @@ public class G6GoalGoalRush implements Goal {
             return findGoalZone();
         } else {
             //If no task Selected, select another one, or skip
+            //TODO neu machen!!!!
             if (task == null) chooseTask();
             if (task == null) return moveToGoalZone();
             boolean isTaskStillActive = false;
