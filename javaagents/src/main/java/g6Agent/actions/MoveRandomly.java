@@ -1,9 +1,5 @@
 package g6Agent.actions;
 
-import g6Agent.agents.MyTestAgent;
-import g6Agent.services.ActionResult;
-import g6Agent.services.Direction;
-
 
 //WE DO NOT NEED THIS CLASS
 
