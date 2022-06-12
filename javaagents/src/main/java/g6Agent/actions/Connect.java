@@ -1,33 +1,34 @@
 package g6Agent.actions;
 
 import g6Agent.agents.MyTestAgent;
-import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
 // Two agents can connect blocks attached to them.
 public class Connect implements g6Action{
 
-    private final Direction direction;
     private PerceptionAndMemory perception;
-    /*private final Block blockA;
-    private final MyTestAgent agentA;
-    private final Block blockB;
-    private final MyTestAgent agentB;**/
+    private final Point pointTo;
+    private final MyTestAgent partner;
+    private final Point pointFrom;
+    private final String partnerName;
 
-    public Connect(Direction direction, String name) {
-        super();
-        this.direction = direction;
-        perception = new PerceptionAndMemoryImplementation();
+
+    public Connect(MyTestAgent partner,  Point pointTo, Point pointFrom) {
+        this.pointFrom = pointFrom;
+        this.pointTo = pointTo;
+        partnerName = partner.getName();
+        this.partner = partner;
     }
+
     @Override
-    public void setSucceededEffect(MyTestAgent agent, int step) {
+    public void setSucceededEffect(MyTestAgent agent, int step, PerceptionAndMemory perception) {
+        this.perception = perception;
         if (perception.getLastAction().getSuccessMessage().equals("success")){
-            Point agentPosition = agent.getPosition(step);
-            //connect(agent, direction);
-            //connect(agent)
+           // Point agentPosition = agent.getPosition(step);
+            perception.getLastAction().setSuccessfulMessage("success");
+            perception.getLastAction().setName("connect");
         }
     }
 }

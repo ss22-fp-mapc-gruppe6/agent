@@ -25,7 +25,6 @@ public class Attach extends Action implements g6Action{
     public Attach(Direction direction, String name) {
         super(name);
         this.direction = direction;
-        perception = new PerceptionAndMemoryImplementation();
     }
 
     public Direction getDirection() {
@@ -34,15 +33,19 @@ public class Attach extends Action implements g6Action{
     public  HashSet getAttachedList() {return this.attachedList;}
 
     @Override
-    public void setSucceededEffect(MyTestAgent agent, int step) {
+    public void setSucceededEffect(MyTestAgent agent, int step, PerceptionAndMemory perception) {
+        this.perception = perception;
         if (perception.getLastAction().getSuccessMessage().equals("success")) {
             Point direction = this.direction.getNextCoordinate();
             Point agentPosition = agent.getPosition(step);
             Point blockPosition = new Point(agentPosition.x + direction.x, agentPosition.y + direction.y );
             Block block = new Block(blockPosition, "block_B1");
             attachBlockToAgent(block, agent);
-
-
+              //Local grid update
+            Point attaching = agentPosition.sum(direction);
+            //CellObject cell = agent.getGrid().getBlockObjectAt(attaching);
+            perception.getLastAction().setSuccessfulMessage("success");
+            perception.getLastAction().setName("attach");
         }
     }
 

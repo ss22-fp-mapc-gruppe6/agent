@@ -15,7 +15,6 @@ public class Move extends Action implements g6Action{
     public Move(Direction direction, String name) {
         super(name);
         this.direction = direction;
-        perception = new PerceptionAndMemoryImplementation();
     }
 
     public Move(Direction s) {
@@ -30,9 +29,12 @@ public class Move extends Action implements g6Action{
 
 
     @Override
-    public void setSucceededEffect(MyTestAgent agent, int step) {
+    public void setSucceededEffect(MyTestAgent agent, int step, PerceptionAndMemory perception) {
+        this.perception = perception;
         if (perception.getLastAction().getSuccessMessage().equals("success")) {
             agent.updateGridPosition(direction.getNextCoordinate(), step);
+            perception.getLastAction().setSuccessfulMessage("success");
+            perception.getLastAction().setName("move");
         }
     }
 

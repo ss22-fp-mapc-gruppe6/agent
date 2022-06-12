@@ -1,15 +1,17 @@
 package g6Agent.perceptionAndMemory;
 
 import eis.iilang.*;
-
+import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
+import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
+public class PerceptionAndMemoryImplementation implements PerceptionAndMemory {
+
     private LastActionMemory lastAction;
     private List<Point> obstacles;
     private int lastID;
@@ -33,6 +35,10 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     private int currentStep;
     private int teamSize;
     private List<Marker> markers;
+    private List<Point> attached;
+
+    private final List<LastActionListener> lastActionListeners;
+    private AgentVisionReporter visionReporter;
 
 
     private record AgentEntry(String team, Point coordinate) {}
@@ -57,9 +63,14 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         teamSize = 0;
         possibleRoles = new HashMap<>();
         this.lastAction = new LastActionMemory();
-        this.markers = new ArrayList();
+        this.markers = new ArrayList<>();
+        this.attached = new ArrayList<>();
+        this.lastActionListeners = new ArrayList<>(1);
     }
 
+    void setVisionReporter(AgentVisionReporter reporter){
+        this.visionReporter = reporter;
+    }
     @Override
     public boolean isDeactivated() {
         return isDeactivated;
@@ -67,59 +78,78 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
 
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
-        clearShortTermMemory();
-        try {
-            for (Percept percept : perceptInput) {
-                if (percept.getName().equals("actionID")) {
-                    handleActionIDPercept(percept);
-                } else if (percept.getName().equals("thing")) {
-                    handleThingPercept(percept);
-                } else if (percept.getName().equals("score")){
-                    handleScorePercept(percept);
-                } else if (percept.getName().equals("lastAction")){
-                    handleLastAction(percept);
-                } else if (percept.getName().equals("energy")){
-                    handleEnergy(percept);
-                } else if(percept.getName().equals("name")){
-                    handleName(percept);
-                } else if (percept.getName().equals("lastActionParams")) {
-                    handleLastActionParams(percept);
-                } else if (percept.getName().equals("deactivated")) {
-                    handleDeactivated(percept);
-                } else if (percept.getName().equals("team")) {
-                    handleTeam(percept);
-                } else if (percept.getName().equals("lastActionResult")) {
-                    handleLastActionResult(percept);
-                } else if (percept.getName().equals("task")) {
-                    handleTask(percept);
-                } else if (percept.getName().equals("goalZone")){
-                   handleGoalZone(percept);
-                } else if (percept.getName().equals("roleZone")) {
-                    handleRoleZone(percept);
-                } else if (percept.getName().equals("norm")) {
-                    handleNorm(percept);
-                } else if (percept.getName().equals("steps")) {
-                    this.steps = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
-                } else if (percept.getName().equals( "role")) {
-                    handleRolePercept(percept);
-                } else if (percept.getName().equals("step")){
-                    this.currentStep = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
-                } else if (percept.getName().equals("teamSize")){
-                    this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
-                }
-                //ignore cases
-                else if (!(percept.getName().equals( "simStart")
-                            || percept.getName().equals( "requestAction")
+        if (!perceptInput.isEmpty()) {
+            clearShortTermMemory();
+            try {
+                for (Percept percept : perceptInput) {
+                    if (percept.getName().equals("actionID")) {
+                        handleActionIDPercept(percept);
+                    } else if (percept.getName().equals("thing")) {
+                        handleThingPercept(percept);
+                    } else if (percept.getName().equals("score")) {
+                        handleScorePercept(percept);
+                    } else if (percept.getName().equals("lastAction")) {
+                        handleLastAction(percept);
+                    } else if (percept.getName().equals("energy")) {
+                        handleEnergy(percept);
+                    } else if (percept.getName().equals("name")) {
+                        handleName(percept);
+                    } else if (percept.getName().equals("lastActionParams")) {
+                        handleLastActionParams(percept);
+                    } else if (percept.getName().equals("deactivated")) {
+                        handleDeactivated(percept);
+                    } else if (percept.getName().equals("team")) {
+                        handleTeam(percept);
+                    } else if (percept.getName().equals("lastActionResult")) {
+                        handleLastActionResult(percept);
+                    } else if (percept.getName().equals("task")) {
+                        handleTask(percept);
+                    } else if (percept.getName().equals("goalZone")) {
+                        handleGoalZone(percept);
+                    } else if (percept.getName().equals("roleZone")) {
+                        handleRoleZone(percept);
+                    } else if (percept.getName().equals("norm")) {
+                        handleNorm(percept);
+                    } else if (percept.getName().equals("steps")) {
+                        this.steps = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
+                    } else if (percept.getName().equals("role")) {
+                        handleRolePercept(percept);
+                    } else if (percept.getName().equals("step")) {
+                        this.currentStep = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
+                    } else if (percept.getName().equals("teamSize")) {
+                        this.teamSize = ((Numeral) percept.getParameters().get(0)).getValue().intValue();
+                    } else if (percept.getName().equals("attached")){
+                        System.out.println("THING ATTACHED : MILESTONE REACHED, Please check implementation in PerceptionAndMemory!" + percept);
+                        this.attached.add(new Point(((Numeral)percept.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral)percept.getParameters().get(1)).getValue().intValue()));
+                        //TODO Test when we managed to attach something
+                    }
+                    //ignore cases
+                    else if (!(percept.getName().equals("simStart")
+                            || percept.getName().equals("requestAction")
                             || percept.getName().equals("deadline")
                             || percept.getName().equals("timestamp"))
-                    ){
+                    ) {
                         System.out.println("UNHANDLED PERCEPT : " + percept);
                     }
                 }
-        } catch(Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            notifyListenersOfLastAction();
+            if (visionReporter != null){
+                visionReporter.reportMyVision(dispensers, roleZones, goalZones, obstacles);
+                visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+            }
         }
     }
+
+    private void notifyListenersOfLastAction() {
+        for (LastActionListener listener : lastActionListeners){
+            listener.reportLastAction(lastAction);
+        }
+    }
+
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
@@ -294,8 +324,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         }
 
     }
-
-
     private void handleScorePercept(Percept percept) throws Exception {
         if (percept.getParameters().size() != 1) {
             throw new Exception("PERCEPTION MODULE: score with unforeseen parameter size");
@@ -306,6 +334,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         }
     }
 
+    @Override
     public boolean isReadyForAction() {
         //TODO Checking for deactivation leads to failed server connections search for cause!
         //if (isDeactivated) { return false;}
@@ -334,6 +363,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
         goalZones = new ArrayList<>();
         norms = new ArrayList<>();
         markers = new ArrayList<>();
+        attached = new ArrayList<>();
     }
 
     @Override
@@ -413,6 +443,21 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory{
     @Override
     public int getTeamSize() {
         return teamSize;
+    }
+
+    @Override
+    public List<Point> getAttached() {
+        return attached;
+    }
+
+    @Override
+    public List<Norm> getNorms() {
+        return norms;
+    }
+
+    @Override
+    public void addLastActionListener(LastActionListener listener) {
+        this.lastActionListeners.add(listener);
     }
 
     @Override

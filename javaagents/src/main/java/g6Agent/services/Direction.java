@@ -48,4 +48,26 @@ public enum Direction {
         }
         return direction;
     }
+
+    public Point convertDirectionToPoint() {
+        int x = 0;
+        int y = 0;
+        switch (this) {
+            case WEST:
+                x = -1;
+                break;
+            case EAST:
+                x = 1;
+                break;
+            case NORTH:
+                y = -1;
+                break;
+            case SOUTH:
+                y = 1;
+                break;
+            default:
+                break;
+        }
+        return (new Point(x, y));
+    }
 }

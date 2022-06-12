@@ -7,6 +7,7 @@ import g6Agent.actions.Objects.Pair_BlockAgent;
 import g6Agent.actions.g6Action;
 import g6Agent.environment.GridObject;
 import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Enties.Role;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
 import g6Agent.MailService;
@@ -26,9 +27,13 @@ public class MyTestAgent extends Agent{
     private  HashSet<Pair_BlockAgent> attachedList;
 
     private Task task;
+    private int energy;
+    private String roleName;
+
     public MyTestAgent(String name, MailService mailbox){
         super(name, mailbox);
         perceptionAndMemory = new PerceptionAndMemoryImplementation();
+        setEnergy();
     }
 
     public Point getPosition(int step) {
@@ -38,7 +43,19 @@ public class MyTestAgent extends Agent{
     public GridObject getGrid() {
         return (grid);
     }
+    public int getEnergy() {
+        return energy;
+    }
 
+    public void setEnergy(){
+        this.energy = perceptionAndMemory.getEnergy();
+    }
+    public void setRoleName(String roleName){
+        this.roleName = roleName;
+    }
+    public String getRoleName() {
+        return roleName;
+    }
     public void setAttachedList(HashSet list){this.attachedList = list;}
 
     public HashSet<Pair_BlockAgent> getAttachedList() {return this.attachedList;}

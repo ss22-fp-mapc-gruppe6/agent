@@ -1,6 +1,7 @@
 package g6Agent.actions;
 
 import eis.iilang.Action;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 
 public class Factory_g6Action extends Action {
