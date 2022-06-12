@@ -100,6 +100,7 @@ public class TestAStar {
         assertThat(directions, containsInAnyOrder(expected.toArray()));
         assertEquals(3, directions.size());
     }
+
     @Test
     public void test_unobstructed_directions_max_2() {
         /*  obstructions:
@@ -130,6 +131,7 @@ public class TestAStar {
         assertThat(directions, containsInAnyOrder(expected.toArray()));
         assertEquals(4, directions.size());
     }
+
     @Test
     public void test_unobstructed_directions_max_step_1() {
         /*  obstructions:
@@ -179,7 +181,7 @@ public class TestAStar {
                 new Point(0, 1),
                 new Point(-4, 0)
         );
-        final var directions = AStar.getUnobstructedSteps(obstructions, 3, new Point(0,0), AStar.Steps.ALL_STEPS);
+        final var directions = AStar.getUnobstructedSteps(obstructions, 3, new Point(0, 0), AStar.ReturnMode.ALL_STEPS);
         final List<Point> expected = List.of(
                 new Point(0, -1),
                 new Point(1, 0),
@@ -188,8 +190,8 @@ public class TestAStar {
                 new Point(-2, 0),
                 new Point(-3, 0)
         );
-        assertThat(directions, containsInAnyOrder(expected.toArray()));
-        assertEquals(6, directions.size());
+        assertThat(directions.a(), containsInAnyOrder(expected.toArray()));
+        assertEquals(6, directions.a().size());
 
     }
 
@@ -226,16 +228,20 @@ public class TestAStar {
     public void test_9_9() {
         Point start = new Point(5, 5);
         Point target = new Point(12, 7);
-        final var obstacles = List.of(
-                new Point(8, 3),
-                new Point(8, 4),
-                new Point(8, 5),
-                new Point(8, 6),
-                new Point(8, 8),
-                new Point(8, 7),
-                new Point(8, 9)
-        );
-        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 2);
+        List<Point> obstacles = new ArrayList<>();
+        List<Point> line = new ArrayList<>();
+        for (int i = 0; i < 10; i++) line.add(new Point(8, 0 + i));
+        obstacles.addAll(line);
+        List<Point> cage = new ArrayList<>();
+        for (int x = -1; x < 2; x++) {
+            for (int y = -1; y < 2; y++) {
+                if (x != 0 || y != 0) {
+                    cage.add(target.add(x, y));
+                }
+            }
+        }
+//        obstacles.addAll(cage);
+        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
         final var visualize = visualize(shortestPath, obstacles, start);
         System.out.println(visualize);
@@ -246,16 +252,20 @@ public class TestAStar {
     public void test_3_3() {
         final Point start = new Point(1, 1);
         Point target = new Point(2, 3);
-        final List<Point> obstacles = List.of(
-//                new Point(8, 3),
-//                new Point(8, 4),
-//                new Point(8, 5),
-//                new Point(8, 6),
-//                new Point(8, 8),
-//                new Point(8, 7),
-//                new Point(8, 9)
-        );
-        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 1);
+        List<Point> obstacles = new ArrayList<>();
+        List<Point> line = new ArrayList<>();
+        for (int i = 0; i < 5; i++) line.add(new Point(8, 3 + i));
+        obstacles.addAll(line);
+        List<Point> cage = new ArrayList<>();
+        for (int x = -1; x < 1; x++) {
+            for (int y = -1; y < 1; y++) {
+                if (x!=0 && y !=0){
+                    cage.add(target.add(x, y));
+                }
+            }
+        }
+        obstacles.addAll(cage);
+        final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
         shortestPath.add(0, start);
         final var visualize = visualize(shortestPath, obstacles, start);

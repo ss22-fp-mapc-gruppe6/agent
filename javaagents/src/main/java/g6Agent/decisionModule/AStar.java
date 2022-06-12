@@ -1,5 +1,6 @@
 package g6Agent.decisionModule;
 
+import g6Agent.Tuple;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
@@ -39,18 +40,22 @@ public class AStar {
             if (currentPoint.equals(target)) {
                 return currentWrapped.tracePath();
             }
-            final HashSet<Point> obstaclesAndVisited = new HashSet<>();
-            obstaclesAndVisited.addAll(obstacles);
-//            obstaclesAndVisited.addAll(visited);
-            final var neighbours = getUnobstructedSteps(obstaclesAndVisited, stepSize, currentPoint, Steps.ALL_STEPS);
+            //            obstaclesAndVisited.addAll(visited);
+            final var neighbours = getUnobstructedSteps(new HashSet<>(obstacles), stepSize, currentPoint, ReturnMode.ALL_AND_IMMEDIATE_OBSTACLE);
 //            final var neighbours = getNeighbours(currentPoint);
-            System.out.println("neighbours = " + neighbours);
-            for (Point neighbour : neighbours) {
-                if (obstacles.contains(neighbour)) continue;
+            final var unobstructed = neighbours.a().stream().map(point -> new Tuple<>(point, 1)).toList();
+            System.out.println("unobstructed = " + unobstructed);
+            final var obstructed = neighbours.b().stream().map(point -> new Tuple<>(point, 3)).toList();
+            System.out.println("obstructed = " + obstructed);
+            final var both = new ArrayList<>(unobstructed);
+            both.addAll(obstructed);
+            for (Tuple<Point, Integer> tuple : both) {
+                final Point neighbour = tuple.a();
+//                if (obstacles.contains(neighbour)) continue;
                 if (visited.contains(neighbour)) continue;
 
 //                final int cost = currentPoint.manhattanDistanceTo(neighbour);
-                final int cost = 1;
+                final int cost = tuple.b();
                 final double totalCost = currentWrapped.totalCostFromStart() + cost;
 
                 var neighbourWrapped = wrappers.get(neighbour);
@@ -74,14 +79,15 @@ public class AStar {
         return List.of();
     }
 
-    static List<Point> getUnobstructedSteps(Set<Point> obstacles, int stepSize, Point origin, Steps steps) {
+    static Tuple<List<Point>, List<Point>> getUnobstructedSteps(Set<Point> obstacles, int stepSize, Point origin, ReturnMode returnMode) {
         List<Point> directionsToGo = new ArrayList<>();
+        List<Point> obstaclesInRange = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             final Point d = direction.getNextCoordinate();
             Point next = new Point(origin).add(d);
             int i = 0;
             Point success = null;
-            switch (steps) {
+            switch (returnMode) {
                 case MAX_STEP -> {
                     while (!obstacles.contains(next) && i++ < stepSize) {
                         success = new Point(next);
@@ -98,17 +104,24 @@ public class AStar {
                         next = next.add(d);
                     }
                 }
+                case ALL_AND_IMMEDIATE_OBSTACLE -> {
+                    if (obstacles.contains(next)) obstaclesInRange.add(new Point(next));
+                    while (!obstacles.contains(next) && i++ < stepSize) {
+                        directionsToGo.add(new Point(next));
+                        next = next.add(d);
+                    }
+                }
             }
         }
-        return directionsToGo;
+        return new Tuple<>(directionsToGo, obstaclesInRange);
     }
 
     static List<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize) {
         return getUnobstructedStepsMax(obstacles, stepSize, new Point(0, 0));
     }
 
-    enum Steps {
-        MAX_STEP, ALL_STEPS
+    enum ReturnMode {
+        MAX_STEP, ALL_STEPS, ALL_AND_IMMEDIATE_OBSTACLE
     }
 
     static List<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize, Point origin) {
