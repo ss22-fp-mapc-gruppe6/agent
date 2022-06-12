@@ -26,7 +26,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     private final PerceptionAndMemoryInput perceptionAndMemoryInput;
     private final HashMap<String, StepAndMovement> attemptedMovements;
 
-    private final SwarmSightModel internalMapOfOtherAgents;
+    private final SwarmSightModel swarmSightModel;
     private final String agentname;
 
     int messageCounter;
@@ -38,7 +38,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         this.mailservice = mailservice;
         this.perceptionAndMemory = perceptionAndMemory;
         this.perceptionAndMemoryInput = perceptionAndMemoryInput;
-        this.internalMapOfOtherAgents = new SwarmSightModel();
+        this.swarmSightModel = new SwarmSightModel();
         this.agentname = agentname;
         this.attemptedMovements = new HashMap<>();
         this.messageCounter = 0;
@@ -57,7 +57,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
                     Direction.fromIdentifier((Identifier) p.getParameters().get(2)),
                     ((Numeral) p.getParameters().get(3)).getValue().intValue()
             );
-            internalMapOfOtherAgents.notifiedOfMovement(sender, movement);
+            swarmSightModel.notifiedOfMovement(sender, movement);
 
         }
 
@@ -126,7 +126,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             if (speed > 0) {
                 Direction direction = Direction.fromIdentifier(((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)));
                 Movement movement = new Movement(direction, speed);
-                internalMapOfOtherAgents.movedMyself(movement);
+                swarmSightModel.movedMyself(movement);
                 mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION",
                         new Numeral(messageCounter),
                         new Numeral(perceptionAndMemory.getCurrentStep()),
@@ -154,7 +154,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     private int determineyourOwnSpeed() {
         if (perceptionAndMemory.getCurrentRole() == null) return 1;
         int speed;
-        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getDirectlyAttachedBlocks().size()) {
+        if (perceptionAndMemory.getCurrentRole().getMovementSpeed().size() <= perceptionAndMemory.getDirectlyAttachedBlocks().size()) {  //logic to get array entry of speed
             speed = 0;
         } else {
             speed = perceptionAndMemory.getCurrentRole().getMovementSpeed().get(perceptionAndMemory.getDirectlyAttachedBlocks().size());
@@ -166,7 +166,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     public void processVisionNotification(Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
             if (!sender.equals(agentname)) {
-                if (internalMapOfOtherAgents.getAgentPosition(sender) != null) {
+                if (swarmSightModel.getAgentPosition(sender) != null) {
                     List<Block> dispensers = new ArrayList<>();
                     List<Block> blocks = new ArrayList<>();
                     List<Point> roleZones = new ArrayList<>();
@@ -245,7 +245,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         HashSet<Point> uniqueGoalZones = new HashSet<>();
         HashSet<Point> uniqueRoleZones = new HashSet<>();
         HashSet<Point> uniqueObstacles = new HashSet<>();
-        for (AgentNameAndPosition agent : internalMapOfOtherAgents.knownAgents()) {
+        for (AgentNameAndPosition agent : swarmSightModel.knownAgents()) {
             if (agent.position() != null) {
                 Vison vison = visions.get(agent.name());
                 if (vison != null) {
@@ -401,7 +401,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public void handleStep() {
-        internalMapOfOtherAgents.incrementAllCounters();
+        swarmSightModel.incrementAllCounters();
         handleUnanseweredRequests();
         this.requestsToAnswer = new ArrayList<>();
 
@@ -414,7 +414,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public List<AgentNameAndPosition> getKnownAgentPositions() {
-        return internalMapOfOtherAgents.knownAgents();
+        return swarmSightModel.knownAgents();
     }
 
     private void handleUnanseweredRequests() {
@@ -445,7 +445,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             }
         }
         if (acceptMessage != null) {
-            internalMapOfOtherAgents.spottetAgent(acceptMessage.sender(), acceptMessage.position().invert());
+            swarmSightModel.spottetAgent(acceptMessage.sender(), acceptMessage.position().invert());
         }
     }
 
@@ -471,7 +471,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             }
         }
         for (Point unknownAgent : unknownAgents) {
-            if (!unknownAgent.equals(new Point(0, 0))) {
+            if (!unknownAgent.equals(new Point(0, 0))) { //is not self
                 messageCounter = messageCounter + 1;
                 IntroductionRequest request = new IntroductionRequest(messageCounter, perceptionAndMemory.getCurrentStep(), unknownAgent.invert(), agentname);
                 request.broadcast(mailservice);
@@ -481,11 +481,11 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
 
     private boolean comparePositionsInInternalMap(Point agentPosition) {
-        for (AgentNameAndPosition agentInMemory : internalMapOfOtherAgents.knownAgents()) {
+        for (AgentNameAndPosition agentInMemory : swarmSightModel.knownAgents()) {
             //if movement is known
             boolean isIdentified = comparePositionWithMovementVectors(agentPosition, agentInMemory);
             if (isIdentified) {
-                internalMapOfOtherAgents.spottetAgent(agentInMemory.name(), agentPosition);
+                swarmSightModel.spottetAgent(agentInMemory.name(), agentPosition);
                 return true;
             }
         }
