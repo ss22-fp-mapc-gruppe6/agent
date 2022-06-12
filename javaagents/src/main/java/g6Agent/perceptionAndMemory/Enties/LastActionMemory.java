@@ -133,4 +133,11 @@ public class LastActionMemory {
     public void setSuccessfulMessage(String lastActionSuccessful) {
         lastActionSuccessfulMessage = lastActionSuccessful;
     }
+
+    @Override
+    public String toString(){
+        return "Name : " + this.getName() +"\n" +
+                "Success Message : " + this.getSuccessMessage() + "\n" +
+                "Parameters : " + this.getParameters();
+    }
 }

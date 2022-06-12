@@ -1,18 +1,39 @@
 package g6Agent.perceptionAndMemory;
 
 
+import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
 import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
-import java.util.HashMap;
 
-class InternalMapOfOtherAgents {
-    private final String agentname;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Class to save and track the Positions of other agents
+ */
+class SwarmSightModel {
+
     private final HashMap<String, InternalMapEntry> relativePositionOfOtherAgents;
 
-    public InternalMapOfOtherAgents(String agentname) {
-        this.agentname = agentname;
+    public SwarmSightModel() {
         this.relativePositionOfOtherAgents = new HashMap<>();
+    }
+
+    /**
+     * Updates the entry of the sender with the given movement
+     * @param sender the sender
+     * @param movement the movement
+     */
+    public void notifiedOfMovement(String sender, Movement movement) {
+        InternalMapEntry entry = relativePositionOfOtherAgents.get(sender);
+        if (entry != null) {
+            Point nextPositon = entry.getPosition().add(movement.asVector());
+            entry.setPosition(nextPositon);
+            InternalMapEntry updatedEntry = new InternalMapEntry(nextPositon, entry.getCounter());
+            relativePositionOfOtherAgents.put(sender, updatedEntry);
+        }
     }
 
     /**
@@ -21,7 +42,7 @@ class InternalMapOfOtherAgents {
      * @param position the agents position
      */
     public void spottetAgent(String agentname, Point position){
-        updateAgent(agentname, new InternalMapEntry(position));
+        this.relativePositionOfOtherAgents.put(agentname, new InternalMapEntry(position));
     }
 
     /**
@@ -43,27 +64,9 @@ class InternalMapOfOtherAgents {
         int xPos = relativePositionNotified.getPosition().x + positionOfNotifyingAgent.getPosition().x;
         int yPos = relativePositionNotified.getPosition().y + positionOfNotifyingAgent.getPosition().y;
         InternalMapEntry entry = new InternalMapEntry(new Point(xPos,yPos), relativePositionNotified.getCounter());
-        updateAgent(agentname, entry);
+        relativePositionOfOtherAgents.put(agentname, entry);
     }
 
-    /**
-     * Updates the Position of an Agent, if the lastSeenCounter is more recent.
-     * Or Registers the Agent, if it is not known yet.
-     *
-     * @param agentname the agents name
-     * @param entry the entry
-     */
-    protected void updateAgent(String agentname, InternalMapEntry entry) {
-        //Case doesnt have a entry yet.
-        if (!isKnown(agentname)) {
-            relativePositionOfOtherAgents.put(agentname, entry);
-            return;
-        }
-        //Case new lastSeenCounter is more recent
-        if (relativePositionOfOtherAgents.get(agentname).getCounter() > entry.getCounter()) {
-            relativePositionOfOtherAgents.replace(agentname, entry);
-        }
-    }
 
     public InternalMapEntry getAgentPosition(String agentname) {
         return this.relativePositionOfOtherAgents.get(agentname);
@@ -112,5 +115,14 @@ class InternalMapOfOtherAgents {
                     entry.setPosition(new Point(xPos, yPos));
                 }
         );
+    }
+
+    public List<AgentNameAndPosition> knownAgents() {
+        List<AgentNameAndPosition> knownAgents = new ArrayList<>();
+        relativePositionOfOtherAgents.forEach((key, entry) -> {
+            if (entry != null) knownAgents.add(new AgentNameAndPosition(key, entry.getPosition()));
+        });
+
+        return knownAgents;
     }
 }

@@ -7,25 +7,25 @@ import g6Agent.services.Point;
     private Point position;
     private int counter;
 
-    public InternalMapEntry(Point position) {
+    InternalMapEntry(Point position) {
         this.position = position;
         this.counter = 0;
     }
-    public InternalMapEntry(Point position, int counter) {
+    InternalMapEntry(Point position, int counter) {
         this.position = position;
         this.counter = counter;
     }
-    public Point getPosition() {
+    Point getPosition() {
         return position;
     }
 
-    public void setPosition(Point position) {
+    void setPosition(Point position) {
         this.position = position;
     }
 
-    public int getCounter() {
+    int getCounter() {
         return counter;
     }
 
-    public void increaseCounter() {this.counter ++;}
+    void increaseCounter() {this.counter ++;}
 }

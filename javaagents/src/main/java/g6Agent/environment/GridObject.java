@@ -2,21 +2,19 @@ package g6Agent.environment;
 
 import g6Agent.services.Point;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GridObject {
     private static final String TAG = "Grid";
+    private static Map<String, Point> listOfAllObstacles;
 
-    ConcurrentHashMap<Point, CellObject> cellMap = new ConcurrentHashMap<>();
-   /** public BlockObject getBlockObjectAt(Point pAt) {
-        CellObject cell = cellMap.get(pAt.getLimited());
-        if (cell != null) {
-            return cell.getBlockObject();
+    public void setListOfAllObstacles(String identifier, Point pointerMarker) {
+        if (listOfAllObstacles != null){
+            listOfAllObstacles.put(identifier, pointerMarker);
+        } else {
+            listOfAllObstacles = new HashMap<>();
         }
-        return null;
     }
-
-     public CellObject getBlockObjectAt(Point attaching) {
-        //:to do
-    } */
 }

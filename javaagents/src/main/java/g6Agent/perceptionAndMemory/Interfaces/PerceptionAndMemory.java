@@ -1,7 +1,6 @@
 package g6Agent.perceptionAndMemory.Interfaces;
 
 import eis.iilang.Percept;
-import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
 import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
@@ -76,10 +75,15 @@ public interface PerceptionAndMemory {
     List<Point> getEnemyAgents();
 
     /**
-     * @return the Tasks known to Agent
+     * @return the active Tasks known to Agent
      */
-    List<Task> getTasks(); //TODO Translate numbers like 99
+    List<Task> getActiveTasks();
 
+    /**
+     *
+     * @return the Tasks known to Agent, even if they are timed out
+     */
+    List<Task> getAllTasks();
     /**
      * @return the Blocks in Sight
      */
@@ -127,12 +131,20 @@ public interface PerceptionAndMemory {
      */
     int getTeamSize();
 
+    //List<Point> getAttached();  @return positions at which something is attached to the Agent
+
+    /**
+     *  Returns he blocks attached to all Agents in sight. including himself.
+     *  If you only wan't his own attached Blocks use getDirectlyAttachedBlocks()
+     * @return the blocks attached to all Agents in sight. including himself;
+     */
+    List<Block> getAttachedBlocks();
+
     /**
      *
-     * @return positions at which something is attached to the Agent
+     * @return the blocks attached to this agent.
      */
-    List<Point> getAttached();
-
+    List<Block> getDirectlyAttachedBlocks();
     /**
      *
      * @return the norms
@@ -143,5 +155,11 @@ public interface PerceptionAndMemory {
      * @param listener the listener
      */
     void addLastActionListener(LastActionListener listener);
+
+    /**
+     *
+     * @return the Names and positions of the known agents.
+     */
+    List<AgentNameAndPosition> getKnownAgents();
 
 }

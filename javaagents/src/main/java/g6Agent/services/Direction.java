@@ -49,25 +49,47 @@ public enum Direction {
         return direction;
     }
 
-    public Point convertDirectionToPoint() {
-        int x = 0;
-        int y = 0;
-        switch (this) {
-            case WEST:
-                x = -1;
-                break;
-            case EAST:
-                x = 1;
-                break;
-            case NORTH:
-                y = -1;
-                break;
-            case SOUTH:
-                y = 1;
-                break;
-            default:
-                break;
-        }
-        return (new Point(x, y));
+    public static Direction fromAdjacentPoint(Point p){
+        if (p.x == 0 && p.y == 1) return Direction.SOUTH;
+        if (p.x == 1 && p.y == 0) return Direction.EAST;
+        if (p.x == 0 && p.y == -1) return Direction.NORTH;
+        if (p.x == -1 && p.y == 0) return Direction.WEST;
+        throw new IllegalArgumentException("Point " + p + " was not adjacent as expected");
     }
+
+    /**
+     *
+     * @return a list of all possible directions
+     */
+    public static Direction[] allDirections(){
+       return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
+    }
+
+    /**
+     * returns a new direction, which is this direction, rotated in the given rotation
+     * @param rotation the rotation
+     * @return the new direction
+     */
+    public Direction rotate(Rotation rotation) {
+        switch (rotation){
+            case CLOCKWISE -> {
+                switch (this){
+                    case WEST -> { return Direction.NORTH;}
+                    case EAST -> { return Direction.SOUTH;}
+                    case NORTH -> { return Direction.EAST;}
+                    case SOUTH -> { return Direction.WEST; }
+                }
+            }
+            case COUNTERCLOCKWISE -> {
+                switch (this){
+                    case WEST -> { return Direction.SOUTH;}
+                    case EAST -> { return Direction.NORTH;}
+                    case NORTH -> {return Direction.WEST;}
+                    case SOUTH -> {return Direction.EAST;}
+                    }
+                }
+            }
+    return null;
+    }
+
 }

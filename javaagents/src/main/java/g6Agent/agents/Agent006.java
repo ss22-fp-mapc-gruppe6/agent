@@ -13,15 +13,23 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 
 
-public class MyTestAgent extends Agent{
-
+/**
+ * The 2. best Agent
+ */
+public class Agent006 extends Agent{
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
-    //public HashMap<Integer, AgentStep> stepValues = new HashMap<>();
-    //private GridObject grid;
+
     private final CommunicationModule communicationModule;
 
-    public MyTestAgent(String name, MailService mailbox){
+
+    /**
+     * Constructor
+     *
+     * @param name    the agent's name
+     * @param mailbox the mail facility
+     */
+    public Agent006(String name, MailService mailbox) {
         super(name, mailbox);
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
@@ -30,15 +38,6 @@ public class MyTestAgent extends Agent{
         this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
     }
 
-/*
-    public Point getPosition(int step) {
-        return stepValues.get(step).getAgentMapPos();
-    }
-
-    public GridObject getGrid() {
-        return (grid);
-    }
-*/
     @Override
     public void handlePercept(Percept percept) {
 
@@ -51,22 +50,12 @@ public class MyTestAgent extends Agent{
         if (perceptionAndMemory.isReadyForAction()){
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
-            communicationModule.broadcastActionAttempt((Action) action);
         }
         return (eis.iilang.Action) action;
     }
-
-
 
     @Override
     public void handleMessage(Percept message, String sender) {
         communicationModule.handleMessage(message, sender);
     }
-/*
-    public void updateGridPosition(Point vector, int step) {
-        stepValues.get(step).getAgentMapPos().add(vector);
-
-    }
-*/
-
 }
