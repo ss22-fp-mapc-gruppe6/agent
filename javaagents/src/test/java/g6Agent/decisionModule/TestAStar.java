@@ -188,7 +188,7 @@ public class TestAStar {
                 new Point(0, 1),
                 new Point(-4, 0)
         );
-        final var directions = AStar.getUnobstructedSteps(obstructions, 3, new Point(0, 0), AStar.ReturnMode.ALL_STEPS);
+        final var directions = AStar.getUnobstructedSteps(obstructions, 3, new Point(0, 0));
         final List<Point> expected = List.of(
                 new Point(0, -1),
                 new Point(1, 0),
@@ -197,8 +197,9 @@ public class TestAStar {
                 new Point(-2, 0),
                 new Point(-3, 0)
         );
-        assertThat(directions.a(), containsInAnyOrder(expected.toArray()));
-        assertEquals(6, directions.a().size());
+        final List<Point> points = directions.stream().map(Tuple::a).toList();
+        assertThat(points, containsInAnyOrder(expected.toArray()));
+        assertEquals(6, points.size());
 
     }
 

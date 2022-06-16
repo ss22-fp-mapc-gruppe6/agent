@@ -36,14 +36,10 @@ public class AStar {
                 return currentWrapped.tracePath();
             }
             //            obstaclesAndVisited.addAll(visited);
-            final var neighbours = getUnobstructedSteps(new HashSet<>(obstacles), stepSize, currentPoint, ReturnMode.ALL_AND_IMMEDIATE_OBSTACLE);
-//            final var neighbours = getNeighbours(currentPoint);
-            final List<Tuple<Point, Class<? extends Action>>> both = new ArrayList<>();
-            for (Point point : neighbours.a()) both.add(new Tuple<>(point, Move.class));
-            for (Point point : neighbours.b()) both.add(new Tuple<>(point, Clear.class));
-            for (Tuple<Point, Class<? extends Action>> tuple : both) {
+            final var neighbours = getUnobstructedSteps(new HashSet<>(obstacles), stepSize, currentPoint);
+            for (var tuple : neighbours) {
                 final Point neighbour = tuple.a();
-                final Class<? extends Action> action = tuple.b();
+                final var action = tuple.b();
                 final int cost;
                 if (action.equals(Move.class))
                     cost = 1;
@@ -78,41 +74,21 @@ public class AStar {
         return List.of();
     }
 
-    static Tuple<List<Point>, List<Point>> getUnobstructedSteps(Set<Point> obstacles, int stepSize, Point origin, ReturnMode returnMode) {
-        List<Point> directionsToGo = new ArrayList<>();
-        List<Point> obstaclesInRange = new ArrayList<>();
+    static List<Tuple<Point, Class<? extends Action>>> getUnobstructedSteps(Set<Point> obstacles, int stepSize, Point origin) {
+        List<Tuple<Point, Class<? extends Action>>> directionsToGo = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             final Point d = direction.getNextCoordinate();
             Point next = new Point(origin).add(d);
             int i = 0;
-            Point success = null;
-            switch (returnMode) {
-                case MAX_STEP -> {
-                    while (!obstacles.contains(next) && i++ < stepSize) {
-                        success = new Point(next);
-                        next = next.add(d);
-                    }
-                    if (success != null) {
-                        directionsToGo.add(success);
-                    }
-                }
-                case ALL_STEPS -> {
-                    while (!obstacles.contains(next) && i++ < stepSize) {
-                        success = new Point(next);
-                        directionsToGo.add(success);
-                        next = next.add(d);
-                    }
-                }
-                case ALL_AND_IMMEDIATE_OBSTACLE -> {
-                    if (obstacles.contains(next)) obstaclesInRange.add(new Point(next));
-                    while (!obstacles.contains(next) && i++ < stepSize) {
-                        directionsToGo.add(new Point(next));
-                        next = next.add(d);
-                    }
-                }
+            Class<? extends Action> aClass;
+            if (!obstacles.contains(next)) aClass = Move.class;
+            else aClass = Clear.class;
+            while (!obstacles.contains(next) && i++ < stepSize) {
+                directionsToGo.add(new Tuple<>(new Point(next), aClass));
+                next = next.add(d);
             }
         }
-        return new Tuple<>(directionsToGo, obstaclesInRange);
+        return directionsToGo;
     }
 
     static List<Point> getUnobstructedStepsMax(Set<Point> obstacles, int stepSize) {
