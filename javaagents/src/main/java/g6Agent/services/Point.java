@@ -1,6 +1,8 @@
 package g6Agent.services;
 
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 public class Point extends java.awt.Point {
@@ -119,6 +121,19 @@ public class Point extends java.awt.Point {
         }
         //can not happen
         return null;
+    }
+
+
+    public static List<Point> fromPointToPoint(List<Point> points) {
+        Point previous = new Point(0, 0);
+        List<Point> delta = new LinkedList<>();
+        for (Point current : points) {
+            int x = current.x - previous.x;
+            int y = current.y - previous.y;
+            delta.add(new Point(x,y));
+            previous = current;
+        }
+        return delta;
     }
 
     @Override

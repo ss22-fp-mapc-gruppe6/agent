@@ -2,6 +2,9 @@ package g6Agent.services;
 
 import eis.iilang.Identifier;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public enum Direction {
     WEST(new Identifier("w"), new Point(-1, 0)), EAST(new Identifier("e"), new Point(1, 0)),
     NORTH(new Identifier("n"), new Point(0, -1)), SOUTH(new Identifier("s"), new Point(0, 1));
@@ -56,6 +59,19 @@ public enum Direction {
         if (p.x == 0 && p.y == -1) return Direction.NORTH;
         if (p.x == -1 && p.y == 0) return Direction.WEST;
         throw new IllegalArgumentException("Point " + p + " was not adjacent as expected");
+    }
+
+    public static List<Direction> directionsFromAdjacent(List<Point> points) {
+        Point previous = new Point(0, 0);
+        List<Direction> directions = new LinkedList<>();
+        for (Point current : points) {
+            int x = current.x - previous.x;
+            int y = current.y - previous.y;
+            final var direction = fromAdjacentPoint(new Point(x, y));
+            directions.add(direction);
+            previous = current;
+        }
+        return directions;
     }
 
     /**

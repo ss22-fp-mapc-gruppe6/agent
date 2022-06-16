@@ -1,5 +1,11 @@
 package g6Agent.decisionModule;
 
+import eis.iilang.Action;
+import g6Agent.Tuple;
+import g6Agent.actions.Clear;
+import g6Agent.actions.G6Action;
+import g6Agent.actions.Move;
+import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.junit.Test;
 
@@ -18,6 +24,7 @@ public class TestAStar {
     }
 
     public static String visualize(List<Point> path, List<Point> obstacles, Point start) {
+        path = new ArrayList<>(path);
         if (start != null) {
             path.add(0, start);
         }
@@ -217,10 +224,11 @@ public class TestAStar {
         );
         final var shortestPath = AStar.findShortestPath(target, obstacles, 1);
         System.out.println("shortestPath = " + shortestPath);
-        final var visualize = visualize(shortestPath, obstacles);
+        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        final var visualize = visualize(points, obstacles);
         System.out.println(visualize);
 
-        final var directions = AStar.directionsFrom(shortestPath);
+        final var directions = Direction.directionsFromAdjacent(points);
         System.out.println("directions = " + directions);
     }
 
@@ -243,7 +251,9 @@ public class TestAStar {
 //        obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        final var visualize = visualize(shortestPath, obstacles, start);
+        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        System.out.println("Direction.directionsFrom(points) = " + Point.fromPointToPoint(points));
+        final var visualize = visualize(points, obstacles, start);
         System.out.println(visualize);
         assertEquals(4, shortestPath.size());
     }
@@ -259,7 +269,7 @@ public class TestAStar {
         List<Point> cage = new ArrayList<>();
         for (int x = -1; x < 1; x++) {
             for (int y = -1; y < 1; y++) {
-                if (x!=0 && y !=0){
+                if (x != 0 && y != 0) {
                     cage.add(target.add(x, y));
                 }
             }
@@ -267,8 +277,9 @@ public class TestAStar {
         obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        shortestPath.add(0, start);
-        final var visualize = visualize(shortestPath, obstacles, start);
+        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        points.add(0, start);
+        final var visualize = visualize(points, obstacles, start);
         System.out.println(visualize);
 
 //        assertEquals(4, shortestPath.size());
@@ -294,5 +305,33 @@ public class TestAStar {
                 new Point(3, 3),
                 new Point(2, 4)
         ), neighbours);
+    }
+
+    @Test
+    public void genericsTest() {
+
+        final List<Tuple<Point, Class<? extends G6Action>>> unobstructed = new ArrayList<>();
+
+        unobstructed.add(new Tuple<>(new Point(3, 3), Move.class));
+        unobstructed.add(new Tuple<>(new Point(3, 3), Move.class));
+        unobstructed.add(new Tuple<>(new Point(3, 3), Move.class));
+        unobstructed.add(new Tuple<>(new Point(0, 0), Clear.class));
+        unobstructed.add(new Tuple<>(new Point(3, 3), Move.class));
+        for (Tuple<Point, Class<? extends G6Action>> pointClassTuple : unobstructed) {
+            final Class<? extends G6Action> b = pointClassTuple.b();
+            final Map<? extends Class<? extends Action>, Runnable> classRunnableMap = Map.of(
+                    Move.class, () -> {
+                        System.out.println("it's a move");
+                    },
+                    Clear.class, () -> {
+                        System.out.println("it's a clear");
+                    }
+            );
+            if (b.equals(Move.class)){
+
+            }
+            final Runnable runnable = classRunnableMap.get(b);
+            runnable.run();
+        }
     }
 }
