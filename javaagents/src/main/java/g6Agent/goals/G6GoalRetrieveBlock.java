@@ -9,6 +9,7 @@ import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
@@ -130,5 +131,22 @@ public class G6GoalRetrieveBlock implements Goal {
     @Override
     public String getName() {
         return "G6GoalRetrieveBlock";
+    }
+
+    @Override
+    public boolean preconditionsMet() {
+        //unclear if can attach
+        if (perceptionAndMemory.getCurrentRole() == null) return false;
+        //no dispensers known
+        if (perceptionAndMemory.getDispensers().isEmpty() && perceptionAndMemory.getBlocks().isEmpty()) return false;
+        // true if can attach block with current role
+        return canAttach();
+    }
+
+    private boolean canAttach() {
+        return perceptionAndMemory.getCurrentRole()
+                .getPossibleActions()
+                .stream()
+                .noneMatch(action -> action.equals("attach"));
     }
 }

@@ -71,8 +71,7 @@ public enum Direction {
      * @return the new direction
      */
     public Direction rotate(Rotation rotation) {
-        switch (rotation){
-            case CLOCKWISE -> {
+        if (rotation.equals(Rotation.CLOCKWISE)) {
                 switch (this){
                     case WEST -> { return Direction.NORTH;}
                     case EAST -> { return Direction.SOUTH;}
@@ -80,16 +79,19 @@ public enum Direction {
                     case SOUTH -> { return Direction.WEST; }
                 }
             }
-            case COUNTERCLOCKWISE -> {
+            else {
                 switch (this){
                     case WEST -> { return Direction.SOUTH;}
                     case EAST -> { return Direction.NORTH;}
                     case NORTH -> {return Direction.WEST;}
                     case SOUTH -> {return Direction.EAST;}
-                    }
                 }
             }
-    return null;
+        try {
+            throw new Exception();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -69,4 +69,9 @@ public class G6GoalDig implements Goal {
     public String getName() {
         return "G6GoalDig";
     }
+
+    @Override
+    public boolean preconditionsMet() {
+        return !perceptionAndMemory.getObstacles().isEmpty();
+    }
 }

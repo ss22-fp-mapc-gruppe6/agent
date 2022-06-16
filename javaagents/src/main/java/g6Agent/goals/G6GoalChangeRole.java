@@ -90,4 +90,11 @@ public class G6GoalChangeRole implements Goal{
     public String getName() {
         return "G6GoalChangeRole";
     }
+
+    @Override
+    public boolean preconditionsMet() {
+        if (perceptionAndMemory.getRoleZones().isEmpty()) return false;
+        if (perceptionAndMemory.getCurrentRole() == null) return false;
+        return !perceptionAndMemory.getCurrentRole().getName().equals(this.roleName);
+    }
 }

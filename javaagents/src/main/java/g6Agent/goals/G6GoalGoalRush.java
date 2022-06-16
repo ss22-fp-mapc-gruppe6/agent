@@ -284,6 +284,12 @@ public class G6GoalGoalRush implements Goal {
         return "G6GoalGoalRush";
     }
 
+    @Override
+    public boolean preconditionsMet() {
+        //TODO
+        return false;
+    }
+
 
     private List<String> possibleRoleNames() {
         List<String> roleNames = new ArrayList<>();
