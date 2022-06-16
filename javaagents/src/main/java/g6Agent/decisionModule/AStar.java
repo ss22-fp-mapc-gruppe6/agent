@@ -74,18 +74,16 @@ public class AStar {
         return List.of();
     }
 
-    static List<Tuple<Point, Class<? extends Action>>> getUnobstructedSteps(Set<Point> obstacles, int stepSize, Point origin) {
+    static List<Tuple<Point, Class<? extends Action>>> getUnobstructedSteps(Set<Point> obstacles, int reach, Point origin) {
         List<Tuple<Point, Class<? extends Action>>> directionsToGo = new ArrayList<>();
         for (Direction direction : Direction.values()) {
-            final Point d = direction.getNextCoordinate();
-            Point next = new Point(origin).add(d);
-            int i = 0;
-            Class<? extends Action> aClass;
-            if (!obstacles.contains(next)) aClass = Move.class;
-            else aClass = Clear.class;
-            while (!obstacles.contains(next) && i++ < stepSize) {
-                directionsToGo.add(new Tuple<>(new Point(next), aClass));
-                next = next.add(d);
+            final Point directionDelta = direction.getNextCoordinate();
+            Point next = new Point(origin).add(directionDelta);
+            int step = 0;
+            if (obstacles.contains(next)) directionsToGo.add(new Tuple<>(new Point(next), Clear.class));
+            else while (!obstacles.contains(next) && step++ < reach) {
+                directionsToGo.add(new Tuple<>(new Point(next), Move.class));
+                next = next.add(directionDelta);
             }
         }
         return directionsToGo;
