@@ -5,6 +5,7 @@ import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 /**
@@ -14,25 +15,33 @@ import java.util.stream.Collectors;
 public class DecisionModuleImplementation implements DecisionModule{
     private final PerceptionAndMemory perceptionAndMemory;
     private final CommunicationModule communicationModule;
+
+    private Strategy strategy; //can be switched to determine the current behavior of the Agent (OFFENSE or DEFENCE )
     private Goal currentGoal;
 
     public DecisionModuleImplementation(PerceptionAndMemory perceptionAndMemory, CommunicationModule communicationModule) {
         this.perceptionAndMemory = perceptionAndMemory;
         this.communicationModule = communicationModule;
+        this.strategy = Strategy.OFFENSE;
         this.currentGoal = new G6GoalExplore(perceptionAndMemory);
     }
 
 
     @Override
     public Goal revalidateGoal() {
+        //generate list of all relevant goals
         List<Goal> goal_options = generateGoals();
+        //filter Otions and use only those, which preconditions are met
         goal_options = goal_options
                 .stream()
                 .filter(Goal::preconditionsMet)
                 .collect(Collectors.toList());
+        //filter with information from other Agents
         goal_options = filterWithInformationAboutFriendlyAgents(goal_options);
+        //choose the goal which has the highest priority
         Goal goal = selectGoalWithHighestPriority(goal_options);
         if (goal != null){
+            //change goal if priority is higher or the current goal isn't valid anymore
             if (priority(goal) > priority(currentGoal) || currentGoal.isFullfilled() || !currentGoal.isSucceding()) {
                 currentGoal = goal;
             }
@@ -51,10 +60,12 @@ public class DecisionModuleImplementation implements DecisionModule{
     }
 
     private int priority(Goal goal) {
-        if (goal instanceof G6GoalExplore) return 0;
-        if (goal instanceof G6GoalChangeRole) return 1;
-        if (goal instanceof G6GoalRetrieveBlock) return 2;
-        if (goal instanceof G6GoalGoalRush) return 3;
+        if (strategy.equals(Strategy.OFFENSE)) {
+            if (goal instanceof G6GoalExplore) return 0;
+            if (goal instanceof G6GoalChangeRole) return 1;
+            if (goal instanceof G6GoalRetrieveBlock) return 2;
+            if (goal instanceof G6GoalGoalRush) return 3;
+        }
         return -1;
     }
 
