@@ -19,6 +19,13 @@ public interface CommunicationModuleSwarmSightControllerInterface {
     void processVisionNotification(Percept message, String sender);
 
     /**
+     * Processes an message, which contains the Agents known to the Sender
+     * @param message the message
+     * @param sender  the sender
+     */
+    void processKnownAgentsNotification(Percept message, String sender);
+
+    /**
      * Broadcasts a "MOVEMENT_ATTEMPT" message, if the attempted action is one.
      * @param action the action
      */
