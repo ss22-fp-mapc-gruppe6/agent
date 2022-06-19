@@ -43,7 +43,7 @@ public class DecisionModuleImplementation implements DecisionModule{
         if (goal != null){
             //change goal if priority is higher or the current goal isn't valid anymore
             if (priority(goal) > priority(currentGoal) || currentGoal.isFullfilled() || !currentGoal.isSucceding()) {
-                currentGoal = goal;
+                currentGoal = goal.getName().equals(currentGoal.getName())? currentGoal : goal;
             }
         }
         return currentGoal;
@@ -77,7 +77,7 @@ public class DecisionModuleImplementation implements DecisionModule{
     private List<Goal> generateGoals() {
     return List.of(
             new G6GoalExplore(perceptionAndMemory),
-            new G6GoalChangeRole("worker", perceptionAndMemory),
+            new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory),
             new G6GoalRetrieveBlock(perceptionAndMemory),
             new G6GoalGoalRush(perceptionAndMemory)
     );

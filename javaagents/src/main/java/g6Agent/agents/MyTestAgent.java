@@ -29,8 +29,8 @@ public class MyTestAgent extends Agent{
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation();
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
-        //this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
-        this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule);
+        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
+        //this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule);
     }
 
 /*
@@ -57,9 +57,11 @@ public class MyTestAgent extends Agent{
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
         }
+        System.out.println(action);
         if (action == null) try {
             throw new Exception();
         } catch (Exception e) {
+            say("HELP GOT NO ACTION");
             throw new RuntimeException(e);
         }
         return (eis.iilang.Action) action;
