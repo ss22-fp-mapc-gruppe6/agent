@@ -434,7 +434,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             if (parameter instanceof Function function) {
                 String name = function.getName();
                 //if agent is not known add to known Agents with relative Position to sender
-                if (!swarmSightModel.isKnown(name)){
+                if (!swarmSightModel.isKnown(name) && !name.equals(agentname)){
                     Point position = new Point(
                             ((Numeral)function.getParameters().get(0)).getValue().intValue(),
                             ((Numeral)function.getParameters().get(1)).getValue().intValue()

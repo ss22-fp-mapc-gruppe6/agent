@@ -42,11 +42,13 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
-            case "KNOWN_AGENTS" -> {
+
+           case "KNOWN_AGENTS" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processKnownAgentsNotification(message, sender);
                 }
             }
+
         }
     }
 

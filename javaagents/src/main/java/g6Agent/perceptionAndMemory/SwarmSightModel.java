@@ -8,6 +8,7 @@ import g6Agent.services.Point;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -81,7 +82,7 @@ class SwarmSightModel {
      * @param movement the movement
      */
     void movedMyself(Movement movement) {
-     movedMyself(movement.direction(), movement.speed());
+     updateAllEntries(movement.asVector().invert());
     }
     /**
      * Updates all entries according to the movement of the Agent owning the internal Representation.
@@ -94,9 +95,13 @@ class SwarmSightModel {
 
 
     private void updateAllEntries(Point offset){
+        List<AgentNameAndPosition> updatedAgentPositions = new LinkedList<>();
         relativePositionOfOtherAgents.forEach(
-                (key, entry) -> relativePositionOfOtherAgents.put(key, entry.add(offset))
+                (key, entry) -> updatedAgentPositions.add(new AgentNameAndPosition(key, entry.add(offset)))
         );
+        for (var agentposition : updatedAgentPositions) {
+            relativePositionOfOtherAgents.put(agentposition.name(), agentposition.position());
+        }
     }
 
     public List<AgentNameAndPosition> knownAgents() {
