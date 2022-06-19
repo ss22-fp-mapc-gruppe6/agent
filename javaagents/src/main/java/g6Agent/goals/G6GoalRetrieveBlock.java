@@ -31,23 +31,25 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 }
             }
-            //if adjacent attach
-            if (closestBlock.getCoordinates().isAdjacent()){
-                for (Direction direction : Direction.allDirections()) {
-                    if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
-                        return new Attach(direction);
+            if (checkIfNotCloseToOtherAgent(closestBlock)) {
+                //if adjacent attach
+                if (closestBlock.getCoordinates().isAdjacent()) {
+                    for (Direction direction : Direction.allDirections()) {
+                        if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
+                            return new Attach(direction);
+                        }
                     }
-                }
-            }else {
-                //move to next block
-                //move to next block
-                Direction direction = Direction.WEST;
-                for (Direction d : Direction.allDirections()) {
-                    if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
-                        direction = d;
+                } else {
+                    //move to next block
+                    //move to next block
+                    Direction direction = Direction.WEST;
+                    for (Direction d : Direction.allDirections()) {
+                        if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
+                            direction = d;
+                        }
                     }
+                    return moveTo(direction);
                 }
-                return moveTo(direction);
             }
         }
 
