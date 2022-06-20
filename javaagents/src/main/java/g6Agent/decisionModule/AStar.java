@@ -9,66 +9,94 @@ import g6Agent.services.Point;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class AStar {
 
-
-    public static List<Tuple<Point, Class<? extends Action>>> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
+    public static List<PointAction> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(new Point(0, 0), target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    public static List<Tuple<Point, Class<? extends Action>>> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
+    public static List<PointAction> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
-        HashMap<Point, Wrapper> wrappers = new HashMap<>();
+        HashMap<PointAction, Wrapper> wrappers = new HashMap<>();
         HashSet<Point> visited = new HashSet<>();
-        final var startWrapper = Wrapper.create(start, null, 0.0, heuristic.apply(start), Move.class);
-        wrappers.put(start, startWrapper);
+        final PointAction startPointAction = new PointAction(start, Move.class, start);
+        final var startWrapper = Wrapper.create(startPointAction, null, 0.0, heuristic.apply(start), Set.of());
+        wrappers.put(startPointAction, startWrapper);
         queue.add(startWrapper);
 
         while (!queue.isEmpty()) {
             final var currentWrapped = queue.poll();
-            final var currentPoint = currentWrapped.point();
-            visited.add(currentPoint);
-            System.out.println("currentPoint = " + currentPoint);
+            final var current = currentWrapped.pointAction();
+            final Point currentPoint;
+            if (Move.class.equals(current.action())) {
+                currentPoint = current.to();
+            } else if (Clear.class.equals(current.action())) {
+                currentPoint = current.from();
+            } else {
+                throw new IllegalStateException("should have been Move or CLear action");
+            }
+            visited.add(current.to());
+            System.out.println("current = " + current);
 
             if (currentPoint.equals(target)) {
                 return currentWrapped.tracePath();
             }
             //            obstaclesAndVisited.addAll(visited);
-            final var neighbours = getUnobstructedSteps(new HashSet<>(obstacles), stepSize, currentPoint);
+            final var neighbours = getUnobstructedSteps(
+                    obstacles.stream().filter(Predicate.not(currentWrapped.destroyedObstacles::contains)).collect(Collectors.toSet()),
+                    stepSize,
+                    currentPoint);
             for (var tuple : neighbours) {
-                final Point neighbour = tuple.a();
+                Point neighbour = tuple.a();
                 final var action = tuple.b();
                 final int cost;
-                if (action.equals(Move.class))
-                    cost = 1;
-                else if (action.equals(Clear.class))
-                    cost = 3;
-                else
-                    throw new IllegalStateException("unexpected action!");
-//                if (obstacles.contains(neighbour)) continue;
+                final Set<Point> destroyedObstacles;
                 if (visited.contains(neighbour)) continue;
+                if (action.equals(Move.class)) {
+                    cost = 1;
+                    destroyedObstacles = Set.of();
+                } else if (action.equals(Clear.class)) {
+                    cost = 1;
+                    destroyedObstacles = Set.of(neighbour);
+                } else
+                    throw new IllegalStateException("unexpected action!");
+                final PointAction pointAction = new PointAction(currentPoint, action, neighbour);
+                var neighbourWrapped = wrappers.get(pointAction);
+//                if (obstacles.contains(neighbour)) continue;
 
-//                final int cost = currentPoint.manhattanDistanceTo(neighbour);
+//                final int cost = current.manhattanDistanceTo(neighbour);
                 final double totalCost = currentWrapped.totalCostFromStart() + cost;
 
-                var neighbourWrapped = wrappers.get(neighbour);
                 if (neighbourWrapped == null) {
                     final var minimumRemainingCost = heuristic.apply(neighbour);
-                    neighbourWrapped = Wrapper.create(neighbour, currentWrapped, totalCost, minimumRemainingCost, action);
-                    wrappers.put(neighbour, neighbourWrapped);
+                    neighbourWrapped =
+                            Wrapper.create(
+                                    pointAction,
+                                    currentWrapped,
+                                    totalCost,
+                                    minimumRemainingCost,
+                                    destroyedObstacles);
+                    wrappers.put(pointAction, neighbourWrapped);
                     final var add = queue.add(neighbourWrapped);
-                } else if (totalCost < neighbourWrapped.totalCostFromStart()) {
+                } else if (totalCost < neighbourWrapped.totalCostFromStart() || action.equals(Clear.class)) {
                     queue.remove(neighbourWrapped);
 
-                    final var replacement = Wrapper.create(neighbourWrapped.point(), currentWrapped, totalCost, neighbourWrapped.minimalRemainingCost(), action);
+                    final var replacement =
+                            Wrapper.create(
+                                    pointAction,
+                                    currentWrapped,
+                                    totalCost,
+                                    neighbourWrapped.minimalRemainingCost(),
+                                    destroyedObstacles);
 
                     queue.add(replacement);
 
                 }
             }
-            System.out.println();
         }
         new RuntimeException("No path to " + target + " found.").printStackTrace();
         return List.of();
@@ -121,19 +149,19 @@ public class AStar {
         return Set.of(new Point(p.x, p.y + 1), new Point(p.x, p.y - 1), new Point(p.x + 1, p.y), new Point(p.x - 1, p.y));
     }
 
-    public static List<Tuple<Point, Class<? extends Action>>> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
+    public static List<PointAction> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(start, target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    record Wrapper(Point point, AStar.Wrapper predecessor, double costSum, double totalCostFromStart,
-                   double minimalRemainingCost, Class<? extends Action> action) implements Comparable<Wrapper> {
+    record Wrapper(PointAction pointAction, AStar.Wrapper predecessor, double costSum, double totalCostFromStart,
+                   double minimalRemainingCost, Set<Point> destroyedObstacles) implements Comparable<Wrapper> {
         @Override
         public String toString() {
-            return "(" + point.x + "," + point.y + ")-" + costSum;
+            return "(" + pointAction + ")-" + costSum;
         }
 
-        public static Wrapper create(Point point, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Class<? extends Action> action) {
-            return new Wrapper(point, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost, action);
+        public static Wrapper create(PointAction pointAction, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Set<Point> destroyedObstacles) {
+            return new Wrapper(pointAction, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost, destroyedObstacles);
         }
 
         @Override
@@ -143,11 +171,12 @@ public class AStar {
         }
 
 
-        List<Tuple<Point, Class<? extends Action>>> tracePath() {
-            final var path = new LinkedList<Tuple<Point, Class<? extends Action>>>();
+        List<PointAction> tracePath() {
+            final List<PointAction> path = new LinkedList<>();
             var wrapper = this;
             while (wrapper.predecessor != null) {
-                path.add(new Tuple<>(wrapper.point, wrapper.action));
+//                path.add(new PointAction(wrapper.pointAction, wrapper.action));
+                path.add(wrapper.pointAction);
                 wrapper = wrapper.predecessor;
             }
             Collections.reverse(path);

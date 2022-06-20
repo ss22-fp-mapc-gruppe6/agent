@@ -197,7 +197,9 @@ public class TestAStar {
                 new Point(-2, 0),
                 new Point(-3, 0)
         );
-        final List<Point> points = directions.stream().map(Tuple::a).toList();
+        final List<Point> points = directions.stream()
+                .filter(pointClassTuple -> Move.class.equals(pointClassTuple.b()))
+                .map(Tuple::a).toList();
         assertThat(points, containsInAnyOrder(expected.toArray()));
         assertEquals(6, points.size());
 
@@ -225,12 +227,10 @@ public class TestAStar {
         );
         final var shortestPath = AStar.findShortestPath(target, obstacles, 1);
         System.out.println("shortestPath = " + shortestPath);
-        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
         final var visualize = visualize(points, obstacles);
-        System.out.println(visualize);
+        assertEquals(5, points.size());
 
-        final var directions = Direction.directionsFromAdjacent(points);
-        System.out.println("directions = " + directions);
     }
 
     @Test
@@ -252,11 +252,11 @@ public class TestAStar {
 //        obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
         System.out.println("Direction.directionsFrom(points) = " + Point.fromPointToPoint(points));
         final var visualize = visualize(points, obstacles, start);
         System.out.println(visualize);
-        assertEquals(4, shortestPath.size());
+        assertEquals(5, shortestPath.size());
     }
 
     @Test
@@ -278,7 +278,8 @@ public class TestAStar {
         obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        final List<Point> points = shortestPath.stream().map(Tuple::a).toList();
+        List<Point> points = shortestPath.stream().map(PointAction::from).toList();
+        points = new ArrayList<>(points);
         points.add(0, start);
         final var visualize = visualize(points, obstacles, start);
         System.out.println(visualize);
