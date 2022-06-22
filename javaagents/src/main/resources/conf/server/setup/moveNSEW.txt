@@ -1,0 +1,41 @@
+# simple setup file for testing
+
+terrain 5 0 obstacle
+terrain 5 1 obstacle
+terrain 5 2 obstacle
+terrain 5 3 obstacle
+terrain 5 4 obstacle
+terrain 5 5 obstacle
+terrain 5 6 obstacle
+terrain 5 7 obstacle
+terrain 5 8 obstacle
+terrain 5 9 obstacle
+terrain 5 10 obstacle
+terrain 5 11 obstacle
+terrain 5 12 obstacle
+terrain 5 13 obstacle
+terrain 5 14 obstacle
+terrain 5 15 obstacle
+terrain 5 16 obstacle
+terrain 5 17 obstacle
+terrain 5 18 obstacle
+terrain 5 19 obstacle
+#add 5 5 taskboard
+
+stop    # stops further setup execution
+
+move 3 3 agentA1
+move 6 3 agentA2
+add 4 3 dispenser b1
+add 5 3 dispenser b2
+add 3 5 block b1
+terrain 5 5 obstacle
+terrain 5 6 empty
+terrain 6 6 goal
+
+# create task test 100 1,0,b1;2,0,b2
+
+create task test 100 1,0,b1
+move 10 10 agentA3
+add 11 10 block b1
+attach 10 10 11 10

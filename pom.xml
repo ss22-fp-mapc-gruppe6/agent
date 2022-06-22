@@ -18,7 +18,6 @@
     <module>protocol</module>
     <module>javaagents</module>
     <module>monitor</module>
-    <module>runner</module>
   </modules>
 
   <build>
