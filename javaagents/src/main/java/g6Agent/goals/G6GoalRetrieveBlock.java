@@ -1,5 +1,7 @@
 package g6Agent.goals;
 
+import eis.iilang.Action;
+import g6Agent.Tuple;
 import g6Agent.actions.*;
 import g6Agent.decisionModule.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
@@ -38,21 +40,20 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 }
             }
-            if (checkIfNotCloseToOtherAgent(closestBlock)) {
-                //if adjacent attach
-                if (closestBlock.getCoordinates().isAdjacent()) {
-                    for (Direction direction : Direction.allDirections()) {
-                        if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
-                            return new Attach(direction);
-                        }
+            //if adjacent attach
+            if (closestBlock.getCoordinates().isAdjacent()){
+                for (Direction direction : Direction.allDirections()) {
+                    if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
+                        return new Attach(direction);
                     }
-                } else {
-                    //move to next block
-                    final List<Point> obstacles = perceptionAndMemory.getObstacles();
-                    final List<Point> shortestPath = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles);
-                    final List<Direction> directions = AStar.directionsFrom(shortestPath);
-                    return moveTo(directions.get(0));
                 }
+            }else {
+                //move to next block
+                final List<Point> obstacles = perceptionAndMemory.getObstacles();
+                //TODO actually get step size
+                final int stepSize = 1;
+                final List<? extends G6Action> shortestPathActions = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles, stepSize);
+                return shortestPathActions.get(0);
             }
         }
 

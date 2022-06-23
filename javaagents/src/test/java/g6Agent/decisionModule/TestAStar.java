@@ -1,6 +1,7 @@
 package g6Agent.decisionModule;
 
 import eis.iilang.Action;
+import eis.iilang.IILElement;
 import g6Agent.Tuple;
 import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
@@ -10,6 +11,9 @@ import g6Agent.services.Point;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -18,67 +22,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestAStar {
-
-    public static String visualize(List<Point> path, List<Point> obstacles) {
-        return visualize(path, obstacles, null);
+    public TestAStar() {
+        IILElement.toProlog = true;
     }
 
-    public static String visualize(List<Point> path, List<Point> obstacles, Point start) {
-        path = new ArrayList<>(path);
-        if (start != null) {
-            path.add(0, start);
-        }
-        Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
-        Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
-        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
-        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
-        if (path.isEmpty())
-            throw new IllegalArgumentException("list is empty");
-        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
-            throw new IllegalArgumentException("x or y dimension is empty?");
-        int maxX = maxXPoint.get().x;
-        int maxY = maxYPoint.get().y;
-        int minX = minXPoint.get().x;
-        int minY = minYPoint.get().y;
 
-        Point target = path.get(path.size() - 1);
-
-
-        String fielGap = " ";
-        StringBuffer s = new StringBuffer();
-        // x axis legend
-        s.append(" ").append(" ").append(" ");
-        for (int x = minX; x <= maxX; x++) {
-            s.append(String.format("%5s", x));
-        }
-        s.append("\n");
-
-        for (int y = minY; y <= maxY; y++) {
-            //y axis legend
-            s.append(String.format("%3s", y));
-
-            for (int x = minX; x <= maxX; x++) {
-                String field = " ";
-                if (start != null && start.getX() == x && start.getY() == y)
-                    field = "s";
-                else if (target.getX() == x && target.getY() == y)
-                    field = "t";
-                else {
-                    final var p = new Point(x, y);
-                    if (path.contains(p))
-                        field = String.valueOf(path.indexOf(p));
-                    else if (obstacles.contains(p)) {
-                        field = "b";
-                    }
-                }
-                String fieldFormat = String.format("%5s", field);
-                s.append(fieldFormat);
-            }
-            s.append("\n");
-        }
-
-        return s.toString();
-    }
 
     @Test
     public void test_unobstructed_directions_max() {
@@ -208,7 +156,7 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, List.of(), 1);
+        final var shortestPath = AStar.findShortestPath(target, List.of(), 5);
         assertEquals(0, shortestPath.size());
         assertEquals(List.of(), shortestPath);
     }
@@ -225,21 +173,21 @@ public class TestAStar {
 //                new Point(8, 7),
 //                new Point(8, 9)
         );
-        final var shortestPath = AStar.findShortestPath(target, obstacles, 1);
+        final var shortestPath = AStar.findShortestPath(target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
-        final var visualize = visualize(points, obstacles);
-        assertEquals(5, points.size());
+//        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
+//        final var visualize = visualize(points, obstacles);
+//        assertEquals(5, points.size());
 
     }
 
     @Test
     public void test_9_9() {
         Point start = new Point(5, 5);
-        Point target = new Point(12, 7);
+        Point target = new Point(12, 9);
         List<Point> obstacles = new ArrayList<>();
         List<Point> line = new ArrayList<>();
-        for (int i = 0; i < 10; i++) line.add(new Point(8, 0 + i));
+        for (int i = -10; i < 30; i++) line.add(new Point(8, 0 + i));
         obstacles.addAll(line);
         List<Point> cage = new ArrayList<>();
         for (int x = -1; x < 2; x++) {
@@ -252,10 +200,11 @@ public class TestAStar {
 //        obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
-        System.out.println("Direction.directionsFrom(points) = " + Point.fromPointToPoint(points));
-        final var visualize = visualize(points, obstacles, start);
-        System.out.println(visualize);
+        //TODO fix
+//        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
+//        System.out.println("Direction.directionsFrom(points) = " + Point.fromPointToPoint(points));
+//        final var visualize = visualize(points, obstacles, start);
+//        System.out.println(visualize);
         assertEquals(5, shortestPath.size());
     }
 
@@ -278,11 +227,12 @@ public class TestAStar {
         obstacles.addAll(cage);
         final var shortestPath = AStar.findShortestPath(start, target, obstacles, 3);
         System.out.println("shortestPath = " + shortestPath);
-        List<Point> points = shortestPath.stream().map(PointAction::from).toList();
-        points = new ArrayList<>(points);
-        points.add(0, start);
-        final var visualize = visualize(points, obstacles, start);
-        System.out.println(visualize);
+        //TODO fix
+//        List<Point> points = shortestPath.stream().map(PointAction::from).toList();
+//        points = new ArrayList<>(points);
+//        points.add(0, start);
+//        final var visualize = visualize(points, obstacles, start);
+//        System.out.println(visualize);
 
 //        assertEquals(4, shortestPath.size());
     }
@@ -329,11 +279,26 @@ public class TestAStar {
                         System.out.println("it's a clear");
                     }
             );
-            if (b.equals(Move.class)){
+            if (b.equals(Move.class)) {
 
             }
             final Runnable runnable = classRunnableMap.get(b);
             runnable.run();
         }
+    }
+
+    @Test
+    public void streamTest() {
+
+        final PointAction p1 = new PointAction(new Point(1, 2), Move.class, new Point(2, 3));
+        final PointAction p2 = new PointAction(new Point(2, 3), Move.class, new Point(4, 3));
+        final PointAction p3 = new PointAction(new Point(4, 3), Move.class, new Point(5, 5));
+
+
+        System.out.println(Stream.of(p1, p2,p3)
+                .sequential()
+                .flatMap(pa -> Stream.of(pa.from(), pa.to()))
+                .distinct()
+                .toList());
     }
 }

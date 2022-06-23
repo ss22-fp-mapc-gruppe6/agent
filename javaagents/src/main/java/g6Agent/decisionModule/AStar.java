@@ -1,8 +1,8 @@
 package g6Agent.decisionModule;
 
-import eis.iilang.Action;
 import g6Agent.Tuple;
 import g6Agent.actions.Clear;
+import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
@@ -14,17 +14,17 @@ import java.util.stream.Collectors;
 
 public class AStar {
 
-    public static List<PointAction> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
+    public static List<? extends G6Action> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(new Point(0, 0), target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    public static List<PointAction> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
+    public static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<PointAction, Wrapper> wrappers = new HashMap<>();
         HashSet<Point> visited = new HashSet<>();
         final PointAction startPointAction = new PointAction(start, Move.class, start);
-        final var startWrapper = Wrapper.create(startPointAction, null, 0.0, heuristic.apply(start), Set.of());
+        final var startWrapper = Wrapper.create(startPointAction, null, 0.0, heuristic.apply(start), Set.of(), 0);
         wrappers.put(startPointAction, startWrapper);
         queue.add(startWrapper);
 
@@ -34,32 +34,49 @@ public class AStar {
             final Point currentPoint;
             if (Move.class.equals(current.action())) {
                 currentPoint = current.to();
+                visited.add(current.to());
             } else if (Clear.class.equals(current.action())) {
                 currentPoint = current.from();
             } else {
-                throw new IllegalStateException("should have been Move or CLear action");
+                throw new IllegalStateException("should have been Move or Clear action");
             }
-            visited.add(current.to());
-            System.out.println("current = " + current);
+//            System.out.println("current = " + current + ", " + currentWrapped.costSum + ", " + currentWrapped.minimalRemainingCost);
 
             if (currentPoint.equals(target)) {
-                return currentWrapped.tracePath();
+                final List<PointAction> path = currentWrapped.tracePath();
+
+                final List<Point> points = path.stream().map(PointAction::from).toList();
+                final var visualize = visualize(points, obstacles, start);
+                System.out.println(visualize);
+                final List<G6Action> g6Actions = actionsFromPointActions(path, stepSize);
+                System.out.println("g6Actions = " + g6Actions);
+                return g6Actions;
             }
             //            obstaclesAndVisited.addAll(visited);
             final var neighbours = getUnobstructedSteps(
                     obstacles.stream().filter(Predicate.not(currentWrapped.destroyedObstacles::contains)).collect(Collectors.toSet()),
-                    stepSize,
+                    1,
                     currentPoint);
             for (var tuple : neighbours) {
+                int step = currentWrapped.step();
                 Point neighbour = tuple.a();
                 final var action = tuple.b();
                 final int cost;
                 final Set<Point> destroyedObstacles;
                 if (visited.contains(neighbour)) continue;
                 if (action.equals(Move.class)) {
-                    cost = 1;
+                    step++;
+                    if (step == 1)
+                        cost = 1;
+                    else if (step <= stepSize)
+                        cost = 0;
+                    else {
+                        step = 1;
+                        cost = 1;
+                    }
                     destroyedObstacles = Set.of();
                 } else if (action.equals(Clear.class)) {
+                    step = 0;
                     cost = 1;
                     destroyedObstacles = Set.of(neighbour);
                 } else
@@ -79,7 +96,7 @@ public class AStar {
                                     currentWrapped,
                                     totalCost,
                                     minimumRemainingCost,
-                                    destroyedObstacles);
+                                    destroyedObstacles, step);
                     wrappers.put(pointAction, neighbourWrapped);
                     final var add = queue.add(neighbourWrapped);
                 } else if (totalCost < neighbourWrapped.totalCostFromStart() || action.equals(Clear.class)) {
@@ -91,7 +108,7 @@ public class AStar {
                                     currentWrapped,
                                     totalCost,
                                     neighbourWrapped.minimalRemainingCost(),
-                                    destroyedObstacles);
+                                    destroyedObstacles, step);
 
                     queue.add(replacement);
 
@@ -102,8 +119,52 @@ public class AStar {
         return List.of();
     }
 
-    static List<Tuple<Point, Class<? extends Action>>> getUnobstructedSteps(Set<Point> obstacles, int reach, Point origin) {
-        List<Tuple<Point, Class<? extends Action>>> directionsToGo = new ArrayList<>();
+    private static List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
+        final List<G6Action> actions = new ArrayList<>();
+        final LinkedList<PointAction> queue = new LinkedList<>();
+        int step = 0;
+        for (final PointAction pa : path) {
+            final Class<? extends G6Action> action = pa.action();
+            if (action.equals(Move.class)) {
+                step++;
+                queue.add(pa);
+                if (step >= stepSize) {
+                    step = 0;
+                    actions.add(createMove(queue));
+                    queue.clear();
+                }
+            } else if (action.equals(Clear.class)) {
+                step = 0;
+                //add queued partial move before clear
+                if (!queue.isEmpty()) {
+                    actions.add(createMove(queue));
+                    queue.clear();
+                }
+                actions.add(new Clear(new Point(pa.to().x - pa.from().x, pa.to().y - pa.from().y)));
+            }
+
+        }
+        //add partial move
+        if (!queue.isEmpty()) actions.add(createMove(queue));
+        return actions;
+    }
+
+    private static Move createMove(LinkedList<PointAction> pointActions) {
+        return new Move(pointActions.stream()
+                .sequential()
+                .map(pa -> Direction.fromAdjacentPoint(
+                        new Point(pa.to().x - pa.from().x, pa.to().y - pa.from().y)
+                ))
+                .toArray(Direction[]::new));
+    }
+
+    private static List<String> pointsToDirections(List<Point> queue) {
+        //TODO
+        return null;
+    }
+
+    static List<Tuple<Point, Class<? extends G6Action>>> getUnobstructedSteps(Set<Point> obstacles, int reach, Point origin) {
+        List<Tuple<Point, Class<? extends G6Action>>> directionsToGo = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             final Point directionDelta = direction.getNextCoordinate();
             Point next = new Point(origin).add(directionDelta);
@@ -149,19 +210,20 @@ public class AStar {
         return Set.of(new Point(p.x, p.y + 1), new Point(p.x, p.y - 1), new Point(p.x + 1, p.y), new Point(p.x - 1, p.y));
     }
 
-    public static List<PointAction> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
+    public static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(start, target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    record Wrapper(PointAction pointAction, AStar.Wrapper predecessor, double costSum, double totalCostFromStart,
-                   double minimalRemainingCost, Set<Point> destroyedObstacles) implements Comparable<Wrapper> {
+    record Wrapper(PointAction pointAction, Wrapper predecessor, double costSum, double totalCostFromStart,
+                   double minimalRemainingCost, Set<Point> destroyedObstacles,
+                   int step) implements Comparable<Wrapper> {
         @Override
         public String toString() {
             return "(" + pointAction + ")-" + costSum;
         }
 
-        public static Wrapper create(PointAction pointAction, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Set<Point> destroyedObstacles) {
-            return new Wrapper(pointAction, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost, destroyedObstacles);
+        public static Wrapper create(PointAction pointAction, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Set<Point> destroyedObstacles, int step) {
+            return new Wrapper(pointAction, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost, destroyedObstacles, step);
         }
 
         @Override
@@ -182,5 +244,66 @@ public class AStar {
             Collections.reverse(path);
             return path;
         }
+    }
+
+    public static String visualize(List<Point> path, List<Point> obstacles, Point start) {
+        path = new ArrayList<>(path);
+        if (start != null) {
+            path.add(0, start);
+        }
+        Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
+        Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
+        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
+        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
+        if (path.isEmpty())
+            throw new IllegalArgumentException("list is empty");
+        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
+            throw new IllegalArgumentException("x or y dimension is empty?");
+        int maxX = maxXPoint.get().x;
+        int maxY = maxYPoint.get().y;
+        int minX = minXPoint.get().x;
+        int minY = minYPoint.get().y;
+
+        Point target = path.get(path.size() - 1);
+
+
+        String fielGap = " ";
+        StringBuffer s = new StringBuffer();
+        // x axis legend
+        s.append(" ").append(" ").append(" ");
+        for (int x = minX; x <= maxX; x++) {
+            s.append(String.format("%5s", x));
+        }
+        s.append("\n");
+
+        for (int y = minY; y <= maxY; y++) {
+            //y axis legend
+            s.append(String.format("%3s", y));
+
+            for (int x = minX; x <= maxX; x++) {
+                String field = " ";
+                if (start != null && start.getX() == x && start.getY() == y)
+                    field = "s";
+                else if (target.getX() == x && target.getY() == y)
+                    field = "t";
+                else {
+                    final var p = new Point(x, y);
+                    if (path.contains(p))
+                        field = String.valueOf(path.indexOf(p));
+                    else if (obstacles.contains(p)) {
+                        field = "b";
+                    }
+                }
+                String fieldFormat = String.format("%5s", field);
+                s.append(fieldFormat);
+            }
+            s.append("\n");
+        }
+
+        return s.toString();
+    }
+
+    public static String visualize(List<Point> path, List<Point> obstacles) {
+        return visualize(path, obstacles, null);
     }
 }
