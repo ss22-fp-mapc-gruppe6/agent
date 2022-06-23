@@ -40,20 +40,23 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 }
             }
-            //if adjacent attach
-            if (closestBlock.getCoordinates().isAdjacent()){
-                for (Direction direction : Direction.allDirections()) {
-                    if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
-                        return new Attach(direction);
+            if (checkIfNotCloseToOtherAgent(closestBlock)) {
+                //if adjacent attach
+                if (closestBlock.getCoordinates().isAdjacent()) {
+                    for (Direction direction : Direction.allDirections()) {
+                        if (direction.getNextCoordinate().equals(closestBlock.getCoordinates())) {
+                            return new Attach(direction);
+                        }
                     }
+                } else {
+                    //move to next block
+                    final List<Point> obstacles = perceptionAndMemory.getObstacles();
+                    final List<Block> directlyAttachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks();
+                    final List<Integer> movementSpeed = perceptionAndMemory.getCurrentRole().getMovementSpeed();
+                    final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
+                    final List<? extends G6Action> shortestPathActions = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles, stepSize);
+                    return shortestPathActions.get(0);
                 }
-            }else {
-                //move to next block
-                final List<Point> obstacles = perceptionAndMemory.getObstacles();
-                //TODO actually get step size
-                final int stepSize = 1;
-                final List<? extends G6Action> shortestPathActions = AStar.findShortestPath(closestBlock.getCoordinates(), obstacles, stepSize);
-                return shortestPathActions.get(0);
             }
         }
 
