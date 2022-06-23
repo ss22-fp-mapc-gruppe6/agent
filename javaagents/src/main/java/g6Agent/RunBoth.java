@@ -4,7 +4,7 @@ public class RunBoth {
     public static void main(String[] args) {
         final String base = "javaagents/src/main/resources";
         final Thread agents = new Thread(() -> {
-            final String config = "/conf/agent/MySingleAgent";
+            final String config = "/conf/agents/MySingleAgent";
             Main.main(new String[]{base + config});
         });
         agents.setName("agents");
