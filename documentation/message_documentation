@@ -14,3 +14,12 @@ AgentMapCoordinator:
                     }
 "MY_VISION" - Information on what an Agent sees (Parameterlist){(Function)}
 
+"KNOWN_AGENTS", - The Agents known to the Sender with their relative Positions to the Sender
+        {
+            (ParameterList){
+                (Function) with name of the agent as its name
+                (Numeral) x Position
+                (Numeral) y Position
+            }
+        }
+

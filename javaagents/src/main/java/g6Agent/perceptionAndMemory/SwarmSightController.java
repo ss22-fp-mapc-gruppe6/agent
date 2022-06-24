@@ -166,7 +166,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     public void processVisionNotification(Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
             if (!sender.equals(agentname)) {
-                if (swarmSightModel.getAgentPosition(sender) != null) {
+                if (swarmSightModel.isKnown(sender)) {
                     List<Block> dispensers = new ArrayList<>();
                     List<Block> blocks = new ArrayList<>();
                     List<Point> roleZones = new ArrayList<>();
@@ -210,6 +210,8 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             }
         }
     }
+
+
 
     record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
                  List<Point> obstacles) {
@@ -401,7 +403,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public void handleStep() {
-        swarmSightModel.incrementAllCounters();
         handleUnanseweredRequests();
         this.requestsToAnswer = new ArrayList<>();
 
@@ -410,6 +411,38 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         this.acceptMessagesThisStep = new ArrayList<>();
 
         checkForOtherAgents();
+        broadcastKnownAgents();
+    }
+
+    private void broadcastKnownAgents() {
+        List<AgentNameAndPosition> knownAgents = swarmSightModel.knownAgents();
+        if (!knownAgents.isEmpty()){
+            ParameterList listOfKnownAgentPercepts = new ParameterList();
+            for (AgentNameAndPosition agent : knownAgents){
+                if (!agent.name().equals(agentname)){
+                    listOfKnownAgentPercepts.add(new Function(agent.name(), new Numeral(agent.position().y), new Numeral(agent.position().y)));
+                }
+            }
+            mailservice.broadcast(new Percept("KNOWN_AGENTS", listOfKnownAgentPercepts), agentname);
+        }
+    }
+
+    @Override
+    public void processKnownAgentsNotification(Percept message, String sender) {
+        if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender))
+        for (Parameter parameter : (ParameterList) message.getParameters().get(0)){
+            if (parameter instanceof Function function) {
+                String name = function.getName();
+                //if agent is not known add to known Agents with relative Position to sender
+                if (!swarmSightModel.isKnown(name) && !name.equals(agentname)){
+                    Point position = new Point(
+                            ((Numeral)function.getParameters().get(0)).getValue().intValue(),
+                            ((Numeral)function.getParameters().get(1)).getValue().intValue()
+                    );
+                    swarmSightModel.heardOfAgentPosition(name, position, sender);
+                }
+            }
+        }
     }
 
     @Override
@@ -493,7 +526,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
     private boolean comparePositionWithMovementVectors(Point agentPosition, AgentNameAndPosition agentInMemory) {
-        //TODO Confirm this works
         boolean isIdentified = false;
         StepAndMovement attemptedMove = attemptedMovements.get(agentInMemory.name());
         if (attemptedMove != null) {

@@ -18,30 +18,37 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     public void handleMessage(Percept message, String sender) {
         switch (message.getName()){
             case "MOVEMENT_NOTIFICATION"  -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
+                for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
             case "MOVEMENT_ATTEMPT"  -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
+                for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementAttempt(message, sender);
                 }
             }
             case "INTRODUCTION_REQUEST" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
+                for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processIntroductionRequest(message, sender);
                 }
             }
             case "INTRODUCTION_ACCEPT" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
+                for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processIntroductionAccept(message, sender);
                 }
             }
             case "MY_VISION" -> {
-                for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
+                for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
+
+           case "KNOWN_AGENTS" -> {
+                for (var agentMapCoordinator : swarmSightControllers) {
+                    agentMapCoordinator.processKnownAgentsNotification(message, sender);
+                }
+            }
+
         }
     }
 

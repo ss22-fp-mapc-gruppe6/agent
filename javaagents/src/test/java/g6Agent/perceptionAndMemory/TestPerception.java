@@ -101,6 +101,12 @@ public class TestPerception {
         assert (pam.getTeam().equals("A"));
         assert (pam.getFriendlyAgents().size() == 1);
         assert (pam.getEnemyAgents().size() == 1);
+        pl = List.of(
+                new Percept("team", new Identifier("A")),
+                new Percept("thing", new Numeral(0), new Numeral(0), new Identifier("entity"), new Identifier("A"))
+        );
+        pam.handlePercepts(pl);
+        assert(pam.getFriendlyAgents().isEmpty());
     }
     /*
     @org.junit.Test

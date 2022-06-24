@@ -399,7 +399,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     public List<Point> getFriendlyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team) && !agent.coordinate.equals(new Point(0,0))){
+            if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0,0))){
                 points.add(agent.coordinate());
             }
         }
