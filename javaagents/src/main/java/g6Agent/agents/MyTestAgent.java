@@ -27,7 +27,7 @@ public class MyTestAgent extends Agent{
         super(name, mailbox);
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
-        this.communicationModule = new CommunicationModuleImplementation();
+        this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
         this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
         //this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule);

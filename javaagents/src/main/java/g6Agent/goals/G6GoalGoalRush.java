@@ -74,7 +74,6 @@ public class G6GoalGoalRush implements Goal {
                 if (task.getRequirements().size() == 1) {
                     return rotateAndSubmit();
                 } else {
-                    //TODO Work together with other Agents to fullfill Task
                     return new Skip();
                 }
             } else {
@@ -286,20 +285,35 @@ public class G6GoalGoalRush implements Goal {
 
     @Override
     public boolean preconditionsMet() {
-        //TODO
-        return false;
+        Role currentRole = perceptionAndMemory.getCurrentRole();
+        if (currentRole == null) return false;
+        if (!currentRole.canPerformAction("attach")  || !currentRole.canPerformAction("submit")){
+            return false;
+        }
+        if(perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty()) return false;
+        return checkIfBlockMatchingTask();
     }
 
-
-    private List<String> possibleRoleNames() {
-        List<String> roleNames = new ArrayList<>();
-        for (Role role : perceptionAndMemory.getPossibleRoles()) {
-            for (String action : role.getPossibleActions()) {
-                if (action.equals("submit")) {
-                    roleNames.add(role.getName());
+    private boolean checkIfBlockMatchingTask() {
+        boolean hasBlockMatchingTask = false;
+        for (Block attchedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
+            for (Task t : perceptionAndMemory.getActiveTasks()) {
+                for (Block requirement : t.getRequirements()) {
+                    if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())) {
+                        hasBlockMatchingTask = true;
+                        break;
+                    }
                 }
             }
         }
-        return roleNames;
+        return hasBlockMatchingTask;
+    }
+
+    private List<String> possibleRoleNames() {
+        return perceptionAndMemory.getPossibleRoles()
+                .stream()
+                .filter(role -> role.canPerformAction("attach") && role.canPerformAction("submit"))
+                .map(Role::getName)
+                .toList();
     }
 }

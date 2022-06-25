@@ -1,17 +1,26 @@
 package g6Agent.communicationModule;
 
-import eis.iilang.Action;
-import eis.iilang.Percept;
+import eis.iilang.*;
+import g6Agent.MailService;
+
+import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommunicationModuleImplementation implements CommunicationModule{
+    private final String agentname;
+    private final MailService mailservice;
     List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
-    public CommunicationModuleImplementation() {
+    TaskAuctionModule taskAuctionModule;
+
+    public CommunicationModuleImplementation(String agentname, MailService mailService) {
+        this.agentname = agentname;
+        this.mailservice = mailService;
         this.swarmSightControllers = new ArrayList<>();
+        this.taskAuctionModule = new TaskAuctionModule(agentname, mailService);
     }
 
     @Override
@@ -42,12 +51,12 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
-
            case "KNOWN_AGENTS" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processKnownAgentsNotification(message, sender);
                 }
             }
+            case "MY_TASK" -> taskAuctionModule.receiveTaskAndBlockIndex(message, sender);
 
         }
     }
@@ -65,4 +74,13 @@ public class CommunicationModuleImplementation implements CommunicationModule{
             }
         }
     }
+
+    @Override
+    public TaskAuctionModule getTaskAuctionModule() {
+        return this.taskAuctionModule;
+    }
+
+
+
+
 }
