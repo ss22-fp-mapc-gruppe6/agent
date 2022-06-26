@@ -4,6 +4,7 @@ import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.entities.AuctionModuleEntry;
 import g6Agent.communicationModule.entities.SubTaskWithCost;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
+import g6Agent.decisionModule.configurations.DecisionModuleConfiguration;
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
@@ -24,18 +25,25 @@ public class DecisionModuleImplementation implements DecisionModule {
     private final PerceptionAndMemory perceptionAndMemory;
     private final CommunicationModule communicationModule;
     private final TaskAuctionModule taskAuctionModule; //responsible for auctoning the tasks and subtasks (the single Blocks in requirements)
-
     private Strategy strategy; //can be switched to determine the current behavior of the Agent (OFFENSE or DEFENCE )
+    private final DecisionModuleConfiguration configuration; //handles the Goal and strategy configuration
+
     private Goal currentGoal;
 
-    public DecisionModuleImplementation(PerceptionAndMemory perceptionAndMemory, CommunicationModule communicationModule) {
+    /**
+     * Construktor
+     * @param perceptionAndMemory the beliefs of the agent
+     * @param communicationModule the communication module
+     * @param configuration the configuration of the DecisionModule
+     */
+    public DecisionModuleImplementation(PerceptionAndMemory perceptionAndMemory, CommunicationModule communicationModule, DecisionModuleConfiguration configuration) {
         this.perceptionAndMemory = perceptionAndMemory;
         this.communicationModule = communicationModule;
         this.taskAuctionModule = communicationModule.getTaskAuctionModule();
         this.strategy = Strategy.OFFENSE;
         this.currentGoal = new G6GoalExplore(perceptionAndMemory);
+        this.configuration = configuration;
     }
-
 
     @Override
     public Goal revalidateGoal() {
@@ -50,7 +58,7 @@ public class DecisionModuleImplementation implements DecisionModule {
         Goal goal = selectGoalWithHighestPriority(goal_options);
         if (goal != null) {
             //change goal if priority is higher or the current goal isn't valid anymore
-            if (areConditionsForChangingGoalFullfied(goal)) {
+            if (areConditionsForChangingGoalFulfilled(goal)) {
                 informOthersOfPossibleTaskChange(goal);
                 currentGoal = goal;
             }
@@ -60,30 +68,22 @@ public class DecisionModuleImplementation implements DecisionModule {
 
 
     private List<Goal> generateGoals() {
-        return List.of(
-                new G6GoalExplore(perceptionAndMemory),
-                new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory),
-                new G6GoalRetrieveBlock(perceptionAndMemory),
-                new G6GoalGoalRush(perceptionAndMemory)
-        );
+        return configuration.generateGoals(perceptionAndMemory, strategy);
     }
 
     private double priority(Goal goal) {
-        if (strategy.equals(Strategy.OFFENSE)) {
-            if (goal instanceof G6GoalExplore) return 0.0;
-            if (goal instanceof G6GoalChangeRole) return 1.0;
-            if (goal instanceof G6GoalRetrieveBlock) return 2.0;
-            if (goal instanceof G6GoalGoalRush) return 3.0;
+        double priority = configuration.priority(goal, strategy);
+        if (goal instanceof GoalWithTask) {
+            priority = priority + ((GoalWithTask) goal).getPriorityOffset();
         }
-        return -1;
+        return priority;
     }
 
     private Goal selectGoalWithHighestPriority(List<Goal> goal_options) {
         Goal goal = new G6GoalExplore(perceptionAndMemory);
-        for (var g : goal_options) {
-            double priority = g instanceof GoalWithTask ? priority(g) + ((GoalWithTask) g).getPriorityOffset() : priority(g);
-            if (priority > priority(goal)) {
-                goal = g;
+        for (var goalCandidate : goal_options) {
+            if (priority(goalCandidate) > priority(goal)) {
+                goal = goalCandidate;
             }
         }
         return goal;
@@ -139,7 +139,7 @@ public class DecisionModuleImplementation implements DecisionModule {
         return null;
     }
 
-    private boolean areConditionsForChangingGoalFullfied(Goal goal) {
+    private boolean areConditionsForChangingGoalFulfilled(Goal goal) {
         return priority(goal) > priority(currentGoal)
                 || currentGoal.isFullfilled()
                 || !currentGoal.isSucceding()
@@ -152,7 +152,7 @@ public class DecisionModuleImplementation implements DecisionModule {
     private boolean isCurrentGoalNoLongerAssociatedToAgent(GoalWithTask currentGoal) {
         if (taskAuctionModule.getMySubTask() == null) return true;                          //case no Task accepted yet
         SubTaskWithCost currentSubtask = taskAuctionModule.getMySubTask();
-        // is an instance of the accpeted goal
+        // is an instance of the accepted goal
         return !(currentSubtask.taskname().equals(currentGoal.getTaskname()) && currentSubtask.blockIndex() == currentGoal.getAcceptedBlockIndex());
     }
 

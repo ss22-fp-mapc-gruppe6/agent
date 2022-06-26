@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Module to communicate the Strategy of the Agents in the Team.
+ */
+
 public class StrategyModule {
 
     private final String agentName;
