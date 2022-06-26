@@ -3,9 +3,12 @@ package g6Agent.decisionModule;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.entities.AuctionModuleEntry;
 import g6Agent.communicationModule.entities.SubTaskWithCost;
+import g6Agent.communicationModule.submodules.PingCommunicator;
+import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.decisionModule.configurations.DecisionModuleConfiguration;
 import g6Agent.decisionModule.entities.Strategy;
+import g6Agent.decisionModule.submodules.TaskPingFilter;
 import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
@@ -25,7 +28,10 @@ public class DecisionModuleImplementation implements DecisionModule {
     private final PerceptionAndMemory perceptionAndMemory;
     private final CommunicationModule communicationModule;
     private final TaskAuctionModule taskAuctionModule; //responsible for auctoning the tasks and subtasks (the single Blocks in requirements)
+    private final StrategyModule strategyModule;
     private Strategy strategy; //can be switched to determine the current behavior of the Agent (OFFENSE or DEFENCE )
+
+    private final PingCommunicator pingCommunicator;
     private final DecisionModuleConfiguration configuration; //handles the Goal and strategy configuration
 
     private Goal currentGoal;
@@ -40,14 +46,17 @@ public class DecisionModuleImplementation implements DecisionModule {
         this.perceptionAndMemory = perceptionAndMemory;
         this.communicationModule = communicationModule;
         this.taskAuctionModule = communicationModule.getTaskAuctionModule();
+        this.strategyModule = communicationModule.getStrategyModule();
         this.strategy = Strategy.OFFENSE;
         this.currentGoal = new G6GoalExplore(perceptionAndMemory);
+        this.pingCommunicator = communicationModule.getPingCommunicator();
+        pingCommunicator.addPingFilter(new TaskPingFilter(taskAuctionModule)); //add filter, so only agents who work at the same task receive a ping
         this.configuration = configuration;
     }
 
     @Override
     public Goal revalidateGoal() {
-
+        revalidateStrategy();
         List<Goal> goal_options = generateGoals();
         //filter Options and use only those, which preconditions are met
         goal_options = goal_options
@@ -60,10 +69,28 @@ public class DecisionModuleImplementation implements DecisionModule {
             //change goal if priority is higher or the current goal isn't valid anymore
             if (areConditionsForChangingGoalFulfilled(goal)) {
                 informOthersOfPossibleTaskChange(goal);
+                connectPingCommunicator(goal);
                 currentGoal = goal;
             }
         }
         return currentGoal;
+    }
+
+    private void connectPingCommunicator(Goal goal) {
+        pingCommunicator.setPingReceiver(
+                goal instanceof PingReceiver receiver? receiver : null // if the goal wants to send and receive pings add, set to goal, else remove the old receiver
+        );
+        if(goal instanceof PingReceiver receiver) receiver.addPingListener(pingCommunicator);
+    }
+
+    private void revalidateStrategy() {
+        if (perceptionAndMemory.getCurrentStep() > 5){
+            if (strategyModule.getOffensivePercentage() > configuration.getMaxOffensivePercentage()){
+                this.strategy = Strategy.DEFENSE;
+
+            }
+        }
+        strategyModule.broadcastMyStrategy(strategy);
     }
 
 
@@ -169,7 +196,6 @@ public class DecisionModuleImplementation implements DecisionModule {
                 goalWithTask.getName(),
                 goalWithTask.getAcceptedBlockIndex(),
                 defineCost(goalWithTask)
-        ));
-    }
+        ));    }
 
 }

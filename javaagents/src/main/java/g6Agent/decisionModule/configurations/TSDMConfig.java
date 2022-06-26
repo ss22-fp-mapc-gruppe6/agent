@@ -34,7 +34,7 @@ public class TSDMConfig implements DecisionModuleConfiguration {
     }
 
     @Override
-    public double getOffensivePercentage() {
+    public double getMaxOffensivePercentage() {
         return 1.0;
     }
 }

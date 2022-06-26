@@ -2,10 +2,14 @@ package g6Agent.communicationModule;
 
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
+/**
+ * Module to handle the communication between agents
+ */
 public interface CommunicationModule {
 
     /**
@@ -33,4 +37,10 @@ public interface CommunicationModule {
      * @return the Module
      */
     StrategyModule getStrategyModule();
+
+    /**
+     *
+     * @return the PingCommunicator Module responsible for communicating pings between Agents
+     */
+    PingCommunicator getPingCommunicator();
 }

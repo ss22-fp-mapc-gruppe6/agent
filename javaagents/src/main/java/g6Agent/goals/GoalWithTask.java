@@ -1,6 +1,5 @@
 package g6Agent.goals;
 
-import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 
@@ -8,7 +7,7 @@ import g6Agent.services.Point;
 /**
  * Abstract Class for Goals which involve accepting a Task or part of a Task
  */
-public abstract class GoalWithTask implements Goal {
+public abstract class GoalWithTask implements Goal, PingReceiver {
 
     PerceptionAndMemory perceptionAndMemory;
     String taskname;

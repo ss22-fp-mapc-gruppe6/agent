@@ -3,6 +3,7 @@ package g6Agent.communicationModule;
 import eis.iilang.*;
 import g6Agent.MailService;
 
+import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
@@ -18,6 +19,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     private final TaskAuctionModule taskAuctionModule;
 
     private final StrategyModule strategyModule;
+    private final PingCommunicator pingCommunicator;
 
     public CommunicationModuleImplementation(String agentname, MailService mailService) {
         this.agentname = agentname;
@@ -25,6 +27,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
         this.swarmSightControllers = new ArrayList<>();
         this.taskAuctionModule = new TaskAuctionModule(agentname, mailService);
         this.strategyModule = new StrategyModule(agentname, mailService);
+        this.pingCommunicator = new PingCommunicator(agentname, mailService);
     }
 
     @Override
@@ -62,6 +65,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
             }
             case "MY_TASK" -> taskAuctionModule.receiveTaskAndBlockIndex(message, sender);
             case "MY_STRATEGY" -> strategyModule.receiveStrategyUpdate(message, sender);
+            case "PING" -> pingCommunicator.receivePing(message, sender);
         }
     }
 
@@ -87,6 +91,11 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     @Override
     public StrategyModule getStrategyModule() {
         return this.strategyModule;
+    }
+
+    @Override
+    public PingCommunicator getPingCommunicator() {
+        return this.pingCommunicator;
     }
 
 

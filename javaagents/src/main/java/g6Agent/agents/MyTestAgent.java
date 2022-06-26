@@ -9,11 +9,10 @@ import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
 import g6Agent.decisionModule.DecisionModuleImplementation;
 import g6Agent.decisionModule.TheStupidestDecisionModule;
+import g6Agent.decisionModule.configurations.TSDMConfig;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
-import g6Agent.services.Point;
-
 
 public class MyTestAgent extends Agent{
 
@@ -29,8 +28,8 @@ public class MyTestAgent extends Agent{
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
-        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
-        //this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule);
+        //this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
+        this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new TSDMConfig());
     }
 
 /*
@@ -51,18 +50,18 @@ public class MyTestAgent extends Agent{
     public Action step() {
         G6Action action = null;
         perceptionAndMemory.handlePercepts(getPercepts());
-        if (perceptionAndMemory.isReadyForAction()){
+        if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             say(currentGoal.getName());
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-        }
-        System.out.println(action);
-        if (action == null) try {
-            throw new Exception();
-        } catch (Exception e) {
-            say("HELP GOT NO ACTION");
-            throw new RuntimeException(e);
+            System.out.println(action);
+            if (action == null) try {
+                throw new Exception();
+            } catch (Exception e) {
+                say("HELP GOT NO ACTION");
+                throw new RuntimeException(e);
+            }
         }
         return (eis.iilang.Action) action;
     }

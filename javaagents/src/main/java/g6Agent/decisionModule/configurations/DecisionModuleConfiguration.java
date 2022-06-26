@@ -25,5 +25,5 @@ public interface DecisionModuleConfiguration {
      *
      * @return the percentage of Agents who's strategy will be will be offensive
      */
-    double getOffensivePercentage();
+    double getMaxOffensivePercentage();
 }
