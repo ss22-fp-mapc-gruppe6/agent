@@ -9,7 +9,7 @@ import g6Agent.services.Point;
  */
 public class TaskPingFilter implements PingFilter{
 
-    TaskAuctionModule taskAuctionModule;
+    private final TaskAuctionModule taskAuctionModule;
 
     public TaskPingFilter(TaskAuctionModule taskAuctionModule) {
         this.taskAuctionModule = taskAuctionModule;

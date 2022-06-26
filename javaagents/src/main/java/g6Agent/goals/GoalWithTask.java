@@ -1,5 +1,7 @@
 package g6Agent.goals;
 
+import g6Agent.goals.interfaces.GoalWithPriorityOffset;
+import g6Agent.goals.interfaces.PingReceiver;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 
@@ -7,7 +9,7 @@ import g6Agent.services.Point;
 /**
  * Abstract Class for Goals which involve accepting a Task or part of a Task
  */
-public abstract class GoalWithTask implements Goal, PingReceiver {
+public abstract class GoalWithTask implements Goal, PingReceiver, GoalWithPriorityOffset {
 
     PerceptionAndMemory perceptionAndMemory;
     String taskname;
@@ -41,17 +43,6 @@ public abstract class GoalWithTask implements Goal, PingReceiver {
         return acceptedBlockIndex;
     }
 
-    /**
-     * @param ping can set a point for communication purposes, for example a meeting point
-     */
-    public abstract void setPing(Point ping);
 
-    /**
-     * Returns an Offset which is a number < 1 , which determines how important this task is in relation to others
-     * of the same instance. For Example the points of the chosen Task in relation to the number of blocks needed.
-     *
-     * @return the Offset
-     */
-    public abstract float getPriorityOffset();
 
 }

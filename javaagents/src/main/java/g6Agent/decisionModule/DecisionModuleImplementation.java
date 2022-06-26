@@ -10,6 +10,8 @@ import g6Agent.decisionModule.configurations.DecisionModuleConfiguration;
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.decisionModule.submodules.TaskPingFilter;
 import g6Agent.goals.*;
+import g6Agent.goals.interfaces.GoalWithPriorityOffset;
+import g6Agent.goals.interfaces.PingReceiver;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
@@ -80,7 +82,7 @@ public class DecisionModuleImplementation implements DecisionModule {
         pingCommunicator.setPingReceiver(
                 goal instanceof PingReceiver receiver? receiver : null // if the goal wants to send and receive pings add, set to goal, else remove the old receiver
         );
-        if(goal instanceof PingReceiver receiver) receiver.addPingListener(pingCommunicator);
+        if(goal instanceof PingReceiver receiver) receiver.addPingListener(pingCommunicator); //TODO agenten bekommen die relativen positionen des anderen agenten, muss noch umgerechnet werden.
     }
 
     private void revalidateStrategy() {
@@ -100,8 +102,8 @@ public class DecisionModuleImplementation implements DecisionModule {
 
     private double priority(Goal goal) {
         double priority = configuration.priority(goal, strategy);
-        if (goal instanceof GoalWithTask) {
-            priority = priority + ((GoalWithTask) goal).getPriorityOffset();
+        if (goal instanceof GoalWithPriorityOffset) {
+            priority = priority + ((GoalWithPriorityOffset) goal).getPriorityOffset();
         }
         return priority;
     }

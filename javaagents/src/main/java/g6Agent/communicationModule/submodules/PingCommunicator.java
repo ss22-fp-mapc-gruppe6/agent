@@ -4,7 +4,7 @@ import eis.iilang.Numeral;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.decisionModule.submodules.PingFilter;
-import g6Agent.goals.PingReceiver;
+import g6Agent.goals.interfaces.PingReceiver;
 import g6Agent.services.Point;
 
 /**
@@ -23,7 +23,7 @@ public class PingCommunicator implements PingListener{
 
     /**
      * Adds a filter to filter which agents recieve a ping
-     * @param pingFilter
+     * @param pingFilter the filter
      */
     public void addPingFilter(PingFilter pingFilter){
         this.pingFilter = pingFilter;
