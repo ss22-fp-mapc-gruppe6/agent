@@ -50,7 +50,8 @@ public class PingCommunicator implements PingListener{
                 receiver.recievePing(point);
             } else{
                 if (pingFilter.pingAccepted(point, sender)){
-                    receiver.recievePing(point);
+                    Point recalculatedPoint = pingFilter.recalculatePingPosition(point, sender);
+                    if (recalculatedPoint != null) receiver.recievePing(recalculatedPoint);
                 }
             }
 

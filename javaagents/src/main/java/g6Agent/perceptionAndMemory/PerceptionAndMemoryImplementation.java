@@ -529,6 +529,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public Point getPositionOfKnownAgent(String agentname) {
+        if(this.visionReporter == null) return null;
+        return visionReporter.getPositionOfAgent(agentname);
+    }
+
+    @Override
     public List<Point> getObstacles() {
         return obstacles;
     }

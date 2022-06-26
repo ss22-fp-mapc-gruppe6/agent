@@ -52,7 +52,7 @@ public class DecisionModuleImplementation implements DecisionModule {
         this.strategy = Strategy.OFFENSE;
         this.currentGoal = new G6GoalExplore(perceptionAndMemory);
         this.pingCommunicator = communicationModule.getPingCommunicator();
-        pingCommunicator.addPingFilter(new TaskPingFilter(taskAuctionModule)); //add filter, so only agents who work at the same task receive a ping
+        pingCommunicator.addPingFilter(new TaskPingFilter(taskAuctionModule, perceptionAndMemory)); //add filter, so only agents who work at the same task receive a ping
         this.configuration = configuration;
     }
 

@@ -162,4 +162,10 @@ public interface PerceptionAndMemory {
      */
     List<AgentNameAndPosition> getKnownAgents();
 
+    /**
+     *
+     * @return the position of the agent, null if unknown
+     */
+    Point getPositionOfKnownAgent(String agentname);
+
 }

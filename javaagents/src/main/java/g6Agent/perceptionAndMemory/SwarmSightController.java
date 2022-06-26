@@ -429,17 +429,18 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public void processKnownAgentsNotification(Percept message, String sender) {
-        if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender))
-        for (Parameter parameter : (ParameterList) message.getParameters().get(0)){
-            if (parameter instanceof Function function) {
-                String name = function.getName();
-                //if agent is not known add to known Agents with relative Position to sender
-                if (!swarmSightModel.isKnown(name) && !name.equals(agentname)){
-                    Point position = new Point(
-                            ((Numeral)function.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral)function.getParameters().get(1)).getValue().intValue()
-                    );
-                    swarmSightModel.heardOfAgentPosition(name, position, sender);
+        if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender)) {
+            for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
+                if (parameter instanceof Function function) {
+                    String name = function.getName();
+                    //if agent is not known add to known Agents with relative Position to sender
+                    if (!swarmSightModel.isKnown(name) && !name.equals(agentname)) {
+                        Point position = new Point(
+                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                        );
+                        swarmSightModel.heardOfAgentPosition(name, position, sender);
+                    }
                 }
             }
         }
@@ -448,6 +449,11 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     @Override
     public List<AgentNameAndPosition> getKnownAgentPositions() {
         return swarmSightModel.knownAgents();
+    }
+
+    @Override
+    public Point getPositionOfAgent(String agentname) {
+        return swarmSightModel.getAgentPosition(agentname);
     }
 
     private void handleUnanseweredRequests() {
