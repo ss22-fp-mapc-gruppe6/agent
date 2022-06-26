@@ -7,7 +7,6 @@ import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
 import g6Agent.decisionModule.PointAction;
-import g6Agent.decisionModule.astar.AStar;
 import g6Agent.services.Point;
 import org.junit.Test;
 
@@ -155,7 +154,7 @@ public class TestAStar {
     @Test
     public void test_0_0() {
         Point target = new Point(0, 0);
-        final var shortestPath = AStar.findShortestPath(target, List.of(), 5);
+        final var shortestPath = AStar.findShortestPath(new Point(0, 0), target, List.of(), 5, target::euclideanDistanceTo);
         assertEquals(0, shortestPath.size());
         assertEquals(List.of(), shortestPath);
     }
@@ -172,7 +171,7 @@ public class TestAStar {
 //                new Point(8, 7),
 //                new Point(8, 9)
         );
-        final var shortestPath = AStar.findShortestPath(target, obstacles, 3);
+        final var shortestPath = AStar.findShortestPath(new Point(0, 0), target, obstacles, 3, target::euclideanDistanceTo);
         System.out.println("shortestPath = " + shortestPath);
 //        final List<Point> points = shortestPath.stream().map(PointAction::from).toList();
 //        final var visualize = visualize(points, obstacles);

@@ -4,7 +4,10 @@ import g6Agent.Tuple;
 import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
+import g6Agent.actions.Skip;
 import g6Agent.decisionModule.PointAction;
+import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
@@ -15,11 +18,23 @@ import java.util.stream.Collectors;
 
 public class AStar {
 
-    static List<? extends G6Action> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
-        return findShortestPath(new Point(0, 0), target, obstacles, stepSize, target::euclideanDistanceTo);
+    public static G6Action astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
+        return astarShortestPath(target, perceptionAndMemory).stream().findFirst().orElseGet(Skip::new);
     }
 
-    static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
+    public static List<G6Action> astarShortestPath(Point target, PerceptionAndMemory perceptionAndMemory) {
+        final List<Block> directlyAttachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks();
+        final List<Integer> movementSpeed = perceptionAndMemory.getCurrentRole().getMovementSpeed();
+        final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
+        return findShortestPath(
+                new Point(0, 0),
+                target,
+                perceptionAndMemory.getObstacles(),
+                stepSize,
+                target::euclideanDistanceTo);
+    }
+
+    static List<G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<PointAction, Wrapper> wrappers = new HashMap<>();
