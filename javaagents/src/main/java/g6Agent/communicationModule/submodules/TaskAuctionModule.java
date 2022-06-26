@@ -16,25 +16,24 @@ import java.util.List;
  */
 
 public class TaskAuctionModule {
-    private final String agentname;
+    private final String agentName;
     private final HashMap<String, SubTaskWithCost> acceptedTasks;
     private final MailService mailservice;
 
-    public TaskAuctionModule(String agentname, MailService mailService) {
-        this.agentname = agentname;
+    public TaskAuctionModule(String agentName, MailService mailService) {
+        this.agentName = agentName;
         this.mailservice = mailService;
         this.acceptedTasks = new HashMap<>();
     }
 
 
     public void acceptTask(SubTaskWithCost subTaskWithCost){
-        if(checkAuction(agentname, subTaskWithCost)){
+        if(checkAuction(agentName, subTaskWithCost)){
             sendTaskAndBlockIndex(subTaskWithCost);
         }
-
     }
     void sendTaskAndBlockIndex(SubTaskWithCost subTaskWithCost) {
-        this.acceptedTasks.put(agentname, subTaskWithCost);
+        this.acceptedTasks.put(agentName, subTaskWithCost);
 
         mailservice.broadcast(
                 new Percept("MY_TASK",
@@ -42,7 +41,7 @@ public class TaskAuctionModule {
                         new Numeral(subTaskWithCost.blockIndex()), // the Index of the block in the requirements of the task
                         new Numeral(subTaskWithCost.cost())        // the cost associated with this task
                 ),
-                agentname);
+                agentName);
     }
 
     /**
@@ -50,7 +49,7 @@ public class TaskAuctionModule {
      */
     public void sendTaskNoLongerValid(){
         mailservice.broadcast(new Percept("MY_TASK",
-                new Identifier(this.agentname)), this.agentname);
+                new Identifier(this.agentName)), this.agentName);
     }
 
     /**
@@ -59,7 +58,7 @@ public class TaskAuctionModule {
      */
     private void sendTaskNoLongerValid(String otherAgentsName){
         mailservice.broadcast(new Percept("MY_TASK",
-                new Identifier(otherAgentsName)), this.agentname);
+                new Identifier(otherAgentsName)), this.agentName);
     }
 
     public void receiveTaskAndBlockIndex(Percept message, String sender){
@@ -105,7 +104,7 @@ public class TaskAuctionModule {
     private void fillListsWithAgentsFullfillingTheSameSubTask(SubTaskWithCost subTaskWithCost, List<String> agentsWithHigherCosts, List<String> agentsWithLowerCosts) {
         acceptedTasks.forEach((key, value) -> {
             //is not self
-            if (!key.equals(agentname)) {
+            if (!key.equals(agentName)) {
                 //is working at same task and block indes
                 if (subTaskWithCost.taskname().equals(value.taskname()) && subTaskWithCost.blockIndex() == value.blockIndex()) {
 
@@ -121,10 +120,10 @@ public class TaskAuctionModule {
 
     public List<String> getAgentsAtSameTask(){
         List<String> agents = new ArrayList<>();
-        String myTask = acceptedTasks.get(agentname).taskname();
+        String myTask = acceptedTasks.get(agentName).taskname();
         if (myTask != null) {
             acceptedTasks.forEach((key, value) -> {
-                if (!key.equals(agentname) && value.taskname().equals(myTask)){
+                if (!key.equals(agentName) && value.taskname().equals(myTask)){
                     agents.add(key);
                 }
             });
@@ -133,7 +132,7 @@ public class TaskAuctionModule {
     }
 
     public SubTaskWithCost getMySubTask() {
-        return acceptedTasks.get(agentname);
+        return acceptedTasks.get(agentName);
     }
 
     public List<AuctionModuleEntry> getEntries(){

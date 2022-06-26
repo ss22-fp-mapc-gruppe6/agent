@@ -2,6 +2,7 @@ package g6Agent.communicationModule;
 
 import eis.iilang.Action;
 import eis.iilang.Percept;
+import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
@@ -26,4 +27,10 @@ public interface CommunicationModule {
      * @return the Module
      */
     TaskAuctionModule getTaskAuctionModule();
+
+    /**
+     * Returns the StrategyModule responsible for communicating the Strategies of the Agents
+     * @return the Module
+     */
+    StrategyModule getStrategyModule();
 }

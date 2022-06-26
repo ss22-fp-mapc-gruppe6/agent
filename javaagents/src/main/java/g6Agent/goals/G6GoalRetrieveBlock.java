@@ -7,6 +7,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,9 @@ public class G6GoalRetrieveBlock implements Goal {
 
     @Override
     public G6Action getNextAction() {
+
+        Clear blockingobstacle = IfRotateFailedBreakFree();
+        if (blockingobstacle != null) return blockingobstacle;
         if (!perceptionAndMemory.getBlocks().isEmpty()){
             //determine next block
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
@@ -93,6 +97,31 @@ public class G6GoalRetrieveBlock implements Goal {
         return new Skip();
     }
 
+    @Nullable
+    private Clear IfRotateFailedBreakFree() {
+        if(perceptionAndMemory.getLastAction() != null){
+            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
+                    && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
+                    && perceptionAndMemory.getEnergy() > 30){
+                //find closest obstacle
+                Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
+                for(Point obstacle : perceptionAndMemory.getObstacles()){
+
+                    if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
+                        closestObstacle = obstacle;
+                    }
+                }
+                //if in Range -> clear
+                if(perceptionAndMemory.getCurrentRole() != null) {
+                    if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
+                        return new Clear(closestObstacle);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private boolean checkIfNotCloseToOtherAgent(Block block) {
         for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
             if(agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0,0))){
@@ -145,7 +174,7 @@ public class G6GoalRetrieveBlock implements Goal {
         //unclear if can attach
         if (perceptionAndMemory.getCurrentRole() == null) return false;
         //no dispensers known
-        if (perceptionAndMemory.getDispensers().isEmpty() && perceptionAndMemory.getBlocks().isEmpty()) return false;
+        if (perceptionAndMemory.getDispensers().isEmpty()) return false;
         // true if can attach block with current role
         return canAttach();
     }
@@ -154,6 +183,6 @@ public class G6GoalRetrieveBlock implements Goal {
         return perceptionAndMemory.getCurrentRole()
                 .getPossibleActions()
                 .stream()
-                .noneMatch(action -> action.equals("attach"));
+                .anyMatch(action -> action.equals("attach"));
     }
 }

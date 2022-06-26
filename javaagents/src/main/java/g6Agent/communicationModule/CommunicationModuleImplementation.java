@@ -3,6 +3,7 @@ package g6Agent.communicationModule;
 import eis.iilang.*;
 import g6Agent.MailService;
 
+import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
@@ -11,16 +12,19 @@ import java.util.List;
 
 public class CommunicationModuleImplementation implements CommunicationModule{
     private final String agentname;
-    private final MailService mailservice;
-    List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
+    private final MailService mailService;
+    private final List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
-    TaskAuctionModule taskAuctionModule;
+    private final TaskAuctionModule taskAuctionModule;
+
+    private final StrategyModule strategyModule;
 
     public CommunicationModuleImplementation(String agentname, MailService mailService) {
         this.agentname = agentname;
-        this.mailservice = mailService;
+        this.mailService = mailService;
         this.swarmSightControllers = new ArrayList<>();
         this.taskAuctionModule = new TaskAuctionModule(agentname, mailService);
+        this.strategyModule = new StrategyModule(agentname, mailService);
     }
 
     @Override
@@ -57,7 +61,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                 }
             }
             case "MY_TASK" -> taskAuctionModule.receiveTaskAndBlockIndex(message, sender);
-
+            case "MY_STRATEGY" -> strategyModule.receiveStrategyUpdate(message, sender);
         }
     }
 
@@ -80,7 +84,10 @@ public class CommunicationModuleImplementation implements CommunicationModule{
         return this.taskAuctionModule;
     }
 
-
+    @Override
+    public StrategyModule getStrategyModule() {
+        return this.strategyModule;
+    }
 
 
 }

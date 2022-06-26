@@ -4,6 +4,7 @@ import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.entities.AuctionModuleEntry;
 import g6Agent.communicationModule.entities.SubTaskWithCost;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
+import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
@@ -145,7 +146,7 @@ public class DecisionModuleImplementation implements DecisionModule {
                 || (currentGoal instanceof GoalWithTask currentGoalWithTask && (
                             isCurrentGoalNoLongerAssociatedToAgent(currentGoalWithTask)
                         || perceptionAndMemory.getAllTasks().stream().noneMatch(
-                            task -> task.getName().equals(currentGoalWithTask.getName()))));
+                            task -> task.getName().equals(currentGoalWithTask.getTaskname()))));
     }
 
     private boolean isCurrentGoalNoLongerAssociatedToAgent(GoalWithTask currentGoal) {
