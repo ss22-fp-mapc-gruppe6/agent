@@ -1,9 +1,10 @@
-package g6Agent.decisionModule;
+package g6Agent.decisionModule.astar;
 
 import g6Agent.Tuple;
 import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
+import g6Agent.decisionModule.PointAction;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
@@ -14,11 +15,11 @@ import java.util.stream.Collectors;
 
 public class AStar {
 
-    public static List<? extends G6Action> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
+    static List<? extends G6Action> findShortestPath(Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(new Point(0, 0), target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
-    public static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
+    static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic) {
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
 
         HashMap<PointAction, Wrapper> wrappers = new HashMap<>();
@@ -210,7 +211,7 @@ public class AStar {
         return Set.of(new Point(p.x, p.y + 1), new Point(p.x, p.y - 1), new Point(p.x + 1, p.y), new Point(p.x - 1, p.y));
     }
 
-    public static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
+    static List<? extends G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize) {
         return findShortestPath(start, target, obstacles, stepSize, target::euclideanDistanceTo);
     }
 
@@ -222,7 +223,7 @@ public class AStar {
             return "(" + pointAction + ")-" + costSum;
         }
 
-        public static Wrapper create(PointAction pointAction, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Set<Point> destroyedObstacles, int step) {
+        static Wrapper create(PointAction pointAction, Wrapper predecessor, double totalCostFromStart, double minimumRemainingCost, Set<Point> destroyedObstacles, int step) {
             return new Wrapper(pointAction, predecessor, totalCostFromStart + minimumRemainingCost, totalCostFromStart, minimumRemainingCost, destroyedObstacles, step);
         }
 
@@ -246,7 +247,7 @@ public class AStar {
         }
     }
 
-    public static String visualize(List<Point> path, List<Point> obstacles, Point start) {
+    static String visualize(List<Point> path, List<Point> obstacles, Point start) {
         path = new ArrayList<>(path);
         if (start != null) {
             path.add(0, start);
@@ -303,7 +304,7 @@ public class AStar {
         return s.toString();
     }
 
-    public static String visualize(List<Point> path, List<Point> obstacles) {
+    static String visualize(List<Point> path, List<Point> obstacles) {
         return visualize(path, obstacles, null);
     }
 }

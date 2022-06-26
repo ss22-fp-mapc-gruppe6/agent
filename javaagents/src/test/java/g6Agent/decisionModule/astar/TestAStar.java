@@ -1,4 +1,4 @@
-package g6Agent.decisionModule;
+package g6Agent.decisionModule.astar;
 
 import eis.iilang.Action;
 import eis.iilang.IILElement;
@@ -6,13 +6,12 @@ import g6Agent.Tuple;
 import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
-import g6Agent.services.Direction;
+import g6Agent.decisionModule.PointAction;
+import g6Agent.decisionModule.astar.AStar;
 import g6Agent.services.Point;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
