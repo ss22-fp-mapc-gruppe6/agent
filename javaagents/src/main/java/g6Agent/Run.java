@@ -11,7 +11,7 @@ import static g6Agent.Run.Configuration.*;
 public class Run {
     static Configuration selected = A;
     enum Configuration {
-        A, B, C
+        A, B
     }
 
     static Map<Configuration, String[]> configMap = Map.of(
@@ -20,10 +20,6 @@ public class Run {
                     "/conf/server/SampleConfig.json"
             },
             B, new String[]{
-                    "/conf/agents/DummyAStarAgent",
-                    "/conf/server/SampleConfig.json"
-            },
-            C, new String[]{
                     "/conf/agents/MySingleAgent",
                     "/conf/server/SampleConfig.json"
             }
