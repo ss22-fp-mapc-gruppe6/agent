@@ -9,7 +9,7 @@ import g6Agent.services.Point;
 /**
  * Abstract Class for Goals which involve accepting a Task or part of a Task
  */
-public abstract class GoalWithTask implements Goal, PingReceiver, GoalWithPriorityOffset {
+public abstract class GoalWithTask implements Goal, GoalWithPriorityOffset {
 
     PerceptionAndMemory perceptionAndMemory;
     String taskname;
