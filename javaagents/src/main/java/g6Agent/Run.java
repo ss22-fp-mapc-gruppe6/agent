@@ -9,19 +9,15 @@ import java.util.Map;
 import static g6Agent.Run.Configuration.*;
 
 public class Run {
-    static Configuration selected = A;
+    static Configuration selected = AStarWithAttachedBlockRotation;
     enum Configuration {
-        A, B
+        AStarWithAttachedBlockRotation
     }
 
     static Map<Configuration, String[]> configMap = Map.of(
-            A, new String[]{
-                    "/conf/agents/MyTestAgent",
-                    "/conf/server/SampleConfig.json"
-            },
-            B, new String[]{
-                    "/conf/agents/MySingleAgent",
-                    "/conf/server/SampleConfig.json"
+            AStarWithAttachedBlockRotation, new String[]{
+                    "/HardcodedAStarRotation",
+                    "/HardcodedAStarRotation/config.json"
             }
     );
     static String baseDirectory = "javaagents/src/main/resources";
