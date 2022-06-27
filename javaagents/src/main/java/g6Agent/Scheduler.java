@@ -108,6 +108,7 @@ public class Scheduler implements AgentListener, EnvironmentListener {
                     break;
                 case "DummyAStarAgent":
                     agent = new DummyAStarAgent(agentConf.name, mailService);
+                    break;
                 // [add further types here]
                 default:
                     System.out.println("Unknown agent type/class " + agentConf.className);
