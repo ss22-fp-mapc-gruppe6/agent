@@ -3,7 +3,6 @@ package g6Agent.communicationModule.submodules;
 import eis.iilang.Numeral;
 import eis.iilang.Percept;
 import g6Agent.MailService;
-import g6Agent.decisionModule.submodules.PingFilter;
 import g6Agent.goals.interfaces.PingReceiver;
 import g6Agent.services.Point;
 

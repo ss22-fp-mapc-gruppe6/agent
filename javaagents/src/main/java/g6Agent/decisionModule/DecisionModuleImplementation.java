@@ -8,7 +8,7 @@ import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.decisionModule.configurations.DecisionModuleConfiguration;
 import g6Agent.decisionModule.entities.Strategy;
-import g6Agent.decisionModule.submodules.TaskPingFilter;
+import g6Agent.communicationModule.submodules.TaskPingFilter;
 import g6Agent.goals.*;
 import g6Agent.goals.interfaces.GoalWithPriorityOffset;
 import g6Agent.goals.interfaces.PingReceiver;
@@ -51,9 +51,9 @@ public class DecisionModuleImplementation implements DecisionModule {
         this.strategyModule = communicationModule.getStrategyModule();
         this.strategy = Strategy.OFFENSE;
         this.currentGoal = new G6GoalExplore(perceptionAndMemory);
-        this.pingCommunicator = communicationModule.getPingCommunicator();
+        this.pingCommunicator = communicationModule.getPingCommunicator(); // responsible for sending pings
         pingCommunicator.addPingFilter(new TaskPingFilter(taskAuctionModule, perceptionAndMemory)); //add filter, so only agents who work at the same task receive a ping
-        this.configuration = configuration;
+        this.configuration = configuration; //Sets the Goals and Strategy
     }
 
     @Override
@@ -78,12 +78,7 @@ public class DecisionModuleImplementation implements DecisionModule {
         return currentGoal;
     }
 
-    private void connectPingCommunicator(Goal goal) {
-        pingCommunicator.setPingReceiver(
-                goal instanceof PingReceiver receiver? receiver : null // if the goal wants to send and receive pings add, set to goal, else remove the old receiver
-        );
-        if(goal instanceof PingReceiver receiver) receiver.addPingListener(pingCommunicator); //TODO agenten bekommen die relativen positionen des anderen agenten, muss noch umgerechnet werden.
-    }
+
 
     private void revalidateStrategy() {
         if (perceptionAndMemory.getCurrentStep() > 5){
@@ -147,7 +142,7 @@ public class DecisionModuleImplementation implements DecisionModule {
             return Integer.MAX_VALUE; //Block Index not in Task
         Block block = task.getRequirements().get(goalWithTask.getAcceptedBlockIndex());
         for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
-            if (attachedBlock.getCoordinates().equals(block.getCoordinates())) return -1; //block allready attached
+            if (attachedBlock.getCoordinates().equals(block.getCoordinates())) return -1; //block already attached
         }
         return distanceToClosestDispenser(block);
     }
@@ -200,4 +195,10 @@ public class DecisionModuleImplementation implements DecisionModule {
                 defineCost(goalWithTask)
         ));    }
 
+    private void connectPingCommunicator(Goal goal) {
+        pingCommunicator.setPingReceiver(
+                goal instanceof PingReceiver receiver? receiver : null // if the goal wants to send and receive pings add, set to goal, else remove the old receiver
+        );
+        if(goal instanceof PingReceiver receiver) receiver.addPingListener(pingCommunicator);
+    }
 }

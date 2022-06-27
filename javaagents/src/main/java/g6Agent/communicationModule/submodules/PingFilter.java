@@ -1,4 +1,4 @@
-package g6Agent.decisionModule.submodules;
+package g6Agent.communicationModule.submodules;
 
 import g6Agent.services.Point;
 

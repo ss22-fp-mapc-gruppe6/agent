@@ -1,0 +1,50 @@
+
+
+
+
+Decission Module:
+
+Jede Runde wird:
+
+- gecheckt ob die Srategie noch verfolgt wird. Dies ist im Moment nur eine einfache Logik mit prozentualer Verteilung der Agenten. Definiert über die configuration.
+
+- alle in der Configuration definierten Goals erzeugt. (Für Goals mit Tasks muss je eine Instanz für jedes Task und jedes Task.reqirement erzeugt werden.)
+
+- die Goals, deren Vorbedingungen nicht erfüllt sind werden verworfen. Diese Vorbedingungen sind in den Goals definiert.
+
+- Die TaskWithGoal's werden aussortiert, an denen bereits ein anderer Agent ist und deren Kosten nicht niedriger sind.
+
+- Es wird das Goal mit der höchsten Priorität ausgewählt.
+
+- Ist das Goal ein Kandidat um da salte zu ersetzen, so:
+	kommuniziert der Agent ob er nun ein neues Task bearbeitet
+	wenn das Goal das Interface PingReciever implementiert wird der PingCommunicator verbunden.
+	das alte Goal wird ersetzt
+
+- Das Goal an den Agenten weitergegeben.
+
+
+
+Weitere Klassen:
+
+TaskAuctionModule - versteigert die Tasks und Blöcke der requirements indem die Agenten sich mit den Kosten unterbierten. Die Kosten sind definiert als die 
+Entfernung zu dem nächten Dispenser mit einem entsprechenden Block.  -1 (nicht zu unterbieten) wenn der Block bereits attached ist.
+
+StrategyModule - kommuniziert die Strategy des Agenten (offensiv/defensiv) 
+
+PingCommunicator - wird an ein Goal angemeldet welches das Interface PingReciever implementiert. Dies hat einen PingFilter dieser leifert den Ping aktuell an die Agenten aus, welche am selben Task arbeiten.
+
+configuration - Instanziert die Goals und weist ihnen eine Priorität zu, gibt ausserdem das
+                Strategie-Verhätnis (Offensiv/Defensiv) an. Ermöglicht ein leichtes anpassen des Verhaltens des Agenten, indem die ausgewählten Goals und deren Prioritäten angepasst werden.
+                Bzw. eine andere Configuration für das Decission Module gewählt wird.
+
+
+
+
+GoalWithTask: 
+
+Geht davon aus, dass sich jeder Agent nur um einen Block eines Tasks kümmert. 
+
+Hat einen Offset für die Priorität um sich zwischen mehreren instanzen zu entscheiden.
+
+Es müssen entsprechend Instanzen für jedes Task und deren Requirements erzeugt werden.

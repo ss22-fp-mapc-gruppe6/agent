@@ -1,6 +1,5 @@
-package g6Agent.decisionModule.submodules;
+package g6Agent.communicationModule.submodules;
 
-import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 
