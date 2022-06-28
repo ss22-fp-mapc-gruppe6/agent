@@ -6,7 +6,7 @@
       "agent-prefix":  "A",
       "entity-prefix":  "connectionA",
       "team":  "A",
-      "class": "DummyAStarAgent"
+      "class": "DummyRotatingAStarAgent"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "server" : {
     "tournamentMode" : "round-robin",
-    "teamsPerMatch" : 2,
+    "teamsPerMatch" : 1,
     "launch" : "1s",
     "port" : 12300,
     "backlog" : 10000,
@@ -13,17 +13,11 @@
     "maxPacketLength" : 65536,
     "waitBetweenSimulations" : 5000
   },
-
-  "manual-mode" : [
-    ["A"]
-  ],
-
   "match" : [
     "$(sim.json)"
   ],
 
   "teams" : {
-    "A" : {"prefix" : "agent", "password" : "1"},
-    "B" : {"prefix" : "agent", "password" : "1"}
+    "A" : {"prefix" : "agent", "password" : "1"}
   }
 }

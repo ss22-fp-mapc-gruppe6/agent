@@ -106,8 +106,8 @@ public class Scheduler implements AgentListener, EnvironmentListener {
                 case "Agent006":
                     agent = new Agent006(agentConf.name, mailService);
                     break;
-                case "DummyAStarAgent":
-                    agent = new DummyAStarAgent(agentConf.name, mailService);
+                case "DummyRotatingAStarAgent":
+                    agent = new DummyRotatingAStarAgent(agentConf.name, mailService);
                     break;
                 // [add further types here]
                 default:

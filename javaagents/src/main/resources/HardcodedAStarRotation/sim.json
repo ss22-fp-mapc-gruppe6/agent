@@ -1,5 +1,5 @@
 {
-    "setup" : "javaagents/src/main/resources/HardcodedAStarRotation/setup.txt",
+    "setup" : "javaagents/src/main/resources/HardcodedAStarRotation/setup-rotation-maze.txt",
 
     "steps" : 150,
     "randomSeed" : 17,
@@ -22,10 +22,9 @@
       "height" : 70,
       "width" : 70,
       "instructions": [
-        ["cave", 0.6, 2, 5, 4]
       ],
       "goals": {
-        "number" : 4,
+        "number" : 0,
         "size" : [1,3],
         "moveProbability": 0.1
       },
@@ -35,8 +34,8 @@
       }
     },
 
-    "blockTypes" : [3, 3],
-    "dispensers" : [5, 10],
+    "blockTypes" : [1, 1],
+    "dispensers" : [1, 1],
 
     "tasks" : {
       "size" : [1, 4],
@@ -46,7 +45,7 @@
     },
 
     "events" : {
-      "chance" : 15,
+      "chance" : 0,
       "radius" : [3, 5],
       "warning" : 5,
       "create" : [-3, 1],
