@@ -70,7 +70,7 @@ public class AStar {
             }
             //            obstaclesAndVisited.addAll(visited);
             final var neighbours = getUnobstructedSteps(
-                    obstacles.stream().filter(Predicate.not(currentWrapped.destroyedObstacles::contains)).collect(Collectors.toSet()),
+                    obstacles.stream().filter(Predicate.not(currentWrapped.destroyedObstacles::contains)).collect(Collectors.toList()),
                     1,
                     currentPoint);
             for (var tuple : neighbours) {
@@ -179,7 +179,7 @@ public class AStar {
         return null;
     }
 
-    static List<Tuple<Point, Class<? extends G6Action>>> getUnobstructedSteps(Set<Point> obstacles, int reach, Point origin) {
+    static List<Tuple<Point, Class<? extends G6Action>>> getUnobstructedSteps(List<Point> obstacles, int reach, Point origin) {
         List<Tuple<Point, Class<? extends G6Action>>> directionsToGo = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             final Point directionDelta = direction.getNextCoordinate();

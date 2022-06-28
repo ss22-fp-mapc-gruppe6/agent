@@ -128,7 +128,7 @@ public class TestAStar {
             but instead of int formatted as xy-point with negative north
             so n:(0,-1); e:(1,0),(2,0); w:(-1,0),(-2,0),(-3,0)
          */
-        final var obstructions = Set.of(
+        final var obstructions = List.of(
                 new Point(0, -2),
                 new Point(3, 0),
                 new Point(0, 1),
