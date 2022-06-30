@@ -1,6 +1,7 @@
 package g6Agent.services;
 
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +12,7 @@ public class Point extends java.awt.Point {
     public Point(java.awt.Point p) {
         this(p.x, p.y);
     }
+
 
     /**
      * Dangerous! Use {@link #add(int, int)} or {@link #add(Point)} instead!
@@ -145,4 +147,8 @@ public class Point extends java.awt.Point {
     public String toString() {
         return "(" + x + "," + y + ")";
     }
+    public static Comparator<Point> byDistanceToOrigin() {
+        return Comparator.comparingInt(point -> point.manhattanDistanceTo(new Point(0,0)));
+    }
+
 }
