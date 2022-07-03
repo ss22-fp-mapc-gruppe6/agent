@@ -31,7 +31,7 @@ public class Norm {
     }
 
     /**
-     * @return  the step in which a norm becomes active
+     * @return the step in which a norm becomes active
      */
     public int getStart() {
         return start;
@@ -46,6 +46,7 @@ public class Norm {
 
     /**
      * TODO find a better return type
+     *
      * @return the Requirements of the Norm.
      */
     public List<Function> getRequirements() {
@@ -54,7 +55,8 @@ public class Norm {
 
     /**
      * INTEGER VALUE NOT UNDERSTOOD TODO
-     * @return  whether the norm applies to individual agents or a team of agents
+     *
+     * @return whether the norm applies to individual agents or a team of agents
      */
     public int getLevel() {
         return level;

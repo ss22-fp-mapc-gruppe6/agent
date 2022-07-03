@@ -14,6 +14,7 @@ public class BasicAgent extends Agent {
 
     /**
      * Constructor.
+     *
      * @param name    the agent's name
      * @param mailbox the mail facility
      */
@@ -22,10 +23,12 @@ public class BasicAgent extends Agent {
     }
 
     @Override
-    public void handlePercept(Percept percept) {}
+    public void handlePercept(Percept percept) {
+    }
 
     @Override
-    public void handleMessage(Percept message, String sender) {}
+    public void handleMessage(Percept message, String sender) {
+    }
 
     @Override
     public Action step() {

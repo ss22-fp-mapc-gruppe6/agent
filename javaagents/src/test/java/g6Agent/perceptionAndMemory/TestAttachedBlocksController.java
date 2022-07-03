@@ -14,11 +14,11 @@ import java.util.List;
 public class TestAttachedBlocksController {
 
     @org.junit.Test
-    public void testAttachedBlocksActions(){
+    public void testAttachedBlocksActions() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         Direction d = Direction.EAST;
         List<Percept> pl = List.of(new Percept("thing", new Numeral(d.getNextCoordinate().x), new Numeral(d.getNextCoordinate().y), new Identifier("block"), new Identifier("B1")),
-        new Percept("attached", new Numeral(d.getNextCoordinate().x), new Numeral(d.getNextCoordinate().y)));
+                new Percept("attached", new Numeral(d.getNextCoordinate().x), new Numeral(d.getNextCoordinate().y)));
         //Test attach
         AttachedBlocksModule abc = new AttachedBlocksModule(pam);
         pam.handlePercepts(pl);

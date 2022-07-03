@@ -7,7 +7,7 @@ import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightContr
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommunicationModuleImplementation implements CommunicationModule{
+public class CommunicationModuleImplementation implements CommunicationModule {
     List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
     public CommunicationModuleImplementation() {
@@ -16,13 +16,13 @@ public class CommunicationModuleImplementation implements CommunicationModule{
 
     @Override
     public void handleMessage(Percept message, String sender) {
-        switch (message.getName()){
-            case "MOVEMENT_NOTIFICATION"  -> {
+        switch (message.getName()) {
+            case "MOVEMENT_NOTIFICATION" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
-            case "MOVEMENT_ATTEMPT"  -> {
+            case "MOVEMENT_ATTEMPT" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementAttempt(message, sender);
                 }
@@ -43,7 +43,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                 }
             }
 
-           case "KNOWN_AGENTS" -> {
+            case "KNOWN_AGENTS" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processKnownAgentsNotification(message, sender);
                 }

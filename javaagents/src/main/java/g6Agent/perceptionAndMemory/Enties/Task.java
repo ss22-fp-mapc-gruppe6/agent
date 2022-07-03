@@ -14,24 +14,24 @@ public class Task {
     private final int end, reward;
     private final List<Block> requirements;
 
-    public Task(Percept p){
-        name = ((Identifier)p.getParameters().get(0)).toProlog();
+    public Task(Percept p) {
+        name = ((Identifier) p.getParameters().get(0)).toProlog();
         end = ((Numeral) p.getParameters().get(1)).getValue().intValue();
         reward = ((Numeral) p.getParameters().get(2)).getValue().intValue();
         requirements = translateRequirements((ParameterList) p.getParameters().get(3));
     }
 
     private List<Block> translateRequirements(ParameterList parameters) {
-    List<Block> list = new ArrayList<>(parameters.size());
-        for (Parameter p: parameters) {
-            int x = ((Numeral) ((Function)p).getParameters().get(0)).getValue().intValue();
-            if (x>5) x = -1; //Hack for Modulo Mapsize
-            int y = ((Numeral) ((Function)p).getParameters().get(1)).getValue().intValue();
-                if (y>5) y = -1; //Hack for Modulo Mapsize
-            Block requirement = new Block(new Point(x,y), ((Identifier)((Function) p).getParameters().get(2)).toProlog());
+        List<Block> list = new ArrayList<>(parameters.size());
+        for (Parameter p : parameters) {
+            int x = ((Numeral) ((Function) p).getParameters().get(0)).getValue().intValue();
+            if (x > 5) x = -1; //Hack for Modulo Mapsize
+            int y = ((Numeral) ((Function) p).getParameters().get(1)).getValue().intValue();
+            if (y > 5) y = -1; //Hack for Modulo Mapsize
+            Block requirement = new Block(new Point(x, y), ((Identifier) ((Function) p).getParameters().get(2)).toProlog());
             list.add(requirement);
         }
-    return list;
+        return list;
     }
 
     /**
@@ -49,7 +49,6 @@ public class Task {
     }
 
     /**
-     *
      * @return The Reward of the task
      */
     public int getReward() {
@@ -60,11 +59,11 @@ public class Task {
         return requirements;
     }
 
-    public String toString(){
+    public String toString() {
 
         return
                 "Name :       " + this.name + "\n" +
-                "Reqirements :   " + this.requirements + "\n" +
-                "Reward      :   " +  this.reward +"\n";
+                        "Reqirements :   " + this.requirements + "\n" +
+                        "Reward      :   " + this.reward + "\n";
     }
 }

@@ -21,25 +21,25 @@ public class G6GoalDig implements Goal {
 
     @Override
     public G6Action getNextAction() {
-        if(perceptionAndMemory.getObstacles().isEmpty()){
+        if (perceptionAndMemory.getObstacles().isEmpty()) {
             return new Skip();
         }
 
         // when energy is less or equal to 1, agent cant clear any entity
-        if(perceptionAndMemory.getEnergy() <= 1){
+        if (perceptionAndMemory.getEnergy() <= 1) {
             return new Skip();
         }
 
         //find closest obstacle
         Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
-        for(Point obstacle : perceptionAndMemory.getObstacles()){
+        for (Point obstacle : perceptionAndMemory.getObstacles()) {
 
-            if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
+            if (obstacle.manhattanDistanceTo(new Point(0, 0)) < closestObstacle.manhattanDistanceTo(new Point(0, 0))) {
                 closestObstacle = obstacle;
             }
         }
         //if in Range -> clear
-        if(perceptionAndMemory.getCurrentRole() != null) {
+        if (perceptionAndMemory.getCurrentRole() != null) {
             if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
                 return new Clear(closestObstacle);
             }
@@ -47,8 +47,8 @@ public class G6GoalDig implements Goal {
 
         //find best way to obstacle
         Direction direction = Direction.WEST;
-        for (Direction d : Direction.allDirections()){
-            if (d.getNextCoordinate().manhattanDistanceTo(closestObstacle) < direction.getNextCoordinate().manhattanDistanceTo(closestObstacle)){
+        for (Direction d : Direction.allDirections()) {
+            if (d.getNextCoordinate().manhattanDistanceTo(closestObstacle) < direction.getNextCoordinate().manhattanDistanceTo(closestObstacle)) {
                 direction = d;
             }
         }

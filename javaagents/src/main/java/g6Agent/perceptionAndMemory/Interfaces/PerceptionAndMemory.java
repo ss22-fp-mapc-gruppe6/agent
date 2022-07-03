@@ -16,12 +16,14 @@ public interface PerceptionAndMemory {
 
     /**
      * Handles the Percepts of this step.
+     *
      * @param perceptInput the Percepts recieved this step.
      */
     void handlePercepts(List<Percept> perceptInput);
 
     /**
      * Returns a List of relative Positions of Obstacles
+     *
      * @return the relative Positions.
      */
     List<Point> getObstacles();
@@ -59,6 +61,7 @@ public interface PerceptionAndMemory {
 
     /**
      * Determines if the Agent received an new Action ID. And is not deactivated Resets to false with clearShortTermMemory()
+     *
      * @return is the Agent ready for Action?
      */
     boolean isReadyForAction();
@@ -80,10 +83,10 @@ public interface PerceptionAndMemory {
     List<Task> getActiveTasks();
 
     /**
-     *
      * @return the Tasks known to Agent, even if they are timed out
      */
     List<Task> getAllTasks();
+
     /**
      * @return the Blocks in Sight
      */
@@ -134,30 +137,31 @@ public interface PerceptionAndMemory {
     //List<Point> getAttached();  @return positions at which something is attached to the Agent
 
     /**
-     *  Returns he blocks attached to all Agents in sight. including himself.
-     *  If you only wan't his own attached Blocks use getDirectlyAttachedBlocks()
+     * Returns he blocks attached to all Agents in sight. including himself.
+     * If you only wan't his own attached Blocks use getDirectlyAttachedBlocks()
+     *
      * @return the blocks attached to all Agents in sight. including himself;
      */
     List<Block> getAttachedBlocks();
 
     /**
-     *
      * @return the blocks attached to this agent.
      */
     List<Block> getDirectlyAttachedBlocks();
+
     /**
-     *
      * @return the norms
      */
     List<Norm> getNorms();
+
     /**
      * Adds a listener for Last Actions
+     *
      * @param listener the listener
      */
     void addLastActionListener(LastActionListener listener);
 
     /**
-     *
      * @return the Names and positions of the known agents.
      */
     List<AgentNameAndPosition> getKnownAgents();
