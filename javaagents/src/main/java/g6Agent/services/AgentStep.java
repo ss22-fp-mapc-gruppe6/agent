@@ -8,5 +8,6 @@ public class AgentStep {
     }
 
     public void setAgentMapPos(Point agentMapPos) {
-        this.agentMapPos = agentMapPos;}
+        this.agentMapPos = agentMapPos;
     }
+}

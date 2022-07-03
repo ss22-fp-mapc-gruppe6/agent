@@ -7,6 +7,7 @@ import g6Agent.services.Point;
 public class Clear extends Action implements G6Action {
     /**
      * Clears an obstacle or disables an enemy agent at the given position
+     *
      * @param obstacle the position
      */
     public Clear(Point obstacle) {

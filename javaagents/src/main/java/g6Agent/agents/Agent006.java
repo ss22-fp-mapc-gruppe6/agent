@@ -16,7 +16,7 @@ import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 /**
  * The 2. best Agent
  */
-public class Agent006 extends Agent{
+public class Agent006 extends Agent {
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
 
@@ -47,7 +47,7 @@ public class Agent006 extends Agent{
     public Action step() {
         G6Action action = null;
         perceptionAndMemory.handlePercepts(getPercepts());
-        if (perceptionAndMemory.isReadyForAction()){
+        if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
         }

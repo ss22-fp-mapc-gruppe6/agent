@@ -14,7 +14,7 @@ public class GridObject {
     private static Map<String, Point> listOfAllObstacles;
 
     public void setListOfAllObstacles(String identifier, Point pointerMarker) {
-        if (listOfAllObstacles != null){
+        if (listOfAllObstacles != null) {
             listOfAllObstacles.put(identifier, pointerMarker);
         } else {
             listOfAllObstacles = new HashMap<>();

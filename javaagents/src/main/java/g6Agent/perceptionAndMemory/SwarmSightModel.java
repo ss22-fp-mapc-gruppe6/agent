@@ -24,7 +24,8 @@ class SwarmSightModel {
 
     /**
      * Updates the entry of the sender with the given movement
-     * @param sender the sender
+     *
+     * @param sender   the sender
      * @param movement the movement
      */
     public void notifiedOfMovement(String sender, Movement movement) {
@@ -37,23 +38,26 @@ class SwarmSightModel {
 
     /**
      * Used if the Agent spots another Agent
+     *
      * @param agentname the agents name
-     * @param position the agents position
+     * @param position  the agents position
      */
-    public void spottetAgent(String agentname, Point position){
+    public void spottetAgent(String agentname, Point position) {
         this.relativePositionOfOtherAgents.put(agentname, position);
     }
 
     /**
      * Used if the Agent hears about the realtive Position of another Agent
-     * @param agentname the agents name
-     * @param relativePositionNotified the relative Position of the
-     * @param notifyingAgentsName the Name of the Agent who notified of Agent Position
      *
+     * @param agentname                the agents name
+     * @param relativePositionNotified the relative Position of the
+     * @param notifyingAgentsName      the Name of the Agent who notified of Agent Position
      */
-    public void heardOfAgentPosition(String agentname, Point relativePositionNotified, String notifyingAgentsName){
+    public void heardOfAgentPosition(String agentname, Point relativePositionNotified, String notifyingAgentsName) {
         //case the notifying Agent is unknown
-        if (!isKnown(notifyingAgentsName)){return;}
+        if (!isKnown(notifyingAgentsName)) {
+            return;
+        }
         //case the Agent is Known already
         if (isKnown(agentname)) return;
         Point positionOfNotifyingAgent = relativePositionOfOtherAgents.get(notifyingAgentsName);
@@ -70,31 +74,35 @@ class SwarmSightModel {
 
     /**
      * returns if the Agent with the According Agentname is known.
+     *
      * @param agentname the agents name
      * @return does he have an entry?
      */
-    public boolean isKnown(String agentname){
+    public boolean isKnown(String agentname) {
         return relativePositionOfOtherAgents.get(agentname) != null;
     }
 
     /**
-     *  Updates all entries according to the movement of the Agent owning the internal Representation.
+     * Updates all entries according to the movement of the Agent owning the internal Representation.
+     *
      * @param movement the movement
      */
     void movedMyself(Movement movement) {
-     updateAllEntries(movement.asVector().invert());
+        updateAllEntries(movement.asVector().invert());
     }
+
     /**
      * Updates all entries according to the movement of the Agent owning the internal Representation.
-      * @param direction the direction the Agent was moving.
-     * @param speed the number of fields the Agent was moving
+     *
+     * @param direction the direction the Agent was moving.
+     * @param speed     the number of fields the Agent was moving
      */
-    public void movedMyself(Direction direction, int speed){
+    public void movedMyself(Direction direction, int speed) {
         updateAllEntries(direction.getNextCoordinate().invert().multiply(speed));
     }
 
 
-    private void updateAllEntries(Point offset){
+    private void updateAllEntries(Point offset) {
         List<AgentNameAndPosition> updatedAgentPositions = new LinkedList<>();
         relativePositionOfOtherAgents.forEach(
                 (key, entry) -> updatedAgentPositions.add(new AgentNameAndPosition(key, entry.add(offset)))

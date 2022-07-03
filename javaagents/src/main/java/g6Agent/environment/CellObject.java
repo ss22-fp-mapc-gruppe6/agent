@@ -19,8 +19,8 @@ public class CellObject {
     }
 
 
-
     @Override
     public String toString() {
-        return TAG + " - " + objectType.toString();}
+        return TAG + " - " + objectType.toString();
+    }
 }

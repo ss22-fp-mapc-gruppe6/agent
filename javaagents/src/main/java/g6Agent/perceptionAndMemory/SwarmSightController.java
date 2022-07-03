@@ -212,7 +212,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
 
-
     record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
                  List<Point> obstacles) {
     }
@@ -416,10 +415,10 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     private void broadcastKnownAgents() {
         List<AgentNameAndPosition> knownAgents = swarmSightModel.knownAgents();
-        if (!knownAgents.isEmpty()){
+        if (!knownAgents.isEmpty()) {
             ParameterList listOfKnownAgentPercepts = new ParameterList();
-            for (AgentNameAndPosition agent : knownAgents){
-                if (!agent.name().equals(agentname)){
+            for (AgentNameAndPosition agent : knownAgents) {
+                if (!agent.name().equals(agentname)) {
                     listOfKnownAgentPercepts.add(new Function(agent.name(), new Numeral(agent.position().y), new Numeral(agent.position().y)));
                 }
             }
@@ -430,19 +429,19 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     @Override
     public void processKnownAgentsNotification(Percept message, String sender) {
         if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender))
-        for (Parameter parameter : (ParameterList) message.getParameters().get(0)){
-            if (parameter instanceof Function function) {
-                String name = function.getName();
-                //if agent is not known add to known Agents with relative Position to sender
-                if (!swarmSightModel.isKnown(name) && !name.equals(agentname)){
-                    Point position = new Point(
-                            ((Numeral)function.getParameters().get(0)).getValue().intValue(),
-                            ((Numeral)function.getParameters().get(1)).getValue().intValue()
-                    );
-                    swarmSightModel.heardOfAgentPosition(name, position, sender);
+            for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
+                if (parameter instanceof Function function) {
+                    String name = function.getName();
+                    //if agent is not known add to known Agents with relative Position to sender
+                    if (!swarmSightModel.isKnown(name) && !name.equals(agentname)) {
+                        Point position = new Point(
+                                ((Numeral) function.getParameters().get(0)).getValue().intValue(),
+                                ((Numeral) function.getParameters().get(1)).getValue().intValue()
+                        );
+                        swarmSightModel.heardOfAgentPosition(name, position, sender);
+                    }
                 }
             }
-        }
     }
 
     @Override

@@ -7,19 +7,20 @@ import g6Agent.actions.G6Action;
  */
 public interface Goal {
     /**
-     *
      * @return the next Action to be taken to achieve this Goal
      */
     G6Action getNextAction();
 
     /**
      * Is this Goal still succeding with the current beliefs
+     *
      * @return is it succeding?
      */
     boolean isSucceding();
 
     /**
      * The Goal is reached succesfully
+     *
      * @return is the goal reached?
      */
     boolean isFullfilled();
@@ -29,6 +30,7 @@ public interface Goal {
 
     /**
      * The Name of the Goal as String for Communication and other purposes
+     *
      * @return the Name as String
      */
     String getName();

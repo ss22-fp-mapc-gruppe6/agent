@@ -21,10 +21,11 @@ public class PerceptionAndMemoryLinker {
         perceptionAndMemory.setVisionReporter(swarmSightController);
     }
 
-    public CommunicationModuleSwarmSightControllerInterface getSwarmSightController(){
+    public CommunicationModuleSwarmSightControllerInterface getSwarmSightController() {
         return this.swarmSightController;
     }
-    public PerceptionAndMemory getPerceptionAndMemory(){
+
+    public PerceptionAndMemory getPerceptionAndMemory() {
         return this.perceptionAndMemory;
     }
 }

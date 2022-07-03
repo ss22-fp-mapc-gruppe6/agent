@@ -3,8 +3,8 @@ package g6Agent.services;
 import eis.iilang.Identifier;
 
 public enum Direction {
-    WEST(new Identifier("w"), new Point(-1,0)), EAST(new Identifier("e"), new Point(1,0)),
-    NORTH(new Identifier("n"), new Point(0,-1)), SOUTH(new Identifier("s"), new Point(0,1));
+    WEST(new Identifier("w"), new Point(-1, 0)), EAST(new Identifier("e"), new Point(1, 0)),
+    NORTH(new Identifier("n"), new Point(0, -1)), SOUTH(new Identifier("s"), new Point(0, 1));
 
     private final Identifier id;
     private final Point nextCoordinate;
@@ -23,6 +23,7 @@ public enum Direction {
 
     /**
      * Gives the next coordinate in this direction, for example (1,0) for East
+     *
      * @return the coordinate
      */
     public Point getNextCoordinate() {
@@ -31,25 +32,25 @@ public enum Direction {
 
     /**
      * Creates an Direction from a given Identifier
+     *
      * @param id the Identifier
      * @return the Direction
      */
-    public static Direction fromIdentifier(Identifier id){
+    public static Direction fromIdentifier(Identifier id) {
         Direction direction;
         switch (id.toProlog()) {
-            case "w" ->  direction = Direction.WEST;
+            case "w" -> direction = Direction.WEST;
             case "e" -> direction = Direction.EAST;
             case "n" -> direction = Direction.NORTH;
             case "s" -> direction = Direction.SOUTH;
-            default ->
-                    throw new IllegalStateException(
-                            "Unexpected value: " + id.toProlog()
-                                    + "in Direction.fromIdentifier()");
+            default -> throw new IllegalStateException(
+                    "Unexpected value: " + id.toProlog()
+                            + "in Direction.fromIdentifier()");
         }
         return direction;
     }
 
-    public static Direction fromAdjacentPoint(Point p){
+    public static Direction fromAdjacentPoint(Point p) {
         if (p.x == 0 && p.y == 1) return Direction.SOUTH;
         if (p.x == 1 && p.y == 0) return Direction.EAST;
         if (p.x == 0 && p.y == -1) return Direction.NORTH;
@@ -58,38 +59,54 @@ public enum Direction {
     }
 
     /**
-     *
      * @return a list of all possible directions
      */
-    public static Direction[] allDirections(){
-       return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
+    public static Direction[] allDirections() {
+        return new Direction[]{Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH};
     }
 
     /**
      * returns a new direction, which is this direction, rotated in the given rotation
+     *
      * @param rotation the rotation
      * @return the new direction
      */
     public Direction rotate(Rotation rotation) {
-        switch (rotation){
+        switch (rotation) {
             case CLOCKWISE -> {
-                switch (this){
-                    case WEST -> { return Direction.NORTH;}
-                    case EAST -> { return Direction.SOUTH;}
-                    case NORTH -> { return Direction.EAST;}
-                    case SOUTH -> { return Direction.WEST; }
-                }
-            }
-            case COUNTERCLOCKWISE -> {
-                switch (this){
-                    case WEST -> { return Direction.SOUTH;}
-                    case EAST -> { return Direction.NORTH;}
-                    case NORTH -> {return Direction.WEST;}
-                    case SOUTH -> {return Direction.EAST;}
+                switch (this) {
+                    case WEST -> {
+                        return Direction.NORTH;
+                    }
+                    case EAST -> {
+                        return Direction.SOUTH;
+                    }
+                    case NORTH -> {
+                        return Direction.EAST;
+                    }
+                    case SOUTH -> {
+                        return Direction.WEST;
                     }
                 }
             }
-    return null;
+            case COUNTERCLOCKWISE -> {
+                switch (this) {
+                    case WEST -> {
+                        return Direction.SOUTH;
+                    }
+                    case EAST -> {
+                        return Direction.NORTH;
+                    }
+                    case NORTH -> {
+                        return Direction.WEST;
+                    }
+                    case SOUTH -> {
+                        return Direction.EAST;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
