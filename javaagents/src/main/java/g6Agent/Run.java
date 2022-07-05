@@ -31,9 +31,9 @@ public class Run {
 
     public static class Server {
         public static void main(String[] args) throws URISyntaxException, IOException {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(new URI("http://localhost:8000"));
-            }
+//            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+//                Desktop.getDesktop().browse(new URI("http://localhost:8000"));
+//            }
 
             massim.Server.main(new String[]{"-conf", baseDirectory + configMap.get(selected)[1], "--monitor"});
         }

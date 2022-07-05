@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class Move extends Action implements G6Action {
 
-    private final List<Direction> directions;
+    public final List<Direction> directions;
 
     /**
      * Moves the agent in the specified directions. If the agent is currently allowed to move more than one cell, multiple directions can be given.
@@ -28,7 +28,7 @@ public class Move extends Action implements G6Action {
         this.directions = Arrays.stream(directions).collect(Collectors.toUnmodifiableList());
     }
 
-    public boolean predictSuccess(final List<Point> attachments, final List<Point> obstacles) throws Exception {
+    public boolean predictSuccess(final List<Point> attachments, final List<Point> obstacles) throws AttachmentCollidingWithObstacleException {
         for (int a = 0; a < attachments.size(); a++) {
             Point attachmentMoved = attachments.get(a);
             for (int d = 0; d < directions.size(); d++) {

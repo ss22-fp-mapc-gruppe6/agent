@@ -151,4 +151,11 @@ public class Point extends java.awt.Point {
         return Comparator.comparingInt(point -> point.manhattanDistanceTo(new Point(0,0)));
     }
 
+    public static final Comparator<Point> pointComparator = (o1, o2) -> {
+        int x = java.lang.Double.compare(o1.x, o2.x);
+        int y = java.lang.Double.compare(o1.y, o2.y);
+        if (x == 0) return y;
+        else return x;
+    };
+
 }

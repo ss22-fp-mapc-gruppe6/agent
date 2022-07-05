@@ -1,8 +1,5 @@
 package g6Agent.actions;
 
-import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.PerceptionAndMemoryImplementation;
-import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.junit.Test;
 
