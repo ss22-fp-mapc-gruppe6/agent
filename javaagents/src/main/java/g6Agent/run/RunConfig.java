@@ -6,6 +6,7 @@ import static g6Agent.run.RunConfig.Configuration.AStarWithAttachedBlockRotation
 import static g6Agent.run.RunConfig.Configuration.Tournament3ClientOnly;
 
 public class RunConfig {
+    static boolean openBrowser = false;
     static Configuration selected = Tournament3ClientOnly;
     static Map<Configuration, String[]> configMap = Map.of(
             AStarWithAttachedBlockRotation, new String[]{
