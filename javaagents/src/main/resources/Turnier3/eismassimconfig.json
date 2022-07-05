@@ -1,0 +1,29 @@
+{
+  "scenario": "Turnier1",
+  "host": "132.176.66.116",
+  "port": 12300,
+  "scheduling": false,
+  "only-once": true,
+  "timeout": 2000,
+  "times": false,
+  "notifications": false,
+  "queued": false,
+
+  "entities" : {},
+  
+  "multi-entities": [
+    {
+      "name-prefix": "Connection6",
+      "username-prefix": "Team6",
+      "password": "Team6",
+      "print-iilang": false,
+      "print-json": false,
+      "start-index": 1,
+      "count": -1
+    }
+  ],
+
+  "status-entity": {
+    "name": "StatusEntity"
+  }
+}
