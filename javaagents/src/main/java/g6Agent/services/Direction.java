@@ -1,6 +1,7 @@
 package g6Agent.services;
 
 import eis.iilang.Identifier;
+import lombok.EqualsAndHashCode;
 
 import java.util.LinkedList;
 import java.util.List;

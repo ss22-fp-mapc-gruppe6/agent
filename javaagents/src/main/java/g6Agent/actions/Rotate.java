@@ -7,6 +7,8 @@ import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import lombok.AllArgsConstructor;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +27,7 @@ public class Rotate extends Action implements G6Action {
     }
 
 
-    public boolean predictSuccess(final List<Point> attachments, final List<Point> obstacles) throws AttachmentCollidingWithObstacleException {
+    public boolean predictSuccess(final Collection<Point> attachments, final Collection<Point> obstacles) throws AttachmentCollidingWithObstacleException {
         for (Point point : attachments) {
             Point rotate = point.rotate(rotation);
             if (obstacles.contains(rotate)) {

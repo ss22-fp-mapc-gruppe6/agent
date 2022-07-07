@@ -1,13 +1,33 @@
 package g6Agent;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MazeTest {
+    static String rotationWithoutClearing = """
+            xxxxxxxxxxxxxxxxxxxxx
+            xxxxxxxxxxxxxxxxxxxxx
+            sb xxxxxxxxxxxxxxxxxx  
+               xx xxx t  xxxxxxxxx  
+                   x     xxxxxxxxx  
+               xx xxx xxxxxxxxxxxx  
+               xx xxx xxxxxxxxxxxx  
+               xx xxx xxxxxxxxxxxx  
+               x       xxxxxxxxxxx  
+               xx xxx xxxxxxxxxxxx  
+               xxxxxxxxxxxxxxxxxxx  
+               xxxxxxxxxxxxxxxxxxxxxxxxxxx
+            """;
 
-    private String rotationMaze = """
+    static String rotationTrap = """
+            sb x   xxxxxx
+               xxxxx    x
+                       tx
+               xxxxx    x
+               x  xxxxxxx
+            """;
+
+    static String rotationMaze = """
                 sb  xxxxxxxxxxxxxxxxxx                
                               xxxxxxxx                
                     xxxxxxxxx xxxxxxxx                
@@ -19,7 +39,7 @@ public class MazeTest {
                    xx    xxxxxxxxxxxxx       
                    xxxxxxxxxxxxxxxxxxx                
                 """;
-    private String bigMaze = """
+    static String bigMaze = """
 
                 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 xx                                 
@@ -44,7 +64,7 @@ public class MazeTest {
                 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
                                 """;
-    private String bigMaze2 = """
+    static String bigMaze2 = """
 
                 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                 xx                            
@@ -69,7 +89,7 @@ public class MazeTest {
                 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
                                 """;
-    private String smallMaze = """
+    static String smallMaze = """
                 xxxxxxxxx 
                 x       x x   
                 x xxxxx x x   
@@ -83,16 +103,15 @@ public class MazeTest {
                 xxxxxxxxxxx
                 """;
 
-    @Test
-    public void name() {
-        final String[] lines = rotationMaze.lines().sequential().toArray(String[]::new);
-        List<Tuple<Integer, Integer>> blocks = new ArrayList<>();
+    public static void main(String[] args) {
+        final String[] lines = rotationWithoutClearing.lines().sequential().toArray(String[]::new);
+        List<ComparableTuple<Integer, Integer>> blocks = new ArrayList<>();
         for (int y = 0; y < lines.length; y++) {
             final char[] chars = lines[y].toCharArray();
             for (int x = 0; x < chars.length; x++) {
                 if (chars[x] == 's') System.out.println("move " + x + " " + y + " agentA1");
-                if (chars[x] == 't') System.out.println("add " + x + " " + y + " dispenser d1");
-                if (chars[x] == 'b') System.out.println("add " + x + " " + y + " block b1");
+                if (chars[x] == 't') System.out.println("add " + x + " " + y + " dispenser d0");
+                if (chars[x] == 'b') System.out.println("add " + x + " " + y + " dispenser b0");
                 if (chars[x] == 'x') System.out.println("terrain " + x + " " + y + " obstacle");
             }
         }

@@ -1,12 +1,14 @@
 package g6Agent.services;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class Point extends java.awt.Point {
+public class Point extends java.awt.Point  implements Comparable<Point>{
 
 
     public Point(java.awt.Point p) {
@@ -158,4 +160,8 @@ public class Point extends java.awt.Point {
         else return x;
     };
 
+    @Override
+    public int compareTo(@NotNull Point o) {
+        return pointComparator.compare(this,o);
+    }
 }

@@ -1,0 +1,56 @@
+{
+    "setup" : "javaagents/src/main/resources/HardcodedAStarRotation2/setup.txt",
+
+    "steps" : 150,
+    "randomSeed" : 17,
+    "randomFail" : 1,
+    "entities" : {"standard" : 1},
+    "clusterBounds" : [1,3],
+
+    "roles" : "$(../shared/roles/extra-steps-extra-vision.json)",
+
+    "clearEnergyCost" : 2,
+    "deactivatedDuration" : 10,
+    "maxEnergy" : 100,
+    "refreshEnergy" : 50,
+    "stepRecharge" : 1,
+    "clearDamage" : [32, 16, 8, 4, 2, 1],
+
+    "attachLimit" : 10,
+
+    "grid" : {
+      "height" : 20,
+      "width" : 30,
+      "instructions": [
+      ],
+      "goals": {
+        "number" : 0,
+        "size" : [1,3],
+        "moveProbability": 0.1
+      },
+      "roleZones" : {
+        "number" : 5,
+        "size" : [3, 5]
+      }
+    },
+
+    "blockTypes" : [1, 1],
+    "dispensers" : [1, 1],
+
+    "tasks" : {
+      "size" : [1, 4],
+      "concurrent" : 2,
+      "iterations" : [5, 10],
+      "maxDuration" : [100, 200]
+    },
+
+    "events" : {
+      "chance" : 0,
+      "radius" : [3, 5],
+      "warning" : 5,
+      "create" : [-3, 1],
+      "perimeter" : 2
+    },
+
+    "regulation" : "$(../shared/norms/standard.json)"
+}

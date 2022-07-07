@@ -6,6 +6,7 @@ import g6Agent.services.Point;
 import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class Move extends Action implements G6Action {
         this.directions = Arrays.stream(directions).collect(Collectors.toUnmodifiableList());
     }
 
-    public boolean predictSuccess(final List<Point> attachments, final List<Point> obstacles) throws AttachmentCollidingWithObstacleException {
+    public boolean predictSuccess(final List<Point> attachments, final Collection<Point> obstacles) throws AttachmentCollidingWithObstacleException {
         for (int a = 0; a < attachments.size(); a++) {
             Point attachmentMoved = attachments.get(a);
             for (int d = 0; d < directions.size(); d++) {

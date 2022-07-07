@@ -1,6 +1,6 @@
 package g6Agent.decisionModule.astar;
 
-import g6Agent.Tuple;
+import g6Agent.ComparableTuple;
 import g6Agent.actions.*;
 import g6Agent.decisionModule.PointAction;
 import g6Agent.perceptionAndMemory.Enties.Block;
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static g6Agent.services.Direction.*;
 import static g6Agent.services.Rotation.CLOCKWISE;
@@ -31,27 +32,49 @@ public class AStar {
         final List<Block> directlyAttachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks();
         final List<Integer> movementSpeed = perceptionAndMemory.getCurrentRole().getMovementSpeed();
         final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
-        return findShortestPath(new Point(0, 0), target, perceptionAndMemory.getObstacles(), stepSize, target::euclideanDistanceTo, directlyAttachedBlocks.stream().map(Block::getCoordinates).toList());
+        List<Block> blockingBlocks = perceptionAndMemory.getBlocks().stream().filter(block -> !directlyAttachedBlocks.contains(block)).toList();
+        return findShortestPath(new Point(0, 0), target, perceptionAndMemory.getObstacles(), stepSize, target::euclideanDistanceTo, directlyAttachedBlocks.stream().map(Block::getCoordinates).toList(), blockingBlocks);
     }
 
-    static List<G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic, List<Point> attachments) {
+    static List<G6Action> findShortestPath(Point start, Point target, List<Point> obstacles, int stepSize, Function<Point, Double> heuristic, List<Point> attachments, List<Block> blockingBlocks) {
+        Set<Wrapper> history = new HashSet<>();
         PriorityQueue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
+        List<Point> inMyWay;
 
         HashMap<PointAction, Wrapper> wrappers = new HashMap<>();
-        HashSet<Tuple<Point, Direction>> visited = new HashSet<>();
+        HashSet<ComparableTuple<PointAction, Direction>> visited = new HashSet<>();
+        List<ComparableTuple<PointAction, Direction>> visitedList = new ArrayList<>();
         final PointAction startPointAction = new PointAction(start, new Move(), start);
         final var startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, heuristic.apply(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
         wrappers.put(startPointAction, startWrapper);
         queue.add(startWrapper);
 
         while (!queue.isEmpty()) {
+            history.addAll(queue);
+//            AStarHelper.visualize(history, startWrapper);
             final var current = queue.poll();
+
+            inMyWay = new ArrayList<>(Stream.concat(
+                    blockingBlocks.stream().parallel().map(Block::getCoordinates),
+                    obstacles.stream().parallel().filter(Predicate.not(current.destroyedObstacles::contains))
+            ).toList());
+            inMyWay.sort(Point.pointComparator);
+
             final G6Action action = current.pointAction.action();
+            System.out.println("current = " + current);
             final Point currentLocation;
-            visited.add(new Tuple<>(current.pointAction.location(), current.compass));
+            ComparableTuple<PointAction, Direction> visitedTuple = new ComparableTuple<>(current.pointAction, current.compass);
+            if (visited.contains(visitedTuple)) {
+                continue;
+            }
+            visited.add(visitedTuple);
+            if (!visitedList.contains(visitedTuple)) {
+                visitedList.add(visitedTuple);
+                visitedList.sort((o1, o2) -> Point.pointComparator.compare(o1.a().location(), o2.a().location()));
+            }
             switch (action) {
                 case Move move -> {
-                        currentLocation = current.pointAction.target();
+                    currentLocation = current.pointAction.target();
                 }
                 case Clear clear -> {
                     currentLocation = current.pointAction.location();
@@ -71,20 +94,25 @@ public class AStar {
                         continue;
                     } catch (Rotate.AttachmentCollidingWithObstacleException e) {
                         //TODO go deeper
-//                        shouldHaveRotatedEarlier(wrappers, current, queue);
+                        shouldHaveRotatedEarlier(wrappers, current, queue, rotate);
                         continue;
                     }
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + action);
             }
 
+
+            final List<PointAction> debugPath = current.tracePath();
+            final List<Point> debugPathPoints = debugPath.stream().map(PointAction::location).toList();
+            final var debugVisualize = visualize(debugPathPoints, obstacles, start);
+            System.out.println(debugVisualize);
             if (currentLocation.equals(target)) {
+                System.out.println("############target reached################");
+                queue.clear();
                 return traceResult(start, obstacles, stepSize, current);
             }
-            List<Point> c1 = new ArrayList<>(obstacles.stream().filter(Predicate.not(current.destroyedObstacles::contains)).toList());
-            c1.sort(Point.pointComparator);
             final var adjacentActions = getNextActions(
-                    c1,
+                    inMyWay,
                     currentLocation
             );
             List<Wrapper> nextStep = new ArrayList<>();
@@ -96,13 +124,6 @@ public class AStar {
                 Point nextTarget = kv.getKey();
                 switch (nextAction) {
                     case Move m -> {
-                        try {
-                            m.predictSuccess(attachments, obstacles);
-                        } catch (Move.AttachmentCollidingWithObstacleException e) {
-                            current.postponed.push(current);
-                            shouldHaveRotatedEarlier(wrappers, current, queue);
-                            continue;
-                        }
                         step++;
                         if (step == 1) cost = 1;
                         else if (step <= stepSize) cost = 0;
@@ -133,10 +154,9 @@ public class AStar {
                             .withDestroyedObstacles(destroyedObstacles)
                             .withStep(step);
                     wrappers.put(pointAction, nextWrapped);
-                    nextStep.add(nextWrapped);
                 } else if (totalCost < nextWrapped.totalCostFromStart) {
                     queue.remove(nextWrapped);
-                    Wrapper replacement = nextWrapped
+                    nextWrapped = nextWrapped
                             .withPointAction(pointAction)
                             .withPredecessor(current)
                             .withCostSum(totalCost + nextWrapped.minimalRemainingCost)
@@ -145,7 +165,18 @@ public class AStar {
                             .withStep(step)
                             .withCompass(NORTH)
                             .withPostponed(new Stack<>());
-                    nextStep.add(replacement);
+                }
+                if (nextAction instanceof Move) {
+                    Move m = (Move) nextAction;
+                    try {
+                        m.predictSuccess(attachments, obstacles);
+                        nextStep.add(nextWrapped);
+                    } catch (Move.AttachmentCollidingWithObstacleException e) {
+                        shouldHaveRotatedEarlier(wrappers, nextWrapped, queue, m);
+                        continue;
+                    }
+                } else {
+                    nextStep.add(nextWrapped);
                 }
             }
             queue.addAll(nextStep);
@@ -154,27 +185,38 @@ public class AStar {
         return List.of();
     }
 
-    private static void shouldHaveRotatedEarlier(HashMap<PointAction, Wrapper> wrappers, Wrapper current, PriorityQueue<Wrapper> queue) {
+    private static ComparableTuple<Wrapper, Wrapper> shouldHaveRotatedEarlier(HashMap<PointAction, Wrapper> wrappers, Wrapper current, PriorityQueue<Wrapper> queue, G6Action tryingTo) {
         Rotate cw = new Rotate(CLOCKWISE);
         Rotate ccw = new Rotate(COUNTERCLOCKWISE);
 
         Wrapper predecessor = current.predecessor;
         Point location = predecessor.pointAction.location();
         PointAction key1 = new PointAction(location, cw, location);
-        current.postponed.push(current);
         Wrapper w1 = current
                 .withPointAction(key1)
+                .withCompass(current.compass.rotate(CLOCKWISE))
                 .withTotalCostFromStart(predecessor.totalCostFromStart + 1)
                 .withCostSum(predecessor.totalCostFromStart + 1 + predecessor.minimalRemainingCost);
+        w1.postponed.push(current
+                .withCostSum(current.costSum + 2 + current.minimalRemainingCost)
+                .withTotalCostFromStart(current.totalCostFromStart + 2)
+        );
         wrappers.put(key1, w1);
         PointAction key2 = new PointAction(location, ccw, location);
         Wrapper w2 = current
                 .withPointAction(key2)
+                .withCompass(current.compass.rotate(COUNTERCLOCKWISE))
                 .withTotalCostFromStart(predecessor.totalCostFromStart + 1)
                 .withCostSum(predecessor.totalCostFromStart + 1 + predecessor.minimalRemainingCost);
+        w2.postponed.push(current
+                .withCostSum(current.costSum + 2 + current.minimalRemainingCost)
+                .withTotalCostFromStart(current.totalCostFromStart + 2)
+                .withCompass(current.compass.rotate(COUNTERCLOCKWISE))
+        );
         wrappers.put(key2, w2);
         queue.add(w1);
         queue.add(w2);
+        return new ComparableTuple<>(w1, w2);
     }
 
     @NotNull
@@ -189,7 +231,7 @@ public class AStar {
         return g6Actions;
     }
 
-    private static List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
+    static List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
         final List<G6Action> actions = new ArrayList<>();
         final LinkedList<PointAction> queue = new LinkedList<>();
         int step = 0;
@@ -213,6 +255,15 @@ public class AStar {
                         queue.clear();
                     }
                     actions.add(clear);
+                }
+                case Rotate rotate -> {
+                    step = 0;
+                    //add queued partial move before clear
+                    if (!queue.isEmpty()) {
+                        actions.add(bundle(queue));
+                        queue.clear();
+                    }
+                    actions.add(rotate);
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + action);
             }
@@ -252,9 +303,10 @@ public class AStar {
 
     @With
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
     @AllArgsConstructor
     static final class Wrapper implements Comparable<Wrapper> {
+        @EqualsAndHashCode.Include
         final PointAction pointAction;
         final Wrapper predecessor;
         final double costSum;
@@ -262,13 +314,13 @@ public class AStar {
         final double minimalRemainingCost;
         final Set<Point> destroyedObstacles;
         final int step;
-        final List<Point> attachments;
+        List<Point> attachments;
         final Direction compass;
         final Stack<Wrapper> postponed;
 
         @Override
         public String toString() {
-            return "(" + pointAction.action() + ")-" + costSum;
+            return "(" + pointAction + ")-" + costSum;
         }
 
         @Override

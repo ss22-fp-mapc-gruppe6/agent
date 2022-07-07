@@ -1,7 +1,7 @@
 [
   {
     "name": "default",
-    "vision": 13,
+    "vision": 30,
     "actions": ["skip", "move", "rotate", "adopt", "detach", "clear"],
     "speed": [5],
     "clear": {

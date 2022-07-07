@@ -4,7 +4,6 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.*;
-import g6Agent.decisionModule.astar.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
@@ -13,11 +12,15 @@ import g6Agent.services.Point;
 
 import java.util.List;
 
+import static g6Agent.decisionModule.astar.AStarReimplemented.astarNextStep;
+import static g6Agent.decisionModule.astar.AStarReimplemented.astarShortestPath;
 import static g6Agent.services.Point.byDistanceToOrigin;
 
 
 public class DummyRotatingAStarAgent extends Agent {
     private final PerceptionAndMemory perceptionAndMemory;
+    private final String b0String = "b0";
+    private final String d0String = "d0";
 
     public DummyRotatingAStarAgent(String name, MailService mailbox) {
         super(name, mailbox);
@@ -33,12 +36,13 @@ public class DummyRotatingAStarAgent extends Agent {
     Action becomeworker() {
         final List<Point> roleZones = perceptionAndMemory.getRoleZones();
         if (roleZones.contains(new Point(0, 0))) {
+            System.out.println("became worker");
             return new Adopt("worker");
         }
         final Point point = roleZones.stream()
                 .min(byDistanceToOrigin())
                 .orElseThrow(() -> new IllegalStateException("no role zone in sight?"));
-        final List<G6Action> g6Actions = AStar.astarShortestPath(point, perceptionAndMemory);
+        final List<G6Action> g6Actions =astarShortestPath(point, perceptionAndMemory);
         if (!g6Actions.isEmpty()) return (Action) g6Actions.get(0);
         return null;
     }
@@ -46,12 +50,12 @@ public class DummyRotatingAStarAgent extends Agent {
     Action goToAndPickUpBlock() {
         var b0 = perceptionAndMemory.getDispensers()
                 .stream()
-                .filter(block -> block.getBlocktype().equals("b0"))
+                .filter(block -> block.getBlocktype().equals(b0String))
                 .map(Block::getCoordinates)
                 .min(byDistanceToOrigin())
                 .orElseThrow(() -> new IllegalStateException("should have seen the block"));
 
-        var actions = AStar.astarShortestPath(b0.add(1, 0), perceptionAndMemory);
+        var actions =astarShortestPath(b0.add(0, 1), perceptionAndMemory);
         if (!actions.isEmpty()) return ((Action) actions.get(0));
         else {
             Direction direction = Direction.fromAdjacentPoint(b0);
@@ -73,12 +77,12 @@ public class DummyRotatingAStarAgent extends Agent {
                 && perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty()) {
             return goToAndPickUpBlock();
         } else {
-            var b1 = perceptionAndMemory.getDispensers().stream()
-                    .filter(block -> block.getBlocktype().equals("b1"))
+            var d0 = perceptionAndMemory.getDispensers().stream()
+                    .filter(block -> block.getBlocktype().equals(d0String))
                     .map(Block::getCoordinates)
                     .min(byDistanceToOrigin());
-            var target = b1.orElseThrow(() -> new IllegalStateException("should have seen the block"));
-            final var g6Action = AStar.astarNextStep(target, perceptionAndMemory);
+            var target = d0.orElseThrow(() -> new IllegalStateException("should have seen the block"));
+            final var g6Action =astarNextStep(target, perceptionAndMemory);
             return (Action) g6Action;
         }
     }
