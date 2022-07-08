@@ -21,6 +21,13 @@ public class G6GoalFullfillSingleTaskv1 extends GoalWithTask implements Goal{
 
     @Override
     public G6Action getNextAction() {
+
+        //If matching Block is not attached move to dispenser and attach Block
+
+        //else if not in Goalzone move to Goalzone
+
+        // else (has matching Block attached and is in Goalzone) submit Task
+
         return null;
     }
 
