@@ -83,4 +83,9 @@ public class G6GoalExplore implements Goal {
     public String getName() {
         return "G6GoalExplore";
     }
+
+    @Override
+    public boolean preconditionsMet() {
+        return true;
+    }
 }

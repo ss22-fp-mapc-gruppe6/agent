@@ -35,4 +35,9 @@ public interface Goal {
      */
     String getName();
 
+    /**
+     * Checks the preconditions of the goal
+     * @return are the preconditions met
+     */
+    boolean preconditionsMet();
 }

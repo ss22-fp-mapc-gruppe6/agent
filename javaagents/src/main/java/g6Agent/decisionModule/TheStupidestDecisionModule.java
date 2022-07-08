@@ -100,6 +100,8 @@ public class TheStupidestDecisionModule implements DecisionModule {
                 }
             }
         }
+
+
         return hasBlockMatchingTask;
     }
 }

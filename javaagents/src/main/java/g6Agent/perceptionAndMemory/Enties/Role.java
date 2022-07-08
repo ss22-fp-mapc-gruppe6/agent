@@ -65,4 +65,13 @@ public class Role {
     public int getClearActionMaximumDistance() {
         return clearActionMaximumDistance;
     }
+
+    /**
+     * Determines if the Role can perform an action of the given Name
+     * @param actionName the Name of the Action
+     * @return can it be performed with this Role
+     */
+    public boolean canPerformAction (String actionName){
+        return possibleActions.stream().anyMatch(action -> action.equals(actionName));
+    }
 }

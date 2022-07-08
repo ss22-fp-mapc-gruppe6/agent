@@ -1,17 +1,32 @@
 package g6Agent.communicationModule;
 
-import eis.iilang.Action;
-import eis.iilang.Percept;
+import eis.iilang.*;
+import g6Agent.MailService;
+
+import g6Agent.communicationModule.submodules.PingCommunicator;
+import g6Agent.communicationModule.submodules.StrategyModule;
+import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommunicationModuleImplementation implements CommunicationModule {
-    List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
+public class CommunicationModuleImplementation implements CommunicationModule{
+    private final String agentname;
+    private final MailService mailService;
+    private final List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
-    public CommunicationModuleImplementation() {
+    private final TaskAuctionModule taskAuctionModule;
+    private final StrategyModule strategyModule;
+    private final PingCommunicator pingCommunicator;
+
+    public CommunicationModuleImplementation(String agentname, MailService mailService) {
+        this.agentname = agentname;
+        this.mailService = mailService;
         this.swarmSightControllers = new ArrayList<>();
+        this.taskAuctionModule = new TaskAuctionModule(agentname, mailService);
+        this.strategyModule = new StrategyModule(agentname, mailService);
+        this.pingCommunicator = new PingCommunicator(agentname, mailService);
     }
 
     @Override
@@ -42,13 +57,14 @@ public class CommunicationModuleImplementation implements CommunicationModule {
                     agentMapCoordinator.processVisionNotification(message, sender);
                 }
             }
-
-            case "KNOWN_AGENTS" -> {
+           case "KNOWN_AGENTS" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processKnownAgentsNotification(message, sender);
                 }
             }
-
+            case "MY_TASK" -> taskAuctionModule.receiveTaskAndBlockIndex(message, sender);
+            case "MY_STRATEGY" -> strategyModule.receiveStrategyUpdate(message, sender);
+            case "PING" -> pingCommunicator.receivePing(message, sender);
         }
     }
 
@@ -65,4 +81,21 @@ public class CommunicationModuleImplementation implements CommunicationModule {
             }
         }
     }
+
+    @Override
+    public TaskAuctionModule getTaskAuctionModule() {
+        return this.taskAuctionModule;
+    }
+
+    @Override
+    public StrategyModule getStrategyModule() {
+        return this.strategyModule;
+    }
+
+    @Override
+    public PingCommunicator getPingCommunicator() {
+        return this.pingCommunicator;
+    }
+
+
 }

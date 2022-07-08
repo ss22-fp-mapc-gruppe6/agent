@@ -23,3 +23,9 @@ AgentMapCoordinator:
             }
         }
 
+"PING" - Sends a Ping to other Agents
+
+"MY_TASK" - communicates the task of the Agent
+
+"MY_STRATEGY" - communicates the Strategy ( offensive or defensive ) of the agent
+

@@ -9,6 +9,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ public class G6GoalGoalRush implements Goal {
 
     @Override
     public G6Action getNextAction() {
+        Clear blockingobstacle = IfRotateFailedBreakFree();
+        if (blockingobstacle != null) return blockingobstacle;
         if (perceptionAndMemory.getGoalZones().isEmpty()) {
             return findGoalZone();
         } else {
@@ -74,7 +77,6 @@ public class G6GoalGoalRush implements Goal {
                 if (task.getRequirements().size() == 1) {
                     return rotateAndSubmit();
                 } else {
-                    //TODO Work together with other Agents to fullfill Task
                     return new Skip();
                 }
             } else {
@@ -272,6 +274,32 @@ public class G6GoalGoalRush implements Goal {
         return false;
     }
 
+    @Nullable
+    private Clear IfRotateFailedBreakFree() {
+        if(perceptionAndMemory.getLastAction() != null){
+            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
+                    && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
+                    && perceptionAndMemory.getEnergy() > 30){
+                //find closest obstacle
+                Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
+                for(Point obstacle : perceptionAndMemory.getObstacles()){
+
+                    if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
+                        closestObstacle = obstacle;
+                    }
+                }
+                //if in Range -> clear
+                if(perceptionAndMemory.getCurrentRole() != null) {
+                    if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
+                        return new Clear(closestObstacle);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public boolean isFullfilled() {
         LastActionMemory lastAction = perceptionAndMemory.getLastAction();
@@ -284,16 +312,37 @@ public class G6GoalGoalRush implements Goal {
         return "G6GoalGoalRush";
     }
 
+    @Override
+    public boolean preconditionsMet() {
+        Role currentRole = perceptionAndMemory.getCurrentRole();
+        if (currentRole == null) return false;
+        if (!currentRole.canPerformAction("attach")  || !currentRole.canPerformAction("submit")){
+            return false;
+        }
+        if(perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty()) return false;
+        return checkIfBlockMatchingTask();
+    }
 
-    private List<String> possibleRoleNames() {
-        List<String> roleNames = new ArrayList<>();
-        for (Role role : perceptionAndMemory.getPossibleRoles()) {
-            for (String action : role.getPossibleActions()) {
-                if (action.equals("submit")) {
-                    roleNames.add(role.getName());
+    private boolean checkIfBlockMatchingTask() {
+        boolean hasBlockMatchingTask = false;
+        for (Block attchedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
+            for (Task t : perceptionAndMemory.getActiveTasks()) {
+                for (Block requirement : t.getRequirements()) {
+                    if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())) {
+                        hasBlockMatchingTask = true;
+                        break;
+                    }
                 }
             }
         }
-        return roleNames;
+        return hasBlockMatchingTask;
+    }
+
+    private List<String> possibleRoleNames() {
+        return perceptionAndMemory.getPossibleRoles()
+                .stream()
+                .filter(role -> role.canPerformAction("attach") && role.canPerformAction("submit"))
+                .map(Role::getName)
+                .toList();
     }
 }

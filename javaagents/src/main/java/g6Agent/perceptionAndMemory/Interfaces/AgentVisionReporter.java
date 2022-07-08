@@ -20,4 +20,6 @@ public interface AgentVisionReporter {
     void handleStep();
 
     List<AgentNameAndPosition> getKnownAgentPositions();
+
+    Point getPositionOfAgent(String agentname);
 }

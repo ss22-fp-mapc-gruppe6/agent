@@ -428,7 +428,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public void processKnownAgentsNotification(Percept message, String sender) {
-        if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender))
+        if (message.getName().equals("KNOWN_AGENTS") && swarmSightModel.isKnown(sender)) {
             for (Parameter parameter : (ParameterList) message.getParameters().get(0)) {
                 if (parameter instanceof Function function) {
                     String name = function.getName();
@@ -442,6 +442,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
                     }
                 }
             }
+        }
     }
 
     @Override
