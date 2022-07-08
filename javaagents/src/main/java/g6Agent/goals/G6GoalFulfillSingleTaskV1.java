@@ -8,20 +8,18 @@ import g6Agent.services.Point;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class G6GoalFullfillSingleTaskv1 extends GoalWithTask implements Goal{
+public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
 
     private final PerceptionAndMemory perceptionAndMemory;
 
-    public G6GoalFullfillSingleTaskv1(PerceptionAndMemory perceptionAndMemory, String taskName) {
+    public G6GoalFulfillSingleTaskV1(PerceptionAndMemory perceptionAndMemory, String taskName) {
         super(perceptionAndMemory, taskName, 0);
         this.perceptionAndMemory = perceptionAndMemory;
     }
 
     @Override
     public G6Action getNextAction() {
-
         //If matching Block is not attached move to dispenser and attach Block
 
         //else if not in Goalzone move to Goalzone
