@@ -35,7 +35,6 @@ public class LastActionMemory {
     }
 
     /**
-     *
      * @return the name of the last action
      */
     public String getName() {
@@ -43,7 +42,6 @@ public class LastActionMemory {
     }
 
     /**
-     *
      * @param name the name of the last action
      */
     public void setName(String name) {
@@ -121,6 +119,7 @@ public class LastActionMemory {
      * failed_role 	    -   The agent's current role does not permit the action.
      * unknown_action 	-   The action is not part of the game.
      * </pre>
+     *
      * @return the message
      */
     public String getSuccessMessage() {
@@ -135,8 +134,8 @@ public class LastActionMemory {
     }
 
     @Override
-    public String toString(){
-        return "Name : " + this.getName() +"\n" +
+    public String toString() {
+        return "Name : " + this.getName() + "\n" +
                 "Success Message : " + this.getSuccessMessage() + "\n" +
                 "Parameters : " + this.getParameters();
     }

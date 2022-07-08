@@ -12,17 +12,16 @@ public class Block {
     private final Point coordinates;
 
 
-
-
     /**
      * Only Used by Task - Constructor
+     *
      * @param p the Function Parameter in a Task Percept
      */
     Block(Function p) {
-        this.blocktype = ((Identifier)p.getParameters().get(2)).toProlog();
-        this.coordinates= new Point(((Numeral) p.getParameters().get(0)).getValue().intValue(),
+        this.blocktype = ((Identifier) p.getParameters().get(2)).toProlog();
+        this.coordinates = new Point(((Numeral) p.getParameters().get(0)).getValue().intValue(),
                 ((Numeral) p.getParameters().get(1)).getValue().intValue());
-       // System.out.println(blocktype + " " + coordinates); // TODO find out what points with value 99 mean -1?
+        // System.out.println(blocktype + " " + coordinates); // TODO find out what points with value 99 mean -1?
     }
 
     public Block(Point coordinates, String blocktype) {
@@ -32,6 +31,7 @@ public class Block {
 
     /**
      * Returns the Blocktype of the Requirement
+     *
      * @return the Blocktype
      */
     public String getBlocktype() {
@@ -40,6 +40,7 @@ public class Block {
 
     /**
      * Returns the relative coordinates to the Agent of the given Block
+     *
      * @return the coordinates
      */
     public Point getCoordinates() {
@@ -48,7 +49,7 @@ public class Block {
 
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(blocktype, coordinates.x, coordinates.y);
     }
 }

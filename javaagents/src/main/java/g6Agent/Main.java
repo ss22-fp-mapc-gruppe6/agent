@@ -12,7 +12,7 @@ import java.util.Scanner;
  */
 public class Main {
 
-    public static void main( String[] args ) {
+    public static void main(String[] args) {
 
         String configDir = "";
 
@@ -26,8 +26,7 @@ public class Main {
             if (confFiles == null || confFiles.length == 0) {
                 System.out.println("No javaagents config files available - exit JavaAgents.");
                 System.exit(0);
-            }
-            else {
+            } else {
                 System.out.println("Choose a number:");
                 for (int i = 0; i < confFiles.length; i++) {
                     System.out.println(i + " " + confFiles[i]);
@@ -37,7 +36,7 @@ public class Main {
                 while (confNum == null) {
                     try {
                         confNum = Integer.parseInt(in.next());
-                        if (confNum < 0 || confNum > confFiles.length - 1){
+                        if (confNum < 0 || confNum > confFiles.length - 1) {
                             System.out.println("No config for that number, try again:");
                             confNum = null;
                         }

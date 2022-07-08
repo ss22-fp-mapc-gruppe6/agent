@@ -21,10 +21,11 @@ public class MailService {
 
     /**
      * Registers an agent with this mail service. The agent will now receive messages.
+     *
      * @param agent the agent to register
-     * @param team the agent's team (needed for broadcasts)
+     * @param team  the agent's team (needed for broadcasts)
      */
-    void registerAgent(Agent agent, String team){
+    void registerAgent(Agent agent, String team) {
         register.put(agent.getName(), agent);
         agentsByTeam.putIfAbsent(team, new Vector<>());
         agentsByTeam.get(team).add(agent);
@@ -33,26 +34,27 @@ public class MailService {
 
     /**
      * Adds a message to this mailbox.
+     *
      * @param message the message to add
-     * @param to the receiving agent
-     * @param from the agent sending the message
+     * @param to      the receiving agent
+     * @param from    the agent sending the message
      */
-    public void sendMessage(Percept message, String to, String from){
+    public void sendMessage(Percept message, String to, String from) {
 
         Agent recipient = register.get(to);
 
-        if(recipient == null) {
+        if (recipient == null) {
             logger.warning("Cannot deliver message to " + to + "; unknown target,");
-        }
-        else{
+        } else {
             recipient.handleMessage(message, from);
         }
     }
 
     /**
      * Sends a message to all agents of the sender's team (except the sender).
+     *
      * @param message the message to broadcast
-     * @param sender the sending agent
+     * @param sender  the sending agent
      */
     public void broadcast(Percept message, String sender) {
         agentsByTeam.get(teamForAgent.get(sender)).stream()

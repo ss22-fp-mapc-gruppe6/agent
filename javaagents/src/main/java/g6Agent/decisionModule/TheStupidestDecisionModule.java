@@ -5,7 +5,7 @@ import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
-public class TheStupidestDecisionModule implements DecisionModule{
+public class TheStupidestDecisionModule implements DecisionModule {
 
     int OBSTACLE_THRESHOLD = 22;
     Goal currentGoal;
@@ -28,17 +28,17 @@ public class TheStupidestDecisionModule implements DecisionModule{
         //walk decision tree
 
         //if blocked clear your way out
-        if(perceptionAndMemory.getLastAction() != null){
-            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
+        if (perceptionAndMemory.getLastAction() != null) {
+            if (perceptionAndMemory.getLastAction().getName().equals("rotate")
                     && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
-                    && perceptionAndMemory.getEnergy() > 30){
+                    && perceptionAndMemory.getEnergy() > 30) {
                 return new G6GoalDig(perceptionAndMemory);
             }
         }
-        if(perceptionAndMemory.getCurrentRole() != null) {
+        if (perceptionAndMemory.getCurrentRole() != null) {
             //if rolezone in sight -> become a worker
             if ((!perceptionAndMemory.getCurrentRole().getName().equals("worker")) && perceptionAndMemory.getRoleZones().size() > 0) {
-               currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
+                currentGoal = (currentGoal.getName().equals("G6GoalChangeRole") && !currentGoal.isFullfilled() ? currentGoal : new G6GoalChangeRole("worker", perceptionAndMemory));
                 return currentGoal;
             }
             boolean canDoAttach = false;
@@ -84,16 +84,16 @@ public class TheStupidestDecisionModule implements DecisionModule{
 
          */
         //if nothing else -> Explore
-        currentGoal = (currentGoal.getName().equals("G6GoalExplore")&& !currentGoal.isFullfilled())? currentGoal : new G6GoalExplore(perceptionAndMemory);
+        currentGoal = (currentGoal.getName().equals("G6GoalExplore") && !currentGoal.isFullfilled()) ? currentGoal : new G6GoalExplore(perceptionAndMemory);
         return currentGoal;
     }
 
     private boolean checkIfBlockMatchingTask() {
         boolean hasBlockMatchingTask = false;
-        for (Block attchedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
-            for (Task t : perceptionAndMemory.getActiveTasks()){
-                for (Block requirement : t.getRequirements()){
-                    if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())){
+        for (Block attchedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
+            for (Task t : perceptionAndMemory.getActiveTasks()) {
+                for (Block requirement : t.getRequirements()) {
+                    if (requirement.getBlocktype().equals(attchedBlock.getBlocktype())) {
                         hasBlockMatchingTask = true;
                         break;
                     }

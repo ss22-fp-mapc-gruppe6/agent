@@ -7,7 +7,6 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +29,10 @@ public class G6GoalRetrieveBlock implements Goal {
         if (!perceptionAndMemory.getBlocks().isEmpty()){
             //determine next block
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
-            for (Block block : perceptionAndMemory.getBlocks()){
-                if (block.getCoordinates().manhattanDistanceTo(new Point(0,0)) < closestBlock.getCoordinates().manhattanDistanceTo(new Point(0,0))){
+            for (Block block : perceptionAndMemory.getBlocks()) {
+                if (block.getCoordinates().manhattanDistanceTo(new Point(0, 0)) < closestBlock.getCoordinates().manhattanDistanceTo(new Point(0, 0))) {
                     boolean isNotCloseToOtherAgent = checkIfNotCloseToOtherAgent(block);
-                    if(isNotCloseToOtherAgent) {
+                    if (isNotCloseToOtherAgent) {
                         closestBlock = block;
                     }
                 }
@@ -59,16 +58,16 @@ public class G6GoalRetrieveBlock implements Goal {
             }
         }
 
-        if(!perceptionAndMemory.getDispensers().isEmpty()){
+        if (!perceptionAndMemory.getDispensers().isEmpty()) {
             //Determine closest dispenser
             Block closestDispenser = perceptionAndMemory.getDispensers().get(0);
-            for (Block dispenser : perceptionAndMemory.getDispensers()){
-                if (dispenser.getCoordinates().manhattanDistanceTo(new Point(0,0)) < closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0))){
+            for (Block dispenser : perceptionAndMemory.getDispensers()) {
+                if (dispenser.getCoordinates().manhattanDistanceTo(new Point(0, 0)) < closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0, 0))) {
                     if (this.lastDispenserMovedTo == null) {
                         closestDispenser = dispenser;
                     } else {
                         //check if last dispenser
-                        if (dispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates()) < closestDispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates())){
+                        if (dispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates()) < closestDispenser.getCoordinates().manhattanDistanceTo(lastDispenserMovedTo.getCoordinates())) {
                             closestDispenser = dispenser;
                         }
                     }
@@ -76,13 +75,13 @@ public class G6GoalRetrieveBlock implements Goal {
             }
             lastDispenserMovedTo = closestDispenser;
             //if adjacent attach
-            if (closestDispenser.getCoordinates().isAdjacent()){
+            if (closestDispenser.getCoordinates().isAdjacent()) {
                 for (Direction direction : Direction.allDirections()) {
                     if (direction.getNextCoordinate().equals(closestDispenser.getCoordinates())) {
                         return new Request(direction);
                     }
                 }
-            }else {
+            } else {
                 //move to next dispenser
                 Direction direction = Direction.WEST;
                 for (Direction d : Direction.allDirections()) {
@@ -95,31 +94,6 @@ public class G6GoalRetrieveBlock implements Goal {
         }
 
         return new Skip();
-    }
-
-    @Nullable
-    private Clear IfRotateFailedBreakFree() {
-        if(perceptionAndMemory.getLastAction() != null){
-            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
-                    && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
-                    && perceptionAndMemory.getEnergy() > 30){
-                //find closest obstacle
-                Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
-                for(Point obstacle : perceptionAndMemory.getObstacles()){
-
-                    if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
-                        closestObstacle = obstacle;
-                    }
-                }
-                //if in Range -> clear
-                if(perceptionAndMemory.getCurrentRole() != null) {
-                    if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
-                        return new Clear(closestObstacle);
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private boolean checkIfNotCloseToOtherAgent(Block block) {

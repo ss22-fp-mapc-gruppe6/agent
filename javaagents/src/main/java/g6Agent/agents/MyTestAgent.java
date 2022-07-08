@@ -14,7 +14,8 @@ import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 
-public class MyTestAgent extends Agent{
+
+public class MyTestAgent extends Agent {
 
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
@@ -22,7 +23,7 @@ public class MyTestAgent extends Agent{
     //private GridObject grid;
     private final CommunicationModule communicationModule;
 
-    public MyTestAgent(String name, MailService mailbox){
+    public MyTestAgent(String name, MailService mailbox) {
         super(name, mailbox);
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
@@ -32,15 +33,15 @@ public class MyTestAgent extends Agent{
         this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new TSDMConfig());
     }
 
-/*
-    public Point getPosition(int step) {
-        return stepValues.get(step).getAgentMapPos();
-    }
+    /*
+        public Point getPosition(int step) {
+            return stepValues.get(step).getAgentMapPos();
+        }
 
-    public GridObject getGrid() {
-        return (grid);
-    }
-*/
+        public GridObject getGrid() {
+            return (grid);
+        }
+    */
     @Override
     public void handlePercept(Percept percept) {
 
@@ -52,20 +53,11 @@ public class MyTestAgent extends Agent{
         perceptionAndMemory.handlePercepts(getPercepts());
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
-            say(currentGoal.getName());
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-            System.out.println(action);
-            if (action == null) try {
-                throw new Exception();
-            } catch (Exception e) {
-                say("HELP GOT NO ACTION");
-                throw new RuntimeException(e);
-            }
         }
         return (eis.iilang.Action) action;
     }
-
 
 
     @Override

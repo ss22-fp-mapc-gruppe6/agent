@@ -7,7 +7,7 @@ import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 
-public class G6GoalChangeRole implements Goal{
+public class G6GoalChangeRole implements Goal {
     String roleName;
     PerceptionAndMemory perceptionAndMemory;
     Point roleZoneMovedToLast;
@@ -19,7 +19,7 @@ public class G6GoalChangeRole implements Goal{
 
     @Override
     public G6Action getNextAction() {
-        if(!perceptionAndMemory.getRoleZones().isEmpty()){
+        if (!perceptionAndMemory.getRoleZones().isEmpty()) {
             boolean isInRoleZone = checkIfInRoleZone();
             if (isInRoleZone) return new Adopt(roleName);
 
@@ -30,12 +30,12 @@ public class G6GoalChangeRole implements Goal{
 
     private G6Action moveToRoleZone() {
         Point closestRoleZone = perceptionAndMemory.getRoleZones().get(0);
-        for (Point rolelZone : perceptionAndMemory.getRoleZones()){
-            if(rolelZone.manhattanDistanceTo(new Point(0,0)) < closestRoleZone.manhattanDistanceTo(new Point(0,0))){
+        for (Point rolelZone : perceptionAndMemory.getRoleZones()) {
+            if (rolelZone.manhattanDistanceTo(new Point(0, 0)) < closestRoleZone.manhattanDistanceTo(new Point(0, 0))) {
                 if (roleZoneMovedToLast == null) {
                     closestRoleZone = rolelZone;
                 } else {
-                    if (rolelZone.manhattanDistanceTo(closestRoleZone) < closestRoleZone.manhattanDistanceTo(roleZoneMovedToLast)){
+                    if (rolelZone.manhattanDistanceTo(closestRoleZone) < closestRoleZone.manhattanDistanceTo(roleZoneMovedToLast)) {
                         closestRoleZone = rolelZone;
                     }
                 }
@@ -44,8 +44,8 @@ public class G6GoalChangeRole implements Goal{
         roleZoneMovedToLast = closestRoleZone;
 
         Direction direction = Direction.WEST;
-        for (Direction d : Direction.allDirections()){
-            if (d.getNextCoordinate().manhattanDistanceTo(closestRoleZone) < direction.getNextCoordinate().manhattanDistanceTo(closestRoleZone)){
+        for (Direction d : Direction.allDirections()) {
+            if (d.getNextCoordinate().manhattanDistanceTo(closestRoleZone) < direction.getNextCoordinate().manhattanDistanceTo(closestRoleZone)) {
 
                 direction = d;
             }
@@ -54,22 +54,23 @@ public class G6GoalChangeRole implements Goal{
     }
 
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
-            if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
+        for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
+            if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
-        for(Point obstacle : perceptionAndMemory.getObstacles()){
-            if(direction.getNextCoordinate().equals(obstacle)){
+        for (Point obstacle : perceptionAndMemory.getObstacles()) {
+            if (direction.getNextCoordinate().equals(obstacle)) {
                 return new Clear(obstacle);
             }
         }
         return new Move(direction);
     }
+
     private boolean checkIfInRoleZone() {
         boolean inGoalZone = false;
-        for(Point roleZone : perceptionAndMemory.getRoleZones()) {
-            if(roleZone.equals(new Point(0,0))){
+        for (Point roleZone : perceptionAndMemory.getRoleZones()) {
+            if (roleZone.equals(new Point(0, 0))) {
                 inGoalZone = true;
             }
         }

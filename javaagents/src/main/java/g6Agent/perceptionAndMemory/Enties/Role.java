@@ -18,7 +18,7 @@ public class Role {
     public Role(String name, int visionRange, List<String> possibleActions, List<Integer> movement, double clearActionChance, int clearActionMaximumDistance) {
         this.name = name;
         this.visionRange = visionRange;
-        this.possibleActions = (possibleActions == null ?  new ArrayList<>() : possibleActions);
+        this.possibleActions = (possibleActions == null ? new ArrayList<>() : possibleActions);
         this.movementSpeed = movement;
         this.clearActionChance = clearActionChance;
         this.clearActionMaximumDistance = clearActionMaximumDistance;
@@ -29,7 +29,6 @@ public class Role {
     }
 
     /**
-     *
      * @return the Vision Range of this Role
      */
     public int getVisionRange() {
@@ -46,6 +45,7 @@ public class Role {
     /**
      * the movement speed of the Agent. With the first Entry being the Speed with no Blocks Attached,
      * the second with one Block attached ...
+     *
      * @return the movement speed of the Agent.
      */
     public List<Integer> getMovementSpeed() {

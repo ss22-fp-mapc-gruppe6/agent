@@ -212,7 +212,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
 
-
     record Vison(List<Block> dispensers, List<Block> blocks, List<Point> roleZones, List<Point> goalZones,
                  List<Point> obstacles) {
     }
@@ -416,10 +415,10 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     private void broadcastKnownAgents() {
         List<AgentNameAndPosition> knownAgents = swarmSightModel.knownAgents();
-        if (!knownAgents.isEmpty()){
+        if (!knownAgents.isEmpty()) {
             ParameterList listOfKnownAgentPercepts = new ParameterList();
-            for (AgentNameAndPosition agent : knownAgents){
-                if (!agent.name().equals(agentname)){
+            for (AgentNameAndPosition agent : knownAgents) {
+                if (!agent.name().equals(agentname)) {
                     listOfKnownAgentPercepts.add(new Function(agent.name(), new Numeral(agent.position().y), new Numeral(agent.position().y)));
                 }
             }
@@ -449,11 +448,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     @Override
     public List<AgentNameAndPosition> getKnownAgentPositions() {
         return swarmSightModel.knownAgents();
-    }
-
-    @Override
-    public Point getPositionOfAgent(String agentname) {
-        return swarmSightModel.getAgentPosition(agentname);
     }
 
     private void handleUnanseweredRequests() {

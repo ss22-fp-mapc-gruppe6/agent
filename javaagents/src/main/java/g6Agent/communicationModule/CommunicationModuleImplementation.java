@@ -17,7 +17,6 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     private final List<CommunicationModuleSwarmSightControllerInterface> swarmSightControllers;
 
     private final TaskAuctionModule taskAuctionModule;
-
     private final StrategyModule strategyModule;
     private final PingCommunicator pingCommunicator;
 
@@ -32,13 +31,13 @@ public class CommunicationModuleImplementation implements CommunicationModule{
 
     @Override
     public void handleMessage(Percept message, String sender) {
-        switch (message.getName()){
-            case "MOVEMENT_NOTIFICATION"  -> {
+        switch (message.getName()) {
+            case "MOVEMENT_NOTIFICATION" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
-            case "MOVEMENT_ATTEMPT"  -> {
+            case "MOVEMENT_ATTEMPT" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementAttempt(message, sender);
                 }

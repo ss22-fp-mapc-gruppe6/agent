@@ -106,8 +106,9 @@ public class TestPerception {
                 new Percept("thing", new Numeral(0), new Numeral(0), new Identifier("entity"), new Identifier("A"))
         );
         pam.handlePercepts(pl);
-        assert(pam.getFriendlyAgents().isEmpty());
+        assert (pam.getFriendlyAgents().isEmpty());
     }
+
     /*
     @org.junit.Test
     public void testTasks() {
@@ -182,13 +183,13 @@ public class TestPerception {
     }
 
     @org.junit.Test
-    public void attachedBlocksTest(){
+    public void attachedBlocksTest() {
         PerceptionAndMemory pam = new PerceptionAndMemoryImplementation();
         Percept block = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("block"), new Identifier("B1"));
         List<Percept> pl = new ArrayList<>();
         pl.add(block);
         pam.handlePercepts(pl);
-        assert(pam.getAttachedBlocks().isEmpty());
+        assert (pam.getAttachedBlocks().isEmpty());
         Percept attached = new Percept("attached", new Numeral(1), new Numeral(1));
         pl = new ArrayList<>();
         pl.add(attached);

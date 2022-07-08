@@ -17,9 +17,10 @@ public abstract class GoalWithTask implements Goal, GoalWithPriorityOffset {
 
     /**
      * Constructor
+     *
      * @param perceptionAndMemory our Beliefs
-     * @param taskname  the name of the accepted Task
-     * @param acceptedBlockIndex The index in Task.getRequirements() of the Block the agent wants to deliver
+     * @param taskname            the name of the accepted Task
+     * @param acceptedBlockIndex  The index in Task.getRequirements() of the Block the agent wants to deliver
      */
     public GoalWithTask(PerceptionAndMemory perceptionAndMemory, String taskname, int acceptedBlockIndex) {
         this.perceptionAndMemory = perceptionAndMemory;
@@ -28,7 +29,6 @@ public abstract class GoalWithTask implements Goal, GoalWithPriorityOffset {
     }
 
     /**
-     *
      * @return the name of the accepted Task
      */
     public String getTaskname() {
@@ -36,7 +36,6 @@ public abstract class GoalWithTask implements Goal, GoalWithPriorityOffset {
     }
 
     /**
-     *
      * @return The index in Task.getRequirements() of the Block the agent wants to deliver
      */
     public int getAcceptedBlockIndex() {

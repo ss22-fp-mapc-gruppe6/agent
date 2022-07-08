@@ -151,11 +151,11 @@ public class G6GoalGoalRush implements Goal {
 
         Direction direction = Direction.WEST;
 
-        List<Direction> directionsUnblockedByFriendlyAgents =new ArrayList<>(4);
-        for (Direction d : Direction.allDirections()){
+        List<Direction> directionsUnblockedByFriendlyAgents = new ArrayList<>(4);
+        for (Direction d : Direction.allDirections()) {
             boolean isUnblocked = true;
-            for (Point agentposition : perceptionAndMemory.getFriendlyAgents()){
-                if (agentposition.equals(d.getNextCoordinate())){
+            for (Point agentposition : perceptionAndMemory.getFriendlyAgents()) {
+                if (agentposition.equals(d.getNextCoordinate())) {
                     isUnblocked = false;
                     break;
                 }
@@ -215,9 +215,9 @@ public class G6GoalGoalRush implements Goal {
      * @return the Movement Direction
      */
     private G6Action fibbonacciWalk() {
-        if (perceptionAndMemory.getLastAction()!= null
+        if (perceptionAndMemory.getLastAction() != null
                 && perceptionAndMemory.getLastAction().getName().equals("move")
-                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")){
+                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")) {
             skipToNextDirection();
         }
         if (fibbbonacciwalkCounter == fibonnaciWalkCurrent) {

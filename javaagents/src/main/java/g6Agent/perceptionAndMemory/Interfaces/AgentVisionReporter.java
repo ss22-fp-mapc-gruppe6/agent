@@ -8,9 +8,8 @@ import java.util.List;
 
 /**
  * NOT IMPLEMENTED!
- *
+ * <p>
  * Interface to syncronize the vision of this agent with the vision of other Agents
- *
  */
 public interface AgentVisionReporter {
 

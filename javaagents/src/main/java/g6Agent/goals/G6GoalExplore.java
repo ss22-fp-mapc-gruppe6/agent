@@ -27,16 +27,16 @@ public class G6GoalExplore implements Goal {
     }
 
     private G6Action fibbonacciWalk() {
-        if (perceptionAndMemory.getLastAction()!= null
+        if (perceptionAndMemory.getLastAction() != null
                 && perceptionAndMemory.getLastAction().getName().equals("move")
-                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")){
+                && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")) {
             skipToNextDirection();
         }
-        if (fibbbonacciwalkCounter == fibonnaciWalkCurrent ){
+        if (fibbbonacciwalkCounter == fibonnaciWalkCurrent) {
             skipToNextDirection();
         }
         G6Action action = moveTo(fibonacciWalkDirection);
-        if(action instanceof Move){
+        if (action instanceof Move) {
             fibbbonacciwalkCounter++;
         }
         return action;
@@ -51,18 +51,18 @@ public class G6GoalExplore implements Goal {
     }
 
     private G6Action moveTo(Direction direction) {
-        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
-            if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
-                for (Point obstacle : perceptionAndMemory.getObstacles()){
-                    if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){
+        for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
+            if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
+                for (Point obstacle : perceptionAndMemory.getObstacles()) {
+                    if (obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) || obstacle.equals(direction.getNextCoordinate().invert())) {
                         return new Clear(obstacle);
                     }
                 }
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
-        for(Point obstacle : perceptionAndMemory.getObstacles()){
-            if(direction.getNextCoordinate().equals(obstacle)){
+        for (Point obstacle : perceptionAndMemory.getObstacles()) {
+            if (direction.getNextCoordinate().equals(obstacle)) {
                 return new Clear(obstacle);
             }
         }
