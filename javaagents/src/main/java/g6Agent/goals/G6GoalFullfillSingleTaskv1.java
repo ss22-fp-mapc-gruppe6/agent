@@ -77,11 +77,13 @@ public class G6GoalFullfillSingleTaskv1 extends GoalWithTask implements Goal{
         boolean hasBlockAttached = perceptionAndMemory.getDirectlyAttachedBlocks()
                 .stream()
                 .anyMatch(block -> block.equals(taskBlock));
+        //case has Block already attached
         if (hasBlockAttached) return (((float) task.getReward()+1.0f) / 1000.0f);
 
         Block closestDispenser = determineClosestMatchingDispenser(taskBlock);
         if (closestDispenser == null) return (float) -Integer.MAX_VALUE;
-        return ((float)task.getReward() - ((float)closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0 )) /100.0f) ) /1000.0f;
+        //case knows dispenser to fetch block
+        return ((float)task.getReward() - ((float)closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0 )) /10.0f) ) /1000.0f;
     }
 
     @Nullable
