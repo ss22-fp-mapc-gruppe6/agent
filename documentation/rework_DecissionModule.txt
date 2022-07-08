@@ -1,7 +1,5 @@
 
 
-
-
 Decission Module:
 
 Jede Runde wird:
