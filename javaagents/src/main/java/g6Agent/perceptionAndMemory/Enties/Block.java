@@ -52,4 +52,13 @@ public class Block {
     public int hashCode() {
         return Objects.hash(blocktype, coordinates.x, coordinates.y);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Block block) {
+            return (this.getBlocktype().equals(block.getBlocktype()) &&
+                    this.getCoordinates().equals(block.getCoordinates()));
+        }
+        return false;
+    }
 }
