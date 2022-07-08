@@ -6,6 +6,7 @@ import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +39,7 @@ public class Rotate extends Action implements G6Action {
     }
 
     @AllArgsConstructor
+    @Getter
     public static class AttachmentCollidingWithObstacleException extends Exception {
         Point attachment;
         Rotation rotation;

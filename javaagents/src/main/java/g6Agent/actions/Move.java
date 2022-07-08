@@ -4,6 +4,7 @@ import eis.iilang.Action;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +51,7 @@ public class Move extends Action implements G6Action {
     }
 
     @AllArgsConstructor
+    @Getter
     public static class AttachmentCollidingWithObstacleException extends Exception {
         Point attachment;
         List<Direction> directionsTaken;
