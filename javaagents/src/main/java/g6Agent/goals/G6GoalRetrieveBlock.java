@@ -7,6 +7,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,31 @@ public class G6GoalRetrieveBlock implements Goal {
         }
 
         return new Skip();
+    }
+
+    @Nullable
+    private Clear IfRotateFailedBreakFree() {
+        if(perceptionAndMemory.getLastAction() != null){
+            if(perceptionAndMemory.getLastAction().getName().equals("rotate")
+                    && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")
+                    && perceptionAndMemory.getEnergy() > 30){
+                //find closest obstacle
+                Point closestObstacle = perceptionAndMemory.getObstacles().get(0);
+                for(Point obstacle : perceptionAndMemory.getObstacles()){
+
+                    if (obstacle.manhattanDistanceTo(new Point(0,0)) < closestObstacle.manhattanDistanceTo(new Point(0,0))){
+                        closestObstacle = obstacle;
+                    }
+                }
+                //if in Range -> clear
+                if(perceptionAndMemory.getCurrentRole() != null) {
+                    if (closestObstacle.manhattanDistanceTo(new Point(0, 0)) <= perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance()) {
+                        return new Clear(closestObstacle);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private boolean checkIfNotCloseToOtherAgent(Block block) {
