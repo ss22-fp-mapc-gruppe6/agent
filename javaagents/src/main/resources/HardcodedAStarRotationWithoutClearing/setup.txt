@@ -40,6 +40,7 @@ terrain 17 1 obstacle
 terrain 18 1 obstacle
 terrain 19 1 obstacle
 terrain 20 1 obstacle
+terrain 21 1 obstacle
 move 0 2 agentA1
 add 1 2 dispenser b0
 terrain 3 2 obstacle
@@ -65,7 +66,7 @@ terrain 4 3 obstacle
 terrain 6 3 obstacle
 terrain 7 3 obstacle
 terrain 8 3 obstacle
-add 10 3 dispenser d0
+add 9 3 dispenser d0
 terrain 13 3 obstacle
 terrain 14 3 obstacle
 terrain 15 3 obstacle
@@ -211,3 +212,4 @@ terrain 26 11 obstacle
 terrain 27 11 obstacle
 terrain 28 11 obstacle
 terrain 29 11 obstacle
+
