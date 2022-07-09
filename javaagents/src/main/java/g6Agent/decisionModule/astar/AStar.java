@@ -31,6 +31,9 @@ public class AStar {
     volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
     PointAction startPointAction;
     Wrapper startWrapper;
+    private final int clearCost = 1;
+    private final int firstStepCost = 2;
+    private final int rotationCost = 1;
 
     public static Optional<G6Action> astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPath(target, perceptionAndMemory).stream().findFirst();
@@ -202,7 +205,7 @@ public class AStar {
                                     .stream().map(p -> p.add(current.pointAction.location())).toList()
                     );
                 } catch (Move.AttachmentCollidingWithObstacleException e) {
-                    return shouldHaveRotatedEarlier(current, e);
+                    return shouldHaveRotatedEarlier(current);
                 }
                 currentLocation = current.pointAction.target();
             }
@@ -245,16 +248,16 @@ public class AStar {
                         continue;
                     }
                     step++;
-                    if (step == 1) cost = 1;
+                    if (step == 1) cost = firstStepCost;
                     else if (step <= stepSize) cost = 0;
                     else {
                         step = 1;
-                        cost = 1;
+                        cost = firstStepCost;
                     }
                 }
                 case Clear c -> {
                     step = 0;
-                    cost = 1;
+                    cost = clearCost;
                     destroyedObstacles.add(nextTarget);
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + kv);
@@ -277,14 +280,16 @@ public class AStar {
 
     private List<Wrapper> shouldHaveClearedEarlier(Wrapper current, Rotate.AttachmentCollidingWithObstacleException e) {
         Point collision = e.getCollision().add(current.pointAction.location().invert());
+        HashSet<Point> destroyed = new HashSet<>(current.destroyedObstacles);
+        destroyed.add(collision);
 
         Wrapper destroyedWrapper = current
                 .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision))
                 .withPredecessor(current)
-                .withCostSum(current.costSum - 1)   //+1 for clear action -1 for having freed up a space
-                .withTotalCostFromStart(current.totalCostFromStart - 1)
+                .withCostSum(current.costSum + clearCost)
+                .withTotalCostFromStart(current.totalCostFromStart + clearCost)
+                .withDestroyedObstacles(destroyed)
                 .withStep(0);
-        destroyedWrapper.destroyedObstacles.add(collision);
         return List.of(destroyedWrapper);
     }
 
@@ -303,20 +308,20 @@ public class AStar {
         return g6Actions;
     }
 
-    private List<Wrapper> shouldHaveRotatedEarlier(Wrapper current, Move.AttachmentCollidingWithObstacleException e) {
+    private List<Wrapper> shouldHaveRotatedEarlier(Wrapper current) {
         Point location = current.pointAction.location();
         Wrapper rotation1 = current
                 .withPredecessor(current.predecessor)
                 .withPointAction(new PointAction(location, new Rotate(CLOCKWISE), location))
                 .withCompass(current.compass.rotate(CLOCKWISE))
-                .withTotalCostFromStart(current.totalCostFromStart + 1)
-                .withCostSum(current.costSum + 1);
+                .withTotalCostFromStart(current.totalCostFromStart + rotationCost)
+                .withCostSum(current.costSum + rotationCost);
         Wrapper rotation2 = current
                 .withPredecessor(current.predecessor)
                 .withPointAction(new PointAction(location, new Rotate(COUNTERCLOCKWISE), location))
                 .withCompass(current.compass.rotate(COUNTERCLOCKWISE))
-                .withTotalCostFromStart(current.totalCostFromStart + 1)
-                .withCostSum(current.costSum + 1);
+                .withTotalCostFromStart(current.totalCostFromStart + rotationCost)
+                .withCostSum(current.costSum + rotationCost);
         return List.of(rotation1, rotation2);
 
     }
