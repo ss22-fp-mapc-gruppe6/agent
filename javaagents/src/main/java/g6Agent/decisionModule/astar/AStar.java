@@ -21,7 +21,7 @@ import static g6Agent.services.Rotation.COUNTERCLOCKWISE;
 
 @RequiredArgsConstructor
 @Log
-public class AStarReimplemented {
+public class AStar {
     final Point start;
     final Point target;
     final int stepSize;
@@ -42,7 +42,7 @@ public class AStarReimplemented {
         final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
         final List<Point> blockingBlocks = perceptionAndMemory.getBlocks().stream().map(Block::getCoordinates).filter(Predicate.not(directlyAttachedBlocks::contains)).toList();
         TreeSet<Point> pointsInMyWay = Stream.concat(perceptionAndMemory.getObstacles().stream(), blockingBlocks.stream()).collect(Collectors.toCollection(TreeSet::new));
-        AStarReimplemented aStar = new AStarReimplemented(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay);
+        AStar aStar = new AStar(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay);
         List<G6Action> shortestPath = aStar.findShortestPath();
         return shortestPath;
     }

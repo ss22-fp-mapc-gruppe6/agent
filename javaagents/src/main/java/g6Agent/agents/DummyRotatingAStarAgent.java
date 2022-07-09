@@ -12,8 +12,8 @@ import g6Agent.services.Point;
 
 import java.util.List;
 
-import static g6Agent.decisionModule.astar.AStarReimplemented.astarNextStep;
-import static g6Agent.decisionModule.astar.AStarReimplemented.astarShortestPath;
+import static g6Agent.decisionModule.astar.AStar.astarNextStep;
+import static g6Agent.decisionModule.astar.AStar.astarShortestPath;
 import static g6Agent.services.Point.byDistanceToOrigin;
 
 
