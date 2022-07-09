@@ -8,9 +8,7 @@ import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import static g6Agent.decisionModule.astar.AStar.astarNextStep;
-import java.util.stream.Collectors;
+import static g6Agent.decisionModule.astar.AStarReimplemented.astarNextStep;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;

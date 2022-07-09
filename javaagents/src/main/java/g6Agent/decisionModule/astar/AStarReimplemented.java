@@ -28,9 +28,9 @@ public class AStarReimplemented {
     final List<Point> attachments;
     final Set<Point> pointsInMyWay;
     final Set<ComparableTuple<PointAction, Direction>> visited = new TreeSet<>();
-    volatile Queue<AStar.Wrapper> queue = new PriorityQueue<>(AStar.Wrapper::compareTo);
+    volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
     PointAction startPointAction;
-    AStar.Wrapper startWrapper;
+    Wrapper startWrapper;
 
     public static G6Action astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPath(target, perceptionAndMemory).stream().findFirst().orElseGet(Skip::new);
@@ -47,9 +47,126 @@ public class AStarReimplemented {
         return shortestPath;
     }
 
+    static Map<Point, G6Action> getNextActions(List<Point> obstacles, Point origin) {
+        Map<Point, G6Action> result = new HashMap<>(4);
+        for (Direction d : Direction.values()) {
+            Point relative = d.getNextCoordinate();
+            Point absolute = origin.add(relative);
+            if (obstacles.contains(absolute))
+                result.put(absolute, new Clear(relative));
+            else
+                result.put(absolute, new Move(d));
+        }
+        return result;
+    }
+
+    static String visualize(List<Point> path, List<Point> obstacles, Point start) {
+        path = new ArrayList<>(path);
+        if (start != null) {
+            path.add(0, start);
+        }
+        Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
+        Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
+        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
+        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
+        if (path.isEmpty()) throw new IllegalArgumentException("list is empty");
+        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
+            throw new IllegalArgumentException("x or y dimension is empty?");
+        int maxX = maxXPoint.get().x;
+        int maxY = maxYPoint.get().y;
+        int minX = minXPoint.get().x;
+        int minY = minYPoint.get().y;
+
+        Point target = path.get(path.size() - 1);
+
+
+        String fielGap = " ";
+        StringBuffer s = new StringBuffer();
+        // x axis legend
+        s.append(" ").append(" ").append(" ");
+        for (int x = minX; x <= maxX; x++) {
+            s.append(String.format("%5s", x));
+        }
+        s.append("\n");
+
+        for (int y = minY; y <= maxY; y++) {
+            //y axis legend
+            s.append(String.format("%3s", y));
+
+            for (int x = minX; x <= maxX; x++) {
+                String field = " ";
+                if (start != null && start.getX() == x && start.getY() == y) field = "s";
+                else if (target.getX() == x && target.getY() == y) field = "t";
+                else {
+                    final var p = new Point(x, y);
+                    if (path.contains(p)) field = String.valueOf(path.indexOf(p));
+                    else if (obstacles.contains(p)) {
+                        field = "b";
+                    }
+                }
+                String fieldFormat = String.format("%5s", field);
+                s.append(fieldFormat);
+            }
+            s.append("\n");
+        }
+
+        return s.toString();
+    }
+
+    static List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
+        final List<G6Action> actions = new ArrayList<>();
+        final LinkedList<PointAction> queue = new LinkedList<>();
+        int step = 0;
+        for (final PointAction pa : path) {
+            final G6Action action = pa.action();
+            switch (action) {
+                case Move move -> {
+                    step++;
+                    queue.add(pa);
+                    if (step >= stepSize) {
+                        step = 0;
+                        actions.add(bundle(queue));
+                        queue.clear();
+                    }
+                }
+                case Clear clear -> {
+                    step = 0;
+                    //add queued partial move before clear
+                    if (!queue.isEmpty()) {
+                        actions.add(bundle(queue));
+                        queue.clear();
+                    }
+                    actions.add(clear);
+                }
+                case Rotate rotate -> {
+                    step = 0;
+                    //add queued partial move before clear
+                    if (!queue.isEmpty()) {
+                        actions.add(bundle(queue));
+                        queue.clear();
+                    }
+                    actions.add(rotate);
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + action);
+            }
+        }
+        //add partial move
+        if (!queue.isEmpty()) actions.add(bundle(queue));
+        return actions;
+    }
+
+    static Move bundle(LinkedList<PointAction> pointActions) {
+        return new Move(pointActions.stream().sequential()
+                .map(PointAction::action)
+                .map(g6Action -> ((Move) g6Action))
+                .flatMap(move -> move.directions.stream().sequential())
+                .toArray(Direction[]::new)
+        );
+    }
+
     List<G6Action> findShortestPath() {
         startPointAction = new PointAction(start, new Move(), start);
-        startWrapper = new AStar.Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
+        startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
         queue.add(startWrapper);
 
         while (!queue.isEmpty()) {
@@ -59,7 +176,7 @@ public class AStarReimplemented {
                 List<G6Action> g6Actions = traceResult(this.start, pointsInMyWay, stepSize, current.predecessor == null ? current : current.predecessor);
                 return g6Actions;
             }
-            List<AStar.Wrapper> nextSteps = getNextSteps(current);
+            List<Wrapper> nextSteps = getNextSteps(current);
             queue.addAll(nextSteps);
         }
 
@@ -67,7 +184,7 @@ public class AStarReimplemented {
         return null;
     }
 
-    List<AStar.Wrapper> getNextSteps(AStar.Wrapper current) {
+    List<Wrapper> getNextSteps(Wrapper current) {
         ComparableTuple<PointAction, Direction> pointAndDirection = new ComparableTuple<>(current.pointAction, current.compass);
         if (visited.contains(pointAndDirection)) {
             return List.of();
@@ -110,12 +227,12 @@ public class AStarReimplemented {
         }
         visited.add(pointAndDirection);
 
-        final var adjacentActions = AStar.getNextActions(
+        final var adjacentActions = getNextActions(
                 obstaclesWithoutDestroyedAt(current),
                 currentLocation
         );
 
-        List<AStar.Wrapper> nextSteps = new ArrayList<>();
+        List<Wrapper> nextSteps = new ArrayList<>();
         for (Map.Entry<Point, G6Action> kv : adjacentActions.entrySet()) {
             G6Action nextAction = kv.getValue();
             int step = current.step;
@@ -145,7 +262,7 @@ public class AStarReimplemented {
             final PointAction pointAction = new PointAction(currentLocation, nextAction, nextTarget);
             final double totalCost = current.totalCostFromStart + cost;
             final double minimumRemainingCost = nextTarget.euclideanDistanceTo(target);
-            AStar.Wrapper nextWrapped = current
+            Wrapper nextWrapped = current
                     .withPointAction(pointAction)
                     .withPredecessor(current)
                     .withCostSum(totalCost + minimumRemainingCost)
@@ -158,10 +275,10 @@ public class AStarReimplemented {
         return nextSteps;
     }
 
-    private List<AStar.Wrapper> shouldHaveClearedEarlier(AStar.Wrapper current, Rotate.AttachmentCollidingWithObstacleException e) {
+    private List<Wrapper> shouldHaveClearedEarlier(Wrapper current, Rotate.AttachmentCollidingWithObstacleException e) {
         Point collision = e.getCollision().add(current.pointAction.location().invert());
 
-        AStar.Wrapper destroyedWrapper = current
+        Wrapper destroyedWrapper = current
                 .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision ))
                 .withPredecessor(current)
                 .withCostSum(current.costSum-1)   //+1 for clear action -1 for having freed up a space
@@ -172,29 +289,29 @@ public class AStarReimplemented {
     }
 
     @NotNull
-    private List<Point> obstaclesWithoutDestroyedAt(AStar.Wrapper current) {
+    private List<Point> obstaclesWithoutDestroyedAt(Wrapper current) {
         return pointsInMyWay.stream().filter(Predicate.not(current.destroyedObstacles::contains)).toList();
     }
 
-    private List<G6Action> traceResult(Point start, Set<Point> pointsInMyWay, int stepSize, AStar.Wrapper current) {
+    private List<G6Action> traceResult(Point start, Set<Point> pointsInMyWay, int stepSize, Wrapper current) {
         final List<PointAction> path = current.tracePath();
         final List<Point> points = path.stream().map(PointAction::location).toList();
-        final var visualize = AStar.visualize(points, new ArrayList<>(pointsInMyWay), start);
+        final var visualize = visualize(points, new ArrayList<>(pointsInMyWay), start);
         log.info(visualize);
-        final List<G6Action> g6Actions = AStar.actionsFromPointActions(path, stepSize);
+        final List<G6Action> g6Actions = actionsFromPointActions(path, stepSize);
         log.info("g6Actions = " + g6Actions);
         return g6Actions;
     }
 
-    private List<AStar.Wrapper> shouldHaveRotatedEarlier(AStar.Wrapper current, Move.AttachmentCollidingWithObstacleException e) {
+    private List<Wrapper> shouldHaveRotatedEarlier(Wrapper current, Move.AttachmentCollidingWithObstacleException e) {
         Point location = current.pointAction.location();
-        AStar.Wrapper rotation1 = current
+        Wrapper rotation1 = current
                 .withPredecessor(current.predecessor)
                 .withPointAction(new PointAction(location, new Rotate(CLOCKWISE), location))
                 .withCompass(current.compass.rotate(CLOCKWISE))
                 .withTotalCostFromStart(current.totalCostFromStart + 1)
                 .withCostSum(current.costSum + 1);
-        AStar.Wrapper rotation2 = current
+        Wrapper rotation2 = current
                 .withPredecessor(current.predecessor)
                 .withPointAction(new PointAction(location, new Rotate(COUNTERCLOCKWISE), location))
                 .withCompass(current.compass.rotate(COUNTERCLOCKWISE))
