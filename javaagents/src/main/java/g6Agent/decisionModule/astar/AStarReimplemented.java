@@ -279,9 +279,9 @@ public class AStarReimplemented {
         Point collision = e.getCollision().add(current.pointAction.location().invert());
 
         Wrapper destroyedWrapper = current
-                .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision ))
+                .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision))
                 .withPredecessor(current)
-                .withCostSum(current.costSum-1)   //+1 for clear action -1 for having freed up a space
+                .withCostSum(current.costSum - 1)   //+1 for clear action -1 for having freed up a space
                 .withTotalCostFromStart(current.totalCostFromStart - 1)
                 .withStep(0);
         destroyedWrapper.destroyedObstacles.add(collision);
