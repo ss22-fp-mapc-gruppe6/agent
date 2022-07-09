@@ -82,7 +82,7 @@ public class DummyRotatingAStarAgent extends Agent {
                     .map(Block::getCoordinates)
                     .min(byDistanceToOrigin());
             var target = d0.orElseThrow(() -> new IllegalStateException("should have seen the block"));
-            final var g6Action =astarNextStep(target, perceptionAndMemory);
+            final var g6Action =astarNextStep(target, perceptionAndMemory).orElse(new Skip());
             return (Action) g6Action;
         }
     }

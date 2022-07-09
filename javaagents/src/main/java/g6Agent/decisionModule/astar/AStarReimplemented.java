@@ -32,8 +32,8 @@ public class AStarReimplemented {
     PointAction startPointAction;
     Wrapper startWrapper;
 
-    public static G6Action astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
-        return astarShortestPath(target, perceptionAndMemory).stream().findFirst().orElseGet(Skip::new);
+    public static Optional<G6Action> astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
+        return astarShortestPath(target, perceptionAndMemory).stream().findFirst();
     }
 
     public static List<G6Action> astarShortestPath(Point target, PerceptionAndMemory perceptionAndMemory) {

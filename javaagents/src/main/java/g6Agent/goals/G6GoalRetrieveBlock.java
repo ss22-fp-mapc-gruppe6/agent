@@ -45,7 +45,7 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 } else {
                     //move to next block
-                    return astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory);
+                    return astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory).orElse(new Skip());
                 }
             }
         }
