@@ -6,7 +6,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 public interface G6Action {
     static final String TAG = "Action";
 
-    default boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+    boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         throw new IllegalStateException("not implemented");
     }
 }
