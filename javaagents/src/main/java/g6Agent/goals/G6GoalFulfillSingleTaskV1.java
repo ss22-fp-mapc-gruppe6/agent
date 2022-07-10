@@ -2,6 +2,7 @@ package g6Agent.goals;
 
 import g6Agent.actions.G6Action;
 import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Enties.Role;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
@@ -37,12 +38,10 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
         if (perceptionAndMemory.getActiveTasks().stream().noneMatch(task -> task.getName().equals(this.taskname))) return false;
         //
        return determineIfHasBlocksAttachedOrKnowsDispenser();
-
-
     }
 
 
-    private Boolean determineIfHasBlocksAttachedOrKnowsDispenser() {
+    private boolean determineIfHasBlocksAttachedOrKnowsDispenser() {
         Task task = getTask();
         if (task == null) return false;
         Block taskBlock  = task.getRequirements().get(0);
@@ -71,6 +70,11 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
 
     @Override
     public boolean preconditionsMet() {
+        Role currentRole =perceptionAndMemory.getCurrentRole();
+        if (currentRole == null) return false;
+        if (!(currentRole.canPerformAction("request") && currentRole.canPerformAction("submit"))){
+            return false;
+        }
         return determineIfHasBlocksAttachedOrKnowsDispenser();
     }
 
