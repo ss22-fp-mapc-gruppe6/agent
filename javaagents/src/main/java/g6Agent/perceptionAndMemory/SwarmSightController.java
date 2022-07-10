@@ -452,7 +452,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @Override
     public Point getPositionOfAgent(String agentname) {
-        return null;
+        return swarmSightModel.getAgentPosition(agentname);
     }
 
     private void handleUnanseweredRequests() {
