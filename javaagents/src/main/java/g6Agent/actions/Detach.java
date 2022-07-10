@@ -20,8 +20,8 @@ public class Detach extends Action implements G6Action {
     }
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         if (perceptionAndMemory.getCurrentRole() == null) return false;
-        boolean isBlock = perceptionAndMemory.getAttachedBlocks().stream().anyMatch((x -> x.getCoordinates().equals(direction)));
-        return  isBlock;
+        boolean isAttachedBlock = perceptionAndMemory.getAttachedBlocks().stream().anyMatch((x -> x.getCoordinates().equals(direction)));
+        return  isAttachedBlock;
     }
 
 }
