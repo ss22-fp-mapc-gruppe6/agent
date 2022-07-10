@@ -8,20 +8,40 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
+import java.util.LinkedList;
 import java.util.List;
 
 public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
 
     private final PerceptionAndMemory perceptionAndMemory;
 
+    private List<G6Action> actionQueque;
+
     public G6GoalFulfillSingleTaskV1(PerceptionAndMemory perceptionAndMemory, String taskName) {
         super(perceptionAndMemory, taskName, 0);
         this.perceptionAndMemory = perceptionAndMemory;
+        this.actionQueque = new LinkedList<>();
     }
 
     @Override
     public G6Action getNextAction() {
+
+        if (!actionQueque.isEmpty()
+                && perceptionAndMemory.getLastAction() != null
+                && perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")) {
+            return actionQueque.remove(0);
+        }
+        Task task = getTask();
+        Block block = task.getRequirements().get(0);
         //If matching Block is not attached move to dispenser and attach Block
+        if(perceptionAndMemory.getDirectlyAttachedBlocks()
+                .stream()
+                .noneMatch(b -> b.getBlocktype().equals(block.getBlocktype()))){
+            List<Block> matchingDispensers = perceptionAndMemory.getDispensers().stream().filter(dispenser -> dispenser.getBlocktype().equals(block.getBlocktype())).toList();
+            if(!matchingDispensers.isEmpty()){
+            }
+        }
 
         //else if not in Goalzone move to Goalzone
 
