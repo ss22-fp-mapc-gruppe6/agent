@@ -1,7 +1,6 @@
 package g6Agent.goals;
 
 import g6Agent.actions.*;
-import g6Agent.decisionModule.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
@@ -9,9 +8,7 @@ import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import static g6Agent.decisionModule.astar.AStar.astarNextStep;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
@@ -27,7 +24,7 @@ public class G6GoalRetrieveBlock implements Goal {
 
         Clear blockingobstacle = IfRotateFailedBreakFree();
         if (blockingobstacle != null) return blockingobstacle;
-        if (!perceptionAndMemory.getBlocks().isEmpty()){
+        if (!perceptionAndMemory.getBlocks().isEmpty()) {
             //determine next block
             Block closestBlock = perceptionAndMemory.getBlocks().get(0);
             for (Block block : perceptionAndMemory.getBlocks()) {
@@ -48,13 +45,7 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 } else {
                     //move to next block
-                    Direction direction = Direction.WEST;
-                    for (Direction d : Direction.allDirections()) {
-                        if (d.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates()) < direction.getNextCoordinate().manhattanDistanceTo(closestBlock.getCoordinates())) {
-                            direction = d;
-                        }
-                    }
-                    return moveTo(direction);
+                    return astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory).orElse(new Skip());
                 }
             }
         }
@@ -124,7 +115,7 @@ public class G6GoalRetrieveBlock implements Goal {
 
     private boolean checkIfNotCloseToOtherAgent(Block block) {
         for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
-            if(agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0,0))){
+            if (agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0, 0))) {
                 return false;
             }
         }
@@ -133,19 +124,19 @@ public class G6GoalRetrieveBlock implements Goal {
 
     private G6Action moveTo(Direction direction) {
 
-        for(Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()){
+        for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
 
-            if(!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())){
-                for (Point obstacle : perceptionAndMemory.getObstacles()){
-                    if(obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) ||obstacle.equals(direction.getNextCoordinate().invert())){
+            if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
+                for (Point obstacle : perceptionAndMemory.getObstacles()) {
+                    if (obstacle.equals(direction.rotate(Rotation.CLOCKWISE).getNextCoordinate()) || obstacle.equals(direction.getNextCoordinate().invert())) {
                         return new Clear(obstacle);
                     }
                 }
                 return new Rotate(Rotation.CLOCKWISE);
             }
         }
-        for(Point obstacle : perceptionAndMemory.getObstacles()){
-            if(direction.getNextCoordinate().equals(obstacle)){
+        for (Point obstacle : perceptionAndMemory.getObstacles()) {
+            if (direction.getNextCoordinate().equals(obstacle)) {
                 return new Clear(obstacle);
             }
         }
@@ -156,7 +147,7 @@ public class G6GoalRetrieveBlock implements Goal {
     public boolean isSucceding() {
         //is Succeding if the Agent knows the position of an Dispenser or Block
         //can be improved by checking tasks
-        return (!perceptionAndMemory.getBlocks().isEmpty()||!perceptionAndMemory.getDispensers().isEmpty());
+        return (!perceptionAndMemory.getBlocks().isEmpty() || !perceptionAndMemory.getDispensers().isEmpty());
     }
 
     @Override
