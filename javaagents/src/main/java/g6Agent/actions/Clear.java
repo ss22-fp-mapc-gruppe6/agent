@@ -20,6 +20,10 @@ public class Clear extends Action implements G6Action {
 
     @Override
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+        if (perceptionAndMemory.getCurrentRole() == null) return false;
+        int maxDistance = perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance();
+        if (obstacle.manhattanDistanceTo(new Point(0,0)) > maxDistance) return false;
+
         boolean isObstacle = perceptionAndMemory.getObstacles().stream().anyMatch(x -> x.equals(obstacle));
         boolean isBlock = perceptionAndMemory.getBlocks().stream().anyMatch((x -> x.getCoordinates().equals(obstacle)));
         boolean isAgent = perceptionAndMemory.getEnemyAgents().stream().anyMatch(x -> x.equals(obstacle));
