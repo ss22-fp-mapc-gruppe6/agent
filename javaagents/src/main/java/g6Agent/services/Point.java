@@ -1,9 +1,33 @@
 package g6Agent.services;
 
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
-public class Point extends java.awt.Point {
+public class Point extends java.awt.Point  implements Comparable<Point>{
+
+
+    public Point(java.awt.Point p) {
+        this(p.x, p.y);
+    }
+
+
+    /**
+     * Dangerous! Use {@link #add(int, int)} or {@link #add(Point)} instead!
+     */
+    @Deprecated
+    @Override
+    public void translate(int dx, int dy)  {
+        throw new IllegalStateException("please don't use this method! Use `add(int, int)` instead");
+    }
+
+    public Point add(int dx, int dy) {
+        return new Point(x + dx, y + dy);
+    }
 
     public Point(int x, int y) {
         super(x, y);
@@ -103,6 +127,19 @@ public class Point extends java.awt.Point {
         return null;
     }
 
+
+    public static List<Point> fromPointToPoint(List<Point> points) {
+        Point previous = new Point(0, 0);
+        List<Point> delta = new LinkedList<>();
+        for (Point current : points) {
+            int x = current.x - previous.x;
+            int y = current.y - previous.y;
+            delta.add(new Point(x,y));
+            previous = current;
+        }
+        return delta;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(x, y);
@@ -111,5 +148,20 @@ public class Point extends java.awt.Point {
     @Override
     public String toString() {
         return "(" + x + "," + y + ")";
+    }
+    public static Comparator<Point> byDistanceToOrigin() {
+        return Comparator.comparingInt(point -> point.manhattanDistanceTo(new Point(0,0)));
+    }
+
+    public static final Comparator<Point> pointComparator = (o1, o2) -> {
+        int x = java.lang.Double.compare(o1.x, o2.x);
+        int y = java.lang.Double.compare(o1.y, o2.y);
+        if (x == 0) return y;
+        else return x;
+    };
+
+    @Override
+    public int compareTo(@NotNull Point o) {
+        return pointComparator.compare(this,o);
     }
 }
