@@ -3,6 +3,7 @@ package g6Agent.actions;
 import eis.iilang.Action;
 import eis.iilang.Identifier;
 import eis.iilang.Numeral;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 
 public class Survey extends Action implements G6Action {
@@ -23,7 +24,17 @@ public class Survey extends Action implements G6Action {
      *
      * @param targetToSurvey The x/y coordinates of the target.
      */
+    private Point targetToSurvey;
     public Survey(Point targetToSurvey) {
         super("survey", new Numeral(targetToSurvey.x), new Numeral(targetToSurvey.y));
+        this.targetToSurvey = targetToSurvey;
     }
+    @Override
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+        if (perceptionAndMemory.getCurrentRole() == null) return false;
+
+        boolean isGoal = perceptionAndMemory.getGoalZones().stream().anyMatch((x -> x.getLocation().equals(targetToSurvey)));
+        return (isGoal);
+    }
+
 }

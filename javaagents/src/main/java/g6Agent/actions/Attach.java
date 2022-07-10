@@ -22,7 +22,7 @@ public class Attach extends Action implements G6Action {
     @Override
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         if (perceptionAndMemory.getCurrentRole() == null) return false;
-        boolean isBlock = perceptionAndMemory.getBlocks().stream().anyMatch((x -> x.getCoordinates().equals(direction)));
+        boolean isBlock = perceptionAndMemory.getBlocks().stream().anyMatch((x -> x.getCoordinates().equals(direction.getNextCoordinate())));
         return  isBlock;
     }
 

@@ -22,6 +22,9 @@ public class Disconnect extends Action implements G6Action {
     @Override
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         if (perceptionAndMemory.getCurrentRole() == null) return false;
+        int maxDistance = perceptionAndMemory.getCurrentRole().getClearActionMaximumDistance();
+        if (attachment1.manhattanDistanceTo(new Point(0,0)) > maxDistance) return false;
+        if (attachment2.manhattanDistanceTo(new Point(0,0)) > maxDistance) return false;
 
         boolean isAttachment1 = perceptionAndMemory.getAttachedBlocks().stream().anyMatch(x -> x.equals(attachment1));
         boolean isAttachment2 = perceptionAndMemory.getAttachedBlocks().stream().anyMatch(x -> x.equals(attachment2));

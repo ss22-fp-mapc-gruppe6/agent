@@ -18,7 +18,7 @@ public class Submit extends Action implements G6Action {
     }
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         if (perceptionAndMemory.getCurrentRole() == null) return false;
-        boolean isTask = perceptionAndMemory.getAllTasks().stream().anyMatch((x -> x.getName().equals(task.getName())));
+        boolean isTask = perceptionAndMemory.getAllTasks().stream().anyMatch((x -> x.equals(task)));
         return  isTask;
     }
 }

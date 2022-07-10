@@ -1,6 +1,7 @@
 package g6Agent.actions;
 
 import eis.iilang.Action;
+import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,8 @@ public class Move extends Action implements G6Action {
         }
         return true;
     }
+
+
 
     @AllArgsConstructor
     @Getter

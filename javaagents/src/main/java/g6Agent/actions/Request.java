@@ -18,7 +18,7 @@ public class Request extends Action implements G6Action {
     }
     public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
         if (perceptionAndMemory.getCurrentRole() == null) return false;
-        boolean isDispensers = perceptionAndMemory.getDispensers().stream().anyMatch((x -> x.getCoordinates().equals(direction)));
+        boolean isDispensers = perceptionAndMemory.getDispensers().stream().anyMatch((x -> x.getCoordinates().equals(direction.getNextCoordinate())));
         return  isDispensers;
     }
 
