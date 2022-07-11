@@ -20,6 +20,7 @@ public class Move extends Action implements G6Action {
 
     public final List<Direction> directions;
 
+
     /**
      * Moves the agent in the specified directions. If the agent is currently allowed to move more than one cell, multiple directions can be given.
      *
@@ -51,6 +52,10 @@ public class Move extends Action implements G6Action {
         return true;
     }
 
+    @Override
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+        return true;
+    }
 
 
     @AllArgsConstructor
