@@ -1,14 +1,18 @@
 package g6Agent.goals;
 
-import g6Agent.actions.G6Action;
+import g6Agent.actions.*;
+import g6Agent.decisionModule.astar.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Role;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
+import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,20 +38,67 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
         }
         Task task = getTask();
         Block block = task.getRequirements().get(0);
+
         //If matching Block is not attached move to dispenser and attach Block
         if(perceptionAndMemory.getDirectlyAttachedBlocks()
                 .stream()
                 .noneMatch(b -> b.getBlocktype().equals(block.getBlocktype()))){
-            List<Block> matchingDispensers = perceptionAndMemory.getDispensers().stream().filter(dispenser -> dispenser.getBlocktype().equals(block.getBlocktype())).toList();
-            if(!matchingDispensers.isEmpty()){
+            return moveToDispenserAndAttachBlock(block);
+
+        //else if not in Goalzone move to Goalzone
+        } else if (perceptionAndMemory.getGoalZones().stream().noneMatch(goalzone -> goalzone.equals(new Point(0,0)))){
+            return moveToClosestGoalZone();
+
+            // else (has matching Block attached and is in Goalzone) submit Task
+        } else {
+            if (perceptionAndMemory.getDirectlyAttachedBlocks().stream()
+                    .anyMatch(x -> x.getCoordinates().equals(block.getCoordinates()) && x.getBlocktype().equals(block.getBlocktype()))){
+                return new Submit(task);
+            } else {
+                //rotate block to match task
+                Block attachedBlock = perceptionAndMemory.getDirectlyAttachedBlocks()
+                        .stream()
+                        .filter(x-> x.getBlocktype().equals(block.getBlocktype()))
+                        .findFirst()
+                        .orElseThrow();
+
+
             }
         }
 
-        //else if not in Goalzone move to Goalzone
 
-        // else (has matching Block attached and is in Goalzone) submit Task
+
 
         return null;
+    }
+
+    private G6Action moveToClosestGoalZone() {
+        Point closestGoalZone = perceptionAndMemory.getGoalZones().stream().min(Comparator.comparingInt(a-> a.manhattanDistanceTo(new Point(0,0)))).orElseThrow() ;
+        actionQueque = AStar.astarShortestPath(closestGoalZone, perceptionAndMemory);
+        return actionQueque.remove(0);
+    }
+
+    private G6Action moveToDispenserAndAttachBlock(Block block) {
+        List<Block> matchingDispensers = perceptionAndMemory.getDispensers().stream().filter(dispenser -> dispenser.getBlocktype().equals(block.getBlocktype())).toList();
+        if(matchingDispensers.isEmpty()) return new Skip();
+        Block closestDispenser = matchingDispensers
+                .stream()
+                .min(Comparator.comparingInt(a -> a.getCoordinates().manhattanDistanceTo(new Point(0, 0))))
+                .orElseThrow();
+
+        if (closestDispenser.getCoordinates().isAdjacent()){
+            LastActionMemory lastAction = perceptionAndMemory.getLastAction();
+            boolean hasBlockOnTopOfDispenser = perceptionAndMemory.getBlocks()
+                    .stream()
+                    .anyMatch(b -> b.getCoordinates().equals(closestDispenser.getCoordinates()));
+            if (lastAction != null && lastAction.getName().equals("request") && lastAction.getSuccessMessage().equals("success") && hasBlockOnTopOfDispenser){
+                return new Attach(Direction.fromAdjacentPoint(closestDispenser.getCoordinates()));
+            }
+            return new Request(Direction.fromAdjacentPoint(closestDispenser.getCoordinates()));
+        } else {
+            actionQueque = AStar.astarShortestPath(closestDispenser.getCoordinates(), perceptionAndMemory);
+            return actionQueque.remove(0);
+        }
     }
 
     @Override
@@ -56,6 +107,7 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
         if (perceptionAndMemory.getActiveTasks() == null) return false;
         //Task no longer Active
         if (perceptionAndMemory.getActiveTasks().stream().noneMatch(task -> task.getName().equals(this.taskname))) return false;
+        if (perceptionAndMemory.getGoalZones().isEmpty()) return false;
         //
        return determineIfHasBlocksAttachedOrKnowsDispenser();
     }
@@ -95,6 +147,7 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
         if (!(currentRole.canPerformAction("request") && currentRole.canPerformAction("submit"))){
             return false;
         }
+        if (perceptionAndMemory.getGoalZones().isEmpty()) return false;
         return determineIfHasBlocksAttachedOrKnowsDispenser();
     }
 
