@@ -38,6 +38,22 @@ public class Rotate extends Action implements G6Action {
         return true;
     }
 
+    @Override
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) {
+        try {
+            return predictSuccess(
+                    perceptionAndMemory.getDirectlyAttachedBlocks()
+                            .stream()
+                            .map(x -> x.getCoordinates())
+                            .toList(),
+
+                    perceptionAndMemory.getObstacles()
+            );
+        }catch (Exception e){
+            return false;
+        }
+    }
+
     @AllArgsConstructor
     @Getter
     public static class AttachmentCollidingWithObstacleException extends Exception {
