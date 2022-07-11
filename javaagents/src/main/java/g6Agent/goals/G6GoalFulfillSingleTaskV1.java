@@ -9,9 +9,10 @@ import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+import g6Agent.services.Rotation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,11 +63,35 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
                         .findFirst()
                         .orElseThrow();
 
-
+                //rotation clockwise
+                if (attachedBlock.getCoordinates().rotate(Rotation.CLOCKWISE).equals(block.getCoordinates())){
+                    G6Action rotation = new Rotate(Rotation.CLOCKWISE);
+                    return rotateOrClear(block, rotation);
+                }
+                // rotation counterclockwise
+                else if (attachedBlock.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE).equals(block.getCoordinates())){
+                    G6Action rotation = new Rotate(Rotation.COUNTERCLOCKWISE);
+                    return rotateOrClear(block, rotation);
+                }
+                //is opposite
+                else {
+                    G6Action rotationClockwise = new Rotate(Rotation.CLOCKWISE);
+                    G6Action rotationCounterclockwise = new Rotate(Rotation.COUNTERCLOCKWISE);
+                    if (rotationClockwise.predictSuccess(perceptionAndMemory)) return rotationClockwise;
+                    if(rotationCounterclockwise.predictSuccess(perceptionAndMemory)) return rotationCounterclockwise;
+                    return new Clear(block.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE));
+                }
             }
         }
+    }
 
-        return null;
+    @NotNull
+    private G6Action rotateOrClear(Block block, G6Action rotation) {
+        if (rotation.predictSuccess(perceptionAndMemory)){
+            return rotation;
+        } else {
+            return new Clear(block.getCoordinates());
+        }
     }
 
     private G6Action moveToClosestGoalZone() {
