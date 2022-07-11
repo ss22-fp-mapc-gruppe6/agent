@@ -66,9 +66,6 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
             }
         }
 
-
-
-
         return null;
     }
 
