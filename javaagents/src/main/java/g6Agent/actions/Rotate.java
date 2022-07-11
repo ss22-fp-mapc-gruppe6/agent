@@ -38,6 +38,11 @@ public class Rotate extends Action implements G6Action {
         return true;
     }
 
+    @Override
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+        return true;
+    }
+
     @AllArgsConstructor
     @Getter
     public static class AttachmentCollidingWithObstacleException extends Exception {
