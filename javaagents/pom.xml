@@ -85,6 +85,10 @@
                             <packageName>g6Agent.db.codegen</packageName>
                             <directory>target/generated-sources/jooq</directory>
                         </target>
+                        <generate>
+                            <daos>true</daos>
+                            <fluentSetters>true</fluentSetters>
+                        </generate>
                     </generator>
                 </configuration>
             </plugin>
