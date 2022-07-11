@@ -52,10 +52,14 @@ public class Move extends Action implements G6Action {
     }
 
     @Override
-    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
-        return predictSuccess(
-                perceptionAndMemory.getDirectlyAttachedBlocks().stream().map(x -> x.getCoordinates()).toList(),
-                perceptionAndMemory.getObstacles());
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) {
+        try {
+            return predictSuccess(
+                    perceptionAndMemory.getDirectlyAttachedBlocks().stream().map(x -> x.getCoordinates()).toList(),
+                    perceptionAndMemory.getObstacles());
+        }catch (Exception e){
+            return false;
+        }
     }
 
 

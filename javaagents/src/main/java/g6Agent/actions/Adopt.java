@@ -7,20 +7,22 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Point;
 
 public class Adopt extends Action implements G6Action {
+
+    private final String role;
     /**
      * If in a rolezone this action let's the worker adopt the specified Role
      *
      * @param role The name of the role to adopt.
      */
-    private String role;
     public Adopt(String role) {
         super("adopt", new Identifier(role));
         this.role = role;
     }
     @Override
-    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
-        if (perceptionAndMemory.getCurrentRole() == null) return false;
-        boolean isRole = perceptionAndMemory.getRoleZones().stream().anyMatch(x -> x.equals(role));
-        return (isRole);
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) {
+
+        boolean isRole = perceptionAndMemory.getPossibleRoles().stream().anyMatch(x -> x.getName().equals(role));
+        boolean isInRoleZone = perceptionAndMemory.getRoleZones().stream().anyMatch(x -> x.equals(new Point(0,0)));
+        return (isRole && isInRoleZone);
     }
 }

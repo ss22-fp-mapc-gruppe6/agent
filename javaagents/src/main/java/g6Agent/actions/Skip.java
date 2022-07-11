@@ -14,7 +14,7 @@ public class Skip extends Action implements G6Action {
 
 
     @Override
-    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) throws Exception {
+    public boolean predictSuccess(PerceptionAndMemory perceptionAndMemory) {
         return true;
     }
 }
