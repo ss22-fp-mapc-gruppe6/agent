@@ -13,25 +13,32 @@ import java.util.List;
 /**
  * Record to store direction and speed of an movement
  *
- * @param direction the direction
+ * @param directions the directions
  * @param speed     the speed
  */
-public record Movement(Direction direction, int speed) {
+public record Movement(Direction[] directions, int speed) {
 
-
-    /**
-     * @return [(Identier) direction, (Numeral) speed]
-     */
-    public List<Parameter> asParameterList() {
-        List<Parameter> list = new ArrayList<>();
-        list.add(direction.getIdentifier());
-        list.add(new Numeral(speed));
-
-        return list;
-    }
 
     public Point asVector() {
-        return direction.getNextCoordinate().multiply(speed);
+        if (directions.length == 1){
+            return directions[0].getNextCoordinate().multiply(speed);
+        }else{
+            Point p = new Point(0,0);
+            int movementLeft = speed;
+            for (int i = 0; i < directions.length; i++){
+                if (movementLeft > 0){
+                    if(movementLeft > 1 && (i + 1) == directions.length  ){ //case wants to move more than one field further with only one direction left
+                        p = p.add(directions[i].getNextCoordinate().multiply(movementLeft));
+                        movementLeft = 0;
+                    } else { //move one field in the given direction
+                        p = p.add(directions[i].getNextCoordinate());
+                        movementLeft --;
+                    }
+                }
+            }
+            return p;
+        }
+
     }
 }
 

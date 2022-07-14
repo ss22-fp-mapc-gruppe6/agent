@@ -5,6 +5,8 @@ import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
+import java.sql.Array;
+
 public class TestInternalMap {
 
     @org.junit.Test
@@ -33,19 +35,19 @@ public class TestInternalMap {
     public void movementTest() {
         SwarmSightModel map = new SwarmSightModel();
         map.spottetAgent("A1", new Point(1, 1));
-        map.movedMyself(new Movement(Direction.EAST, 1));
+        map.movedMyself(new Movement(new Direction[]{Direction.EAST}, 1));
         assert (map.getAgentPosition("A1").equals(new Point(1, 1).add(Direction.EAST.getNextCoordinate().invert())));
         map = new SwarmSightModel();
         map.spottetAgent("A1", new Point(1, 1));
-        map.movedMyself(new Movement(Direction.WEST, 1));
+        map.movedMyself(new Movement(new Direction[]{Direction.WEST}, 1));
         assert (map.getAgentPosition("A1").equals(new Point(1, 1).add(Direction.WEST.getNextCoordinate().invert())));
         map = new SwarmSightModel();
         map.spottetAgent("A1", new Point(1, 1));
-        map.movedMyself(new Movement(Direction.SOUTH, 1));
+        map.movedMyself(new Movement(new Direction[]{Direction.SOUTH}, 1));
         assert (map.getAgentPosition("A1").equals(new Point(1, 1).add(Direction.SOUTH.getNextCoordinate().invert())));
         map = new SwarmSightModel();
         map.spottetAgent("A1", new Point(1, 1));
-        map.movedMyself(new Movement(Direction.NORTH, 1));
+        map.movedMyself(new Movement(new Direction[]{Direction.NORTH}, 1));
         assert (map.getAgentPosition("A1").equals(new Point(1, 1).add(Direction.NORTH.getNextCoordinate().invert())));
     }
 
@@ -54,7 +56,7 @@ public class TestInternalMap {
 
         SwarmSightModel map = new SwarmSightModel();
         map.spottetAgent("A1", new Point(1, 1));
-        map.notifiedOfMovement("A1", new Movement(Direction.WEST, 1));
+        map.notifiedOfMovement("A1", new Movement(new Direction[]{Direction.WEST}, 1));
         assert (map.getAgentPosition("A1").equals(new Point(1, 1).add(Direction.WEST.getNextCoordinate())));
         /*
         map = new InternalMapOfOtherAgents(new BasicAgent("", new MailService()));

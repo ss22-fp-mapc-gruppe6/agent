@@ -10,10 +10,7 @@ import g6Agent.perceptionAndMemory.Interfaces.*;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Controller for determining the relative Positions of other Agents and Communicating their Vision
@@ -49,16 +46,16 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
 
     @Override
-    public void processMovementNotification(Percept p, String sender) {
+    public void processMovementNotification(Percept message, String sender) {
         if (!sender.equals(agentname)) {
-            int step = ((Numeral) p.getParameters().get(1)).getValue().intValue();
+            int step = ((Numeral) message.getParameters().get(1)).getValue().intValue();
             attemptedMovements.remove(sender);
+            Direction[] directions= (Direction[]) ((List<Identifier>) message.getParameters().get(2)).stream().map(Direction::fromIdentifier).toArray();
             Movement movement = new Movement(
-                    Direction.fromIdentifier((Identifier) p.getParameters().get(2)),
-                    ((Numeral) p.getParameters().get(3)).getValue().intValue()
+                     directions,
+                    ((Numeral) message.getParameters().get(3)).getValue().intValue()
             );
             swarmSightModel.notifiedOfMovement(sender, movement);
-
         }
 
     }
@@ -66,10 +63,12 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     @Override
     public void broadcastActionAttempt(Action action) {
         if (action.getName().equals("move")) {
+            ParameterList parameters = new ParameterList(action.getParameters());
+
             mailservice.broadcast(new Percept("MOVEMENT_ATTEMPT",
                     new Numeral(messageCounter),                        //Clock
                     new Numeral(perceptionAndMemory.getCurrentStep()), // Step
-                    action.getParameters().get(0),                     // Direction
+                    parameters,                                        // Directions
                     new Numeral(determineyourOwnSpeed())                // Speed
             ), agentname);
         }
@@ -79,9 +78,10 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     public void processMovementAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
             if (!sender.equals(agentname)) {
+                Direction[] directions= (Direction[]) ((List<Identifier>) message.getParameters().get(2)).stream().map(Direction::fromIdentifier).toArray();
                 attemptedMovements.put(sender, new StepAndMovement(
                         ((Numeral) message.getParameters().get(1)).getValue().intValue(),
-                        new Movement(Direction.fromIdentifier((Identifier) message.getParameters().get(2)),
+                        new Movement(directions,
                                 ((Numeral) message.getParameters().get(3)).getValue().intValue())));
             }
         }
@@ -124,14 +124,14 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         if (lastAction.getName().equals("move")) {
             int speed = determineSpeedOfLastAction(lastAction);
             if (speed > 0) {
-                Direction direction = Direction.fromIdentifier(((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)));
-                Movement movement = new Movement(direction, speed);
+                Direction[] directions = (Direction[]) ((List<Identifier>)lastAction.getParameters().get(0)).stream().map(Direction::fromIdentifier).toArray();
+                Movement movement = new Movement(directions, speed);
                 swarmSightModel.movedMyself(movement);
                 mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION",
                         new Numeral(messageCounter),
                         new Numeral(perceptionAndMemory.getCurrentStep()),
-                        movement.direction().getIdentifier(),
-                        new Numeral(movement.speed())
+                        lastAction.getParameters().get(0),
+                        new Numeral(speed)
                 ), agentname);
             }
         }
