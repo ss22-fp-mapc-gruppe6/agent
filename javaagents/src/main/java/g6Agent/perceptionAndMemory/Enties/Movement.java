@@ -7,6 +7,7 @@ import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -16,22 +17,22 @@ import java.util.List;
  * @param directions the directions
  * @param speed     the speed
  */
-public record Movement(Direction[] directions, int speed) {
+public record Movement(List<Direction> directions, int speed) {
 
 
     public Point asVector() {
-        if (directions.length == 1){
-            return directions[0].getNextCoordinate().multiply(speed);
+        if (directions.size() == 1){
+            return directions.get(0).getNextCoordinate().multiply(speed);
         }else{
             Point p = new Point(0,0);
             int movementLeft = speed;
-            for (int i = 0; i < directions.length; i++){
+            for (int i = 0; i < directions.size(); i++){
                 if (movementLeft > 0){
-                    if(movementLeft > 1 && (i + 1) == directions.length  ){ //case wants to move more than one field further with only one direction left
-                        p = p.add(directions[i].getNextCoordinate().multiply(movementLeft));
+                    if(movementLeft > 1 && (i + 1) == directions.size()  ){ //case wants to move more than one field further with only one direction left
+                        p = p.add(directions.get(i).getNextCoordinate().multiply(movementLeft));
                         movementLeft = 0;
                     } else { //move one field in the given direction
-                        p = p.add(directions[i].getNextCoordinate());
+                        p = p.add(directions.get(i).getNextCoordinate());
                         movementLeft --;
                     }
                 }

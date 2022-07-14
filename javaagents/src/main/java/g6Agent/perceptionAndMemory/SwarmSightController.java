@@ -9,6 +9,7 @@ import g6Agent.perceptionAndMemory.Enties.Movement;
 import g6Agent.perceptionAndMemory.Interfaces.*;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -50,10 +51,9 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         if (!sender.equals(agentname)) {
             int step = ((Numeral) message.getParameters().get(1)).getValue().intValue();
             attemptedMovements.remove(sender);
-            Direction[] directions= (Direction[]) ((List<Identifier>) message.getParameters().get(2)).stream().map(Direction::fromIdentifier).toArray();
             Movement movement = new Movement(
-                     directions,
-                    ((Numeral) message.getParameters().get(3)).getValue().intValue()
+                    parameterlistToListOfDirections((ParameterList) message.getParameters().get(2)), //directions
+                    ((Numeral) message.getParameters().get(3)).getValue().intValue()                //speed
             );
             swarmSightModel.notifiedOfMovement(sender, movement);
         }
@@ -78,13 +78,21 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     public void processMovementAttempt(Percept message, String sender) {
         if (message.getName().equals("MOVEMENT_ATTEMPT")) {
             if (!sender.equals(agentname)) {
-                Direction[] directions= (Direction[]) ((List<Identifier>) message.getParameters().get(2)).stream().map(Direction::fromIdentifier).toArray();
                 attemptedMovements.put(sender, new StepAndMovement(
                         ((Numeral) message.getParameters().get(1)).getValue().intValue(),
-                        new Movement(directions,
+                        new Movement(parameterlistToListOfDirections((ParameterList) message.getParameters().get(2)),
                                 ((Numeral) message.getParameters().get(3)).getValue().intValue())));
             }
         }
+    }
+
+    @NotNull
+    private List<Direction> parameterlistToListOfDirections(ParameterList directionIdentifiers) {
+        List<Direction> directions = new ArrayList<>();
+        for (Parameter p : directionIdentifiers) {
+            directions.add(Direction.fromIdentifier((Identifier) p));
+        }
+        return directions;
     }
 
     @Override
@@ -124,7 +132,8 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         if (lastAction.getName().equals("move")) {
             int speed = determineSpeedOfLastAction(lastAction);
             if (speed > 0) {
-                Direction[] directions = (Direction[]) ((List<Identifier>)lastAction.getParameters().get(0)).stream().map(Direction::fromIdentifier).toArray();
+
+                List<Direction> directions = parameterlistToListOfDirections((ParameterList) lastAction.getParameters().get(0));
                 Movement movement = new Movement(directions, speed);
                 swarmSightModel.movedMyself(movement);
                 mailservice.broadcast(new Percept("MOVEMENT_NOTIFICATION",

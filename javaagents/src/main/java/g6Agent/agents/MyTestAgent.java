@@ -51,12 +51,8 @@ public class MyTestAgent extends Agent {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-            LastActionMemory lastAction = perceptionAndMemory.getLastAction();
-            if(lastAction != null && lastAction.getName().equals("move")){
-                System.out.println(lastAction.getSuccessMessage());
-                for (var par : lastAction.getParameters()){
-                    System.out.println(par);
-                }
+            for (var agents : perceptionAndMemory.getKnownAgents()){
+                say(agents.toString());
             }
         }
         return (eis.iilang.Action) action;
