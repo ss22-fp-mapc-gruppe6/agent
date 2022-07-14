@@ -122,35 +122,32 @@ public class AStar {
         int step = 0;
         for (final PointAction pa : path) {
             final G6Action action = pa.action();
-            switch (action) {
-                case Move move -> {
-                    step++;
-                    queue.add(pa);
-                    if (step >= stepSize) {
-                        step = 0;
-                        actions.add(bundle(queue));
-                        queue.clear();
-                    }
-                }
-                case Clear clear -> {
+            if (action instanceof Move) {
+                step++;
+                queue.add(pa);
+                if (step >= stepSize) {
                     step = 0;
-                    //add queued partial move before clear
-                    if (!queue.isEmpty()) {
-                        actions.add(bundle(queue));
-                        queue.clear();
-                    }
-                    actions.add(clear);
+                    actions.add(bundle(queue));
+                    queue.clear();
                 }
-                case Rotate rotate -> {
-                    step = 0;
-                    //add queued partial move before clear
-                    if (!queue.isEmpty()) {
-                        actions.add(bundle(queue));
-                        queue.clear();
-                    }
-                    actions.add(rotate);
+            } else if (action instanceof Clear clear) {
+                step = 0;
+                //add queued partial move before clear
+                if (!queue.isEmpty()) {
+                    actions.add(bundle(queue));
+                    queue.clear();
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + action);
+                actions.add(clear);
+            } else if (action instanceof Rotate rotate) {
+                step = 0;
+                //add queued partial move before clear
+                if (!queue.isEmpty()) {
+                    actions.add(bundle(queue));
+                    queue.clear();
+                }
+                actions.add(rotate);
+            } else {
+                throw new IllegalStateException("Unexpected value: " + action);
             }
         }
         //add partial move
@@ -195,38 +192,35 @@ public class AStar {
 
         G6Action action = current.pointAction.action();
         final Point currentLocation;
-        switch (action) {
-            case Move move -> {
-                try {
-                    move.predictSuccess(
-                            current.attachments
-                                    .stream().map(p -> p.add(current.pointAction.location())).toList(),
-                            obstaclesWithoutDestroyedAt(current)
-                                    .stream().map(p -> p.add(current.pointAction.location())).toList()
-                    );
-                } catch (Move.AttachmentCollidingWithObstacleException e) {
-                    return shouldHaveRotatedEarlier(current);
-                }
-                currentLocation = current.pointAction.target();
+        if (action instanceof Move move) {
+            try {
+                move.predictSuccess(
+                        current.attachments
+                                .stream().map(p -> p.add(current.pointAction.location())).toList(),
+                        obstaclesWithoutDestroyedAt(current)
+                                .stream().map(p -> p.add(current.pointAction.location())).toList()
+                );
+            } catch (Move.AttachmentCollidingWithObstacleException e) {
+                return shouldHaveRotatedEarlier(current);
             }
-            case Clear clear -> {
+            currentLocation = current.pointAction.target();
+        } else if (action instanceof Clear) {
+            currentLocation = current.pointAction.location();
+            current.destroyedObstacles.add(current.pointAction.target());
+        } else if (action instanceof Rotate rotate) {
+            try {
+                rotate.predictSuccess(
+                        current.attachments
+                                .stream().map(p -> p.add(current.pointAction.location())).toList(),
+                        obstaclesWithoutDestroyedAt(current)
+                                .stream().map(p -> p.add(current.pointAction.location())).toList());
+                current.attachments = current.attachments.stream().map(point -> point.rotate(rotate.rotation)).toList();
                 currentLocation = current.pointAction.location();
-                current.destroyedObstacles.add(current.pointAction.target());
+            } catch (Rotate.AttachmentCollidingWithObstacleException e) {
+                return shouldHaveClearedEarlier(current, e);
             }
-            case Rotate rotate -> {
-                try {
-                    rotate.predictSuccess(
-                            current.attachments
-                                    .stream().map(p -> p.add(current.pointAction.location())).toList(),
-                            obstaclesWithoutDestroyedAt(current)
-                                    .stream().map(p -> p.add(current.pointAction.location())).toList());
-                    current.attachments = current.attachments.stream().map(point -> point.rotate(rotate.rotation)).toList();
-                    currentLocation = current.pointAction.location();
-                } catch (Rotate.AttachmentCollidingWithObstacleException e) {
-                    return shouldHaveClearedEarlier(current, e);
-                }
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + action);
+        } else {
+            throw new IllegalStateException("Unexpected value: " + action);
         }
         visited.add(pointAndDirection);
 
@@ -242,25 +236,23 @@ public class AStar {
             final int cost;
             final Set<Point> destroyedObstacles = new HashSet<>(current.destroyedObstacles);
             Point nextTarget = kv.getKey();
-            switch (nextAction) {
-                case Move m -> {
-                    if (current.pointAction.action() instanceof Move && current.pointAction.location().equals(nextTarget)) {
-                        continue;
-                    }
-                    step++;
-                    if (step == 1) cost = firstStepCost;
-                    else if (step <= stepSize) cost = 0;
-                    else {
-                        step = 1;
-                        cost = firstStepCost;
-                    }
+            if (nextAction instanceof Move) {
+                if (current.pointAction.action() instanceof Move && current.pointAction.location().equals(nextTarget)) {
+                    continue;
                 }
-                case Clear c -> {
-                    step = 0;
-                    cost = clearCost;
-                    destroyedObstacles.add(nextTarget);
+                step++;
+                if (step == 1) cost = firstStepCost;
+                else if (step <= stepSize) cost = 0;
+                else {
+                    step = 1;
+                    cost = firstStepCost;
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + kv);
+            } else if (nextAction instanceof Clear) {
+                step = 0;
+                cost = clearCost;
+                destroyedObstacles.add(nextTarget);
+            } else {
+                throw new IllegalStateException("Unexpected value: " + kv);
             }
             final PointAction pointAction = new PointAction(currentLocation, nextAction, nextTarget);
             final double totalCost = current.totalCostFromStart + cost;
