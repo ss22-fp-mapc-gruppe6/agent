@@ -56,32 +56,37 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
                     .anyMatch(x -> x.getCoordinates().equals(block.getCoordinates()) && x.getBlocktype().equals(block.getBlocktype()))){
                 return new Submit(task);
             } else {
-                //rotate block to match task
-                Block attachedBlock = perceptionAndMemory.getDirectlyAttachedBlocks()
-                        .stream()
-                        .filter(x-> x.getBlocktype().equals(block.getBlocktype()))
-                        .findFirst()
-                        .orElseThrow();
-
-                //rotation clockwise
-                if (attachedBlock.getCoordinates().rotate(Rotation.CLOCKWISE).equals(block.getCoordinates())){
-                    G6Action rotation = new Rotate(Rotation.CLOCKWISE);
-                    return rotateOrClear(block, rotation);
-                }
-                // rotation counterclockwise
-                else if (attachedBlock.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE).equals(block.getCoordinates())){
-                    G6Action rotation = new Rotate(Rotation.COUNTERCLOCKWISE);
-                    return rotateOrClear(block, rotation);
-                }
-                //is opposite
-                else {
-                    G6Action rotationClockwise = new Rotate(Rotation.CLOCKWISE);
-                    G6Action rotationCounterclockwise = new Rotate(Rotation.COUNTERCLOCKWISE);
-                    if (rotationClockwise.predictSuccess(perceptionAndMemory)) return rotationClockwise;
-                    if(rotationCounterclockwise.predictSuccess(perceptionAndMemory)) return rotationCounterclockwise;
-                    return new Clear(block.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE));
-                }
+                return rotateAndSubmit(block);
             }
+        }
+    }
+
+    @NotNull
+    private G6Action rotateAndSubmit(Block block) {
+        //rotate block to match task
+        Block attachedBlock = perceptionAndMemory.getDirectlyAttachedBlocks()
+                .stream()
+                .filter(x-> x.getBlocktype().equals(block.getBlocktype()))
+                .findFirst()
+                .orElseThrow();
+
+        //rotation clockwise
+        if (attachedBlock.getCoordinates().rotate(Rotation.CLOCKWISE).equals(block.getCoordinates())){
+            G6Action rotation = new Rotate(Rotation.CLOCKWISE);
+            return rotateOrClear(block, rotation);
+        }
+        // rotation counterclockwise
+        else if (attachedBlock.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE).equals(block.getCoordinates())){
+            G6Action rotation = new Rotate(Rotation.COUNTERCLOCKWISE);
+            return rotateOrClear(block, rotation);
+        }
+        //is opposite
+        else {
+            G6Action rotationClockwise = new Rotate(Rotation.CLOCKWISE);
+            G6Action rotationCounterclockwise = new Rotate(Rotation.COUNTERCLOCKWISE);
+            if (rotationClockwise.predictSuccess(perceptionAndMemory)) return rotationClockwise;
+            if(rotationCounterclockwise.predictSuccess(perceptionAndMemory)) return rotationCounterclockwise;
+            return new Clear(block.getCoordinates().rotate(Rotation.COUNTERCLOCKWISE));
         }
     }
 
@@ -195,6 +200,7 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
         List<Block> dispensers = perceptionAndMemory.getDispensers()
                 .stream()
                 .filter(dispenser -> dispenser.equals(taskBlock)).toList();
+        if (dispensers.isEmpty()) return null;
         Block closestDispenser = dispensers.get(0);
         if (closestDispenser == null) return null;
         for (Block dispenser: dispensers) {

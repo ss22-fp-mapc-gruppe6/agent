@@ -337,12 +337,4 @@ public class G6GoalGoalRush implements Goal {
         }
         return hasBlockMatchingTask;
     }
-
-    private List<String> possibleRoleNames() {
-        return perceptionAndMemory.getPossibleRoles()
-                .stream()
-                .filter(role -> role.canPerformAction("attach") && role.canPerformAction("submit"))
-                .map(Role::getName)
-                .toList();
-    }
 }
