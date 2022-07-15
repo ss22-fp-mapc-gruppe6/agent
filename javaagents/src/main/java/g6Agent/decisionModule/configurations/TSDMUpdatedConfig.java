@@ -2,6 +2,7 @@ package g6Agent.decisionModule.configurations;
 
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
+import g6Agent.goals.old.G6GoalExplore;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public class TSDMUpdatedConfig implements DecisionModuleConfiguration{
     @Override
     public List<Goal> generateGoals(PerceptionAndMemory perceptionAndMemory, Strategy strategy) {
         return List.of(
-                new G6GoalExplore(perceptionAndMemory),
+                new G6GoalExploreV2(perceptionAndMemory),
                 new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory),
                 new G6GoalRetrieveBlockV2(perceptionAndMemory),
                 new G6GoalGoalRushV2(perceptionAndMemory)
