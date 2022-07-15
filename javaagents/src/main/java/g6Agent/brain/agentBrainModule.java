@@ -11,6 +11,7 @@ public class agentBrainModule {
     }
 
     public void addData(PerceptionAndMemory perceptionAndMemory) {
+        //getLastId indicates the current round
         if (perceptionAndMemory.getLastId() >= -1) {
             agentBrain.put(perceptionAndMemory.getCurrentStep(), perceptionAndMemory);
         }
