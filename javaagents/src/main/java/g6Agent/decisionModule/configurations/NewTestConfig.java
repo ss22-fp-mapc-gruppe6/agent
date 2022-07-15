@@ -2,26 +2,26 @@ package g6Agent.decisionModule.configurations;
 
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
-import g6Agent.goals.old.G6GoalGoalRush;
 import g6Agent.goals.old.G6GoalRetrieveBlock;
+import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Configuration, that matches TheStupidestDecisionModule
- */
-
-public class TSDMConfig implements DecisionModuleConfiguration {
-
+public class NewTestConfig implements DecisionModuleConfiguration{
     @Override
     public List<Goal> generateGoals(PerceptionAndMemory perceptionAndMemory, Strategy strategy) {
-        return List.of(
-                new G6GoalExplore(perceptionAndMemory),
-                new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory),
-                new G6GoalRetrieveBlock(perceptionAndMemory),
-                new G6GoalGoalRush(perceptionAndMemory)
-        );
+
+        List<Goal> goals = new ArrayList<>();
+        goals.add(new G6GoalExplore(perceptionAndMemory));
+        goals.add(new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory));
+        goals.add(new G6GoalRetrieveBlock(perceptionAndMemory));
+        for (Task task : perceptionAndMemory.getActiveTasks()){
+            goals.add(new G6GoalFulfillSingleTaskV1(perceptionAndMemory, task.getName()));
+        }
+
+        return goals;
     }
 
     @Override
@@ -29,8 +29,7 @@ public class TSDMConfig implements DecisionModuleConfiguration {
         if (strategy.equals(Strategy.OFFENSE)) {
             if (goal instanceof G6GoalExplore) return 0.0;
             if (goal instanceof G6GoalChangeRole) return 1.0;
-            if (goal instanceof G6GoalRetrieveBlock) return 2.0;
-            if (goal instanceof G6GoalGoalRush) return 3.0;
+            if (goal instanceof G6GoalFulfillSingleTaskV1) return 2.0;
         }
         return -1;
     }

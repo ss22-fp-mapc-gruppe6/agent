@@ -1,6 +1,7 @@
-package g6Agent.goals;
+package g6Agent.goals.old;
 
 import g6Agent.actions.*;
+import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Role;
@@ -336,13 +337,5 @@ public class G6GoalGoalRush implements Goal {
             }
         }
         return hasBlockMatchingTask;
-    }
-
-    private List<String> possibleRoleNames() {
-        return perceptionAndMemory.getPossibleRoles()
-                .stream()
-                .filter(role -> role.canPerformAction("attach") && role.canPerformAction("submit"))
-                .map(Role::getName)
-                .toList();
     }
 }
