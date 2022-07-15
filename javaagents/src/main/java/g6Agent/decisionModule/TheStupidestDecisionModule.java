@@ -1,6 +1,9 @@
 package g6Agent.decisionModule;
 
 import g6Agent.goals.*;
+import g6Agent.goals.old.G6GoalDig;
+import g6Agent.goals.old.G6GoalGoalRush;
+import g6Agent.goals.old.G6GoalRetrieveBlock;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
