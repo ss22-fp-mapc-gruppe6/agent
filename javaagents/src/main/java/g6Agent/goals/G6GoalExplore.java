@@ -5,10 +5,14 @@ import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
 import g6Agent.actions.Rotate;
 import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class G6GoalExplore implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
@@ -23,10 +27,23 @@ public class G6GoalExplore implements Goal {
 
     @Override
     public G6Action getNextAction() {
+        if (perceptionAndMemory.getLastAction().getName().equals("rotate") && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")) {
+            List<Point> adjacentObstacles = perceptionAndMemory.getObstacles().stream().filter(Point::isAdjacent).toList();
+            if (!adjacentObstacles.isEmpty()) {
+                return new Clear(adjacentObstacles.get(0));
+            }
+            List<Move> possibleMoves = Arrays.stream(Direction.allDirections()).map(direction -> new Move(direction)).filter(move -> move.predictSuccess(perceptionAndMemory)).toList();
+            if (!possibleMoves.isEmpty()) {
+                return possibleMoves.stream().findFirst().orElseThrow();
+            }
+        }
+
         return fibbonacciWalk();
     }
 
     private G6Action fibbonacciWalk() {
+
+
         if (perceptionAndMemory.getLastAction() != null
                 && perceptionAndMemory.getLastAction().getName().equals("move")
                 && !perceptionAndMemory.getLastAction().getSuccessMessage().equals("success")) {

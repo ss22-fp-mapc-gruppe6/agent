@@ -51,10 +51,25 @@ public class MyTestAgent extends Agent {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
+            say(currentGoal.getName());
+           /*
             for (var agents : perceptionAndMemory.getKnownAgents()){
                 say(agents.toString());
             }
+                    if(action == null){
+            say("NULL ACTION");
+            try {
+                throw new Exception();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
+        say(action.toString());
+
+
+            */
+        }
+
         return (eis.iilang.Action) action;
     }
 

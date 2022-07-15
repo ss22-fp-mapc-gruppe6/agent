@@ -2,6 +2,8 @@ package g6Agent.decisionModule.configurations;
 
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
+import g6Agent.goals.old.G6GoalGoalRush;
+import g6Agent.goals.old.G6GoalRetrieveBlock;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 import java.util.List;

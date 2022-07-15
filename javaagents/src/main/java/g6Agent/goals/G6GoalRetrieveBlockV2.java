@@ -9,8 +9,10 @@ import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static g6Agent.decisionModule.astar.AStar.astarNextStep;
 
@@ -24,6 +26,20 @@ public class G6GoalRetrieveBlockV2 implements Goal{
 
     @Override
     public G6Action getNextAction() {
+        //anti block
+        LastActionMemory lastAction = perceptionAndMemory.getLastAction();
+        if (lastAction.getName().equals("move") && !lastAction.getSuccessMessage().equals("success")){
+            List<Point> adjacentObstacles = perceptionAndMemory.getObstacles().stream().filter(Point::isAdjacent).toList();
+            if(!adjacentObstacles.isEmpty()){
+                return new Clear(adjacentObstacles.get(0));
+            }
+            List<Move> possibleMoves = Arrays.stream(Direction.allDirections()).map(direction -> new Move(direction)).filter(move -> move.predictSuccess(perceptionAndMemory)).toList();
+            if (!possibleMoves.isEmpty()){
+                return possibleMoves.stream().findFirst().orElseThrow();
+            }
+
+        }
+
         if (!perceptionAndMemory.getBlocks().isEmpty()) {
             G6Action actionToPickUpBlock = moveToNextBlockAndPickItUp();
             if (actionToPickUpBlock != null) return actionToPickUpBlock;
@@ -43,13 +59,22 @@ public class G6GoalRetrieveBlockV2 implements Goal{
             return new Request(Direction.fromAdjacentPoint(closestDispenser.getCoordinates()));
         } else {
             //If friendly Agent is at Dispenser wait
-            if (closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0)) == 2){
+            int distanceToDispenser = closestDispenser.getCoordinates().manhattanDistanceTo(new Point(0,0));
+            if (distanceToDispenser == 2){
                 if (perceptionAndMemory.getFriendlyAgents().stream().anyMatch(agent -> agent.isAdjacentTo(closestDispenser.getCoordinates()))){
                     return new Skip();
                 }
             }
             //move to next dispenser
-            return AStar.astarNextStep(closestDispenser.getCoordinates(), perceptionAndMemory).orElse(new Skip());
+            Point closestPointAdjacentToDispenser = Arrays
+                    .stream(Direction.allDirections())
+                    .map(direction -> direction.getNextCoordinate().add(closestDispenser.getCoordinates()))
+                    .min(Comparator.comparingInt(o -> o.manhattanDistanceTo(new Point(0, 0)))).orElseThrow();
+            G6Action a = AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
+            if (a instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
+                return AStar.astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
+            }
+            return AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
         }
     }
 
@@ -104,7 +129,8 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     }
 
     private boolean checkIfNotCloseToOtherAgent(Block block) {
-        for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
+        List<Point> agents = Stream.concat(perceptionAndMemory.getFriendlyAgents().stream(), perceptionAndMemory.getEnemyAgents().stream()).toList();
+        for (Point agentPosition : agents) {
             if (agentPosition.isAdjacentTo(block.getCoordinates()) && !agentPosition.equals(new Point(0, 0))) {
                 return false;
             }
@@ -126,11 +152,13 @@ public class G6GoalRetrieveBlockV2 implements Goal{
 
     @Override
     public String getName() {
-        return "G6GoalRetrieveBlock";
+        return "G6GoalRetrieveBlockV2";
     }
 
     @Override
     public boolean preconditionsMet() {
+        //already has a block attached
+        if(!perceptionAndMemory.getDirectlyAttachedBlocks().isEmpty()) return false;
         //unclear if can attach
         if (perceptionAndMemory.getCurrentRole() == null) return false;
         //no dispensers known
