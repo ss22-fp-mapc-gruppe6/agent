@@ -417,6 +417,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public Integer getLastId() {
+        return lastID;
+    }
+
+    @Override
     public List<Point> getEnemyAgents() {
         List<Point> points = new ArrayList<>();
         for (AgentEntry agent : perceivedAgents) {

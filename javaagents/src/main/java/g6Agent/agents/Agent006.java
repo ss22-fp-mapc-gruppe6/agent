@@ -4,6 +4,7 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
+import g6Agent.brain.agentBrainModule;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
@@ -19,6 +20,7 @@ import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 public class Agent006 extends Agent {
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
+    private final agentBrainModule brain;
 
     private final CommunicationModule communicationModule;
 
@@ -36,6 +38,7 @@ public class Agent006 extends Agent {
         this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
         this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
+        this.brain = new agentBrainModule();
     }
 
     @Override
@@ -45,6 +48,7 @@ public class Agent006 extends Agent {
 
     @Override
     public Action step() {
+        brain.addData(perceptionAndMemory);
         G6Action action = null;
         perceptionAndMemory.handlePercepts(getPercepts());
         if (perceptionAndMemory.isReadyForAction()) {

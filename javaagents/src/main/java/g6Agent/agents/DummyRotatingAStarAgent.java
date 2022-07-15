@@ -9,6 +9,7 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+import g6Agent.brain.agentBrainModule;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ import static g6Agent.services.Point.byDistanceToOrigin;
 
 public class DummyRotatingAStarAgent extends Agent {
     private final PerceptionAndMemory perceptionAndMemory;
+    private final agentBrainModule brain;
     private final String b0String = "b0";
     private final String d0String = "d0";
 
@@ -26,6 +28,7 @@ public class DummyRotatingAStarAgent extends Agent {
         super(name, mailbox);
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
+        this.brain = new agentBrainModule();
     }
 
     @Override
@@ -70,6 +73,8 @@ public class DummyRotatingAStarAgent extends Agent {
     @Override
     public Action step() {
         perceptionAndMemory.handlePercepts(getPercepts());
+        brain.addData(perceptionAndMemory);
+        brain.getData();
         final String currentRoleName = perceptionAndMemory.getCurrentRole().getName();
         if (currentRoleName.equalsIgnoreCase("default")) {
             return becomeworker();

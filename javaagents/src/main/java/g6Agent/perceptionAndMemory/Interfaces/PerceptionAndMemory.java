@@ -72,6 +72,8 @@ public interface PerceptionAndMemory {
     List<Point> getFriendlyAgents();
 
 
+    Integer getLastId();
+
     /**
      * @return a List with Coordinates with Agents of the opposing Team, perceived this step
      */
