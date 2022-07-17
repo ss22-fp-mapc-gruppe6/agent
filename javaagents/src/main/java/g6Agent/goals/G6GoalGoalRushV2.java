@@ -2,6 +2,7 @@ package g6Agent.goals;
 
 import g6Agent.actions.*;
 import g6Agent.decisionModule.astar.AStar;
+import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Role;
@@ -130,7 +131,7 @@ public class G6GoalGoalRushV2 implements Goal {
         if (unblockedGoalZones.isEmpty()) return exploreMap();
         Point closestGoalZone;
         if (this.targetGoalZone == null) {
-            closestGoalZone = unblockedGoalZones.stream().min(Comparator.comparingInt(a -> a.manhattanDistanceTo(new Point(0, 0)))).orElseThrow();
+            closestGoalZone = unblockedGoalZones.stream().min(Comparator.comparingInt(a -> a.manhattanDistanceTo(new Point(0, 0)))).orElse(unblockedGoalZones.get(0));
             this.targetGoalZone = closestGoalZone;
         } else {
             closestGoalZone = unblockedGoalZones
@@ -139,9 +140,9 @@ public class G6GoalGoalRushV2 implements Goal {
                     .orElseThrow();
             this.targetGoalZone = closestGoalZone;
         }
-        G6Action action = AStar.astarNextStep(closestGoalZone, perceptionAndMemory).orElseThrow();
+        G6Action action = AStar.astarNextStep(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         if (action instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
-            return AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(new Skip());
+            return AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         }
         return action;
     }

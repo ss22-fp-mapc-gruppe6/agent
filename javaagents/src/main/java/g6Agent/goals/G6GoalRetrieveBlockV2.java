@@ -2,6 +2,7 @@ package g6Agent.goals;
 
 import g6Agent.actions.*;
 import g6Agent.decisionModule.astar.AStar;
+import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static g6Agent.decisionModule.astar.AStar.astarNextStep;
+import static g6Agent.decisionModule.astar.AStar.astarNextStepWithAgents;
 
 public class G6GoalRetrieveBlockV2 implements Goal{
     private final PerceptionAndMemory perceptionAndMemory;
@@ -72,9 +74,11 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                     .min(Comparator.comparingInt(o -> o.manhattanDistanceTo(new Point(0, 0)))).orElseThrow();
             G6Action a = AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
             if (a instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
-                return AStar.astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
+                return AStar.astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory)
+                        .orElse(ManhattanDistanceMove.nextAction(closestPointAdjacentToDispenser, perceptionAndMemory));
             }
-            return AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
+            return AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory)
+                    .orElse(ManhattanDistanceMove.nextAction(closestPointAdjacentToDispenser, perceptionAndMemory));
         }
     }
 
@@ -123,7 +127,11 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                     .orElseThrow() ;
 
             //move to next block
-            return astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory).orElseThrow();
+            G6Action moveToNextBlock = astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory)
+                    .orElse(ManhattanDistanceMove.nextAction(closestBlock.getCoordinates(), perceptionAndMemory));
+            if (moveToNextBlock.predictSuccess(perceptionAndMemory)) return moveToNextBlock;
+            return astarNextStepWithAgents(closestBlock.getCoordinates(), perceptionAndMemory)
+                    .orElse(ManhattanDistanceMove.nextAction(closestBlock.getCoordinates(), perceptionAndMemory));
         }
         return null;
     }

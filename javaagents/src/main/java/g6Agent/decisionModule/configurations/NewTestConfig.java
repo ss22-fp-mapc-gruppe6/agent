@@ -18,11 +18,14 @@ public class NewTestConfig implements DecisionModuleConfiguration{
         goals.add(new G6GoalExploreV2(perceptionAndMemory));
         goals.add(new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory));
         goals.add(new G6GoalDefendGoalZone(perceptionAndMemory));
-        goals.add(new G6GoalRetrieveBlock(perceptionAndMemory));
+        goals.add(new G6GoalRetrieveBlockV2(perceptionAndMemory));
+        /*
         for (Task task : perceptionAndMemory.getActiveTasks()){
             goals.add(new G6GoalFulfillSingleTaskV1(perceptionAndMemory, task.getName()));
         }
 
+         */
+        goals.add(new G6GoalGoalRushV2(perceptionAndMemory));
         return goals;
     }
 
@@ -32,7 +35,9 @@ public class NewTestConfig implements DecisionModuleConfiguration{
             case OFFENSE -> {
                 if (goal instanceof G6GoalExploreV2) return 0.0;
                 if (goal instanceof G6GoalChangeRole) return 1.0;
-                if (goal instanceof G6GoalFulfillSingleTaskV1) return 2.0;
+                if (goal instanceof G6GoalRetrieveBlockV2) return 2.0;
+                if (goal instanceof G6GoalGoalRushV2) return 3.0;
+                //if (goal instanceof G6GoalFulfillSingleTaskV1) return 2.0;
                 return -1;
             }
             case DEFENSE -> {

@@ -88,7 +88,10 @@ public class G6GoalDefendGoalZone implements Goal {
                 .filter(agent -> perceptionAndMemory.getBlocks()    //has blocks next to ist
                         .stream()
                         .anyMatch(block -> block.getCoordinates().isAdjacentTo(agent)))
-                .filter(agent-> agent.manhattanDistanceTo(new Point(0,0)) <= perceptionAndMemory.getCurrentRole().getVisionRange()) //is in vision range
+                .filter(agent -> perceptionAndMemory.getAttachedBlocks()
+                        .stream()
+                        .anyMatch(block-> block.getCoordinates().isAdjacentTo(agent)))
+               // .filter(agent-> agent.manhattanDistanceTo(new Point(0,0)) <= perceptionAndMemory.getCurrentRole().getVisionRange()) //is in vision range
                 .toList();
 
         if (enemyAgentsNextToABlock.isEmpty()) return null;
