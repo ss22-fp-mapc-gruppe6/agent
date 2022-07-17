@@ -138,14 +138,14 @@ public class AttachedBlocksModule implements LastActionListener {
 
         // Agents name  is specified by action parameters
         for (AgentNameAndPosition agent: perceptionAndMemory.getKnownAgents()) {
-            if (agent.getName().equals(parameter)) {
+            if (agent.getName().contains(parameter)) {
                 otherAgentName = agent.getName();
                 break;
             }
         }
 
         for (Block block1: perceptionAndMemory.getDirectlyAttachedBlocks()) {
-            if (block1.equals(parameter)) {
+                if (block1.toString().contains(parameter)) {
                 position = block1.getCoordinates();
                 break;
             }
@@ -179,7 +179,7 @@ public class AttachedBlocksModule implements LastActionListener {
 
         // Two attachments (blocks) of the agent are specified by action parameters
         for (Block block : perceptionAndMemory.getAttachedBlocks()) {
-            if (block.getCoordinates().equals(parameter) && attachment1 == null) {
+            if (block.getCoordinates().toString().contains(parameter) && attachment1 == null) {
                 // Get key (agents name) from value in HashMap
                 agent1Name = String.valueOf(attachedBlocks.entrySet().stream().filter(entry -> entry.getValue().equals(block)).map(Map.Entry::getKey)
                         .findFirst());
@@ -190,7 +190,7 @@ public class AttachedBlocksModule implements LastActionListener {
                 }
             }
             // This same activity with second attachment.
-            else if (block.getCoordinates().equals(parameter)) {
+            else if (block.getCoordinates().toString().contains(parameter)) {
                 agent2Name = String.valueOf(attachedBlocks.entrySet().stream().filter(entry -> entry.getValue().equals(block)).map(Map.Entry::getKey)
                         .findFirst());
                 if(agent2Name != null) {
