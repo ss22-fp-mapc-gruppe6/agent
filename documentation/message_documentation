@@ -29,3 +29,5 @@ AgentMapCoordinator:
 
 "MY_STRATEGY" - communicates the Strategy ( offensive or defensive ) of the agent
 
+"Connect_Action" - broadcasted by an Agent, to notifiy sbout thst, the block of the agent have been modified.
+
