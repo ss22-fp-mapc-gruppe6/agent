@@ -136,7 +136,7 @@ public class AttachedBlocksModule implements LastActionListener {
         Block blockToConnect = null;
         HashMap<String, Block> updatedBlockPositions = new HashMap<>(4);
 
-        // Agents name  is specified by action parameters
+        // Agents name and coordinates of the block to connect is specified by action parameters
         for (AgentNameAndPosition agent: perceptionAndMemory.getKnownAgents()) {
             if (agent.getName().contains(parameter)) {
                 otherAgentName = agent.getName();
@@ -152,10 +152,6 @@ public class AttachedBlocksModule implements LastActionListener {
         }
 
         // Each agent is responsible for keeping track of which blocks they are carrying.
-        if(otherAgentName != null) {
-            block= this.attachedBlocks.get(otherAgentName);
-        }
-
         if(block != null && otherAgentName != null && position != null) {
             // The other agent must adjust its connected block.
             blockToConnect = new Block(
