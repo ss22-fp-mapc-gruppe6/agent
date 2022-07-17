@@ -17,6 +17,7 @@ public class NewTestConfig implements DecisionModuleConfiguration{
         List<Goal> goals = new ArrayList<>();
         goals.add(new G6GoalExploreV2(perceptionAndMemory));
         goals.add(new G6GoalChangeRole(strategy.getPreferredRoleName(), perceptionAndMemory));
+        goals.add(new G6GoalDefendGoalZone(perceptionAndMemory));
         goals.add(new G6GoalRetrieveBlock(perceptionAndMemory));
         for (Task task : perceptionAndMemory.getActiveTasks()){
             goals.add(new G6GoalFulfillSingleTaskV1(perceptionAndMemory, task.getName()));
@@ -46,6 +47,6 @@ public class NewTestConfig implements DecisionModuleConfiguration{
 
     @Override
     public double getMaxOffensivePercentage() {
-        return 0.8;
+        return 0.9;
     }
 }
