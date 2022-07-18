@@ -8,6 +8,7 @@ import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
+import g6Agent.services.Rotation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -16,21 +17,22 @@ import java.util.List;
 
 public class G6GoalDefendGoalZone implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
+    private Direction currentPatrolDirection;
 
     public G6GoalDefendGoalZone(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
+        this.currentPatrolDirection = Direction.random();
     }
 
 
     @Override
     public G6Action getNextAction() {
         //If sees EnemyAgent next to a Block clear action against Enemy Agent
-        Point target =determineIfSeesEnemyAgentWithBlockAttached();
+        Point target = determineIfSeesEnemyAgentWithBlockAttached();
         if(target != null){
             return moveToTargetAndTackle(target);
         }
-
-        //check if in GoalZone, if yes -> skip, else move to GoalZone
+        //check if in GoalZone, if yes -> patrol, else -> move to GoalZone
         return moveToClosestGoalZone();
     }
 
@@ -38,15 +40,38 @@ public class G6GoalDefendGoalZone implements Goal {
     private G6Action moveToClosestGoalZone() {
         boolean isInGoalZone = perceptionAndMemory.getGoalZones().stream().anyMatch(point-> point.equals(new Point(0,0)));
         boolean doesntKnowAGoalZone = perceptionAndMemory.getGoalZones().isEmpty();
-        if (isInGoalZone || doesntKnowAGoalZone){
-            return new Skip();
-        }
+        if (doesntKnowAGoalZone) return new Skip();
+        if (isInGoalZone) return patrolGoalZone();
         Point closestGoalZone = perceptionAndMemory.getGoalZones()
                 .stream()
                 .min(Comparator.comparingInt(goalZone -> goalZone.manhattanDistanceTo(new Point(0,0))))
                 .orElse(null);
         if (closestGoalZone == null) return new Skip();
         return moveTo(closestGoalZone);
+    }
+
+    private G6Action patrolGoalZone() {
+        boolean canGoInPatrolDirection = perceptionAndMemory
+                .getGoalZones()
+                .stream()
+                .anyMatch(zone -> zone.isAdjacentTo(this.currentPatrolDirection.getNextCoordinate()) && !zone.equals(new Point(0,0)));
+
+        if (!canGoInPatrolDirection) this.currentPatrolDirection = currentPatrolDirection.rotate(Rotation.COUNTERCLOCKWISE);
+        Point pointToMoveTo = perceptionAndMemory.getGoalZones()
+                .stream()
+                .filter(zone -> zone.manhattanDistanceTo(new Point(0,0)) < 5 && ! zone.equals(new Point(0,0)))
+                .min(Comparator.comparingInt(
+                        zone ->
+                            zone.manhattanDistanceTo(currentPatrolDirection.getNextCoordinate().multiply(3))
+
+                )).orElse(null);
+
+        if (pointToMoveTo == null) {
+            currentPatrolDirection = currentPatrolDirection.rotate(Rotation.COUNTERCLOCKWISE);
+            return new Skip();
+        } else {
+            return moveTo(pointToMoveTo);
+        }
     }
 
     @NotNull
