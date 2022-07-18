@@ -47,6 +47,7 @@ public class AttachedBlocksModule implements LastActionListener {
                     } //TODO if Action is ever used
                 }
             }
+            //recheckAttachedBlocks(); //TODO TEST TEST TEST
         }
     }
 
@@ -80,12 +81,15 @@ public class AttachedBlocksModule implements LastActionListener {
         if (task != null) {
             for (Block block : task.getRequirements()) {
                 if (attachedBlocks.get(block.getCoordinates().toString()) == null) {
-                    try {
+                    recheckAttachedBlocks();
+                    /*try {
                         throw new Exception();
                     } catch (Exception e) {
                         System.out.println("ATTACHED BLOCKS CONTROLLER - submit without tracked attached block");
                         e.printStackTrace();
                     }
+
+                     */
                 }
                 attachedBlocks.remove(block.getCoordinates().toString());
             }

@@ -50,6 +50,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private List<Block> attachedBlocks;
 
     private final AttachedBlocksModule attachedBlocksController;
+    private String violation;
 
     private record AgentEntry(String team, Point coordinate) {
     }
@@ -78,6 +79,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
         this.lastActionListeners = new ArrayList<>(2);
+        this.violation ="";
 
         this.attachedBlocksController = new AttachedBlocksModule(this);
         addLastActionListener(attachedBlocksController);
@@ -137,6 +139,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                     } else if (percept.getName().equals("attached")) {
                         this.attached.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
+                    } else if (percept.getName().equals("violation")) {
+                      this.violation = ((Identifier) percept.getParameters().get(0)).toProlog();
                     } else if (percept.getName().equals("simEnd")) {
                         lastID = -1;
                         currentId = -1;
@@ -403,6 +407,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         markers = new ArrayList<>();
         attached = new ArrayList<>();
         attachedBlocks = null;
+        violation = "";
     }
 
     @Override
