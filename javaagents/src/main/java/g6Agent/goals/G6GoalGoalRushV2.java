@@ -2,6 +2,7 @@ package g6Agent.goals;
 
 import g6Agent.actions.*;
 import g6Agent.decisionModule.astar.AStar;
+import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Enties.Role;
@@ -39,7 +40,18 @@ public class G6GoalGoalRushV2 implements Goal {
         //Go Somewhere if rotation failed
         LastActionMemory lastAction = perceptionAndMemory.getLastAction();
         //anti block
-        if (lastAction.getName().equals("move") && !lastAction.getSuccessMessage().equals("success")){
+        if (lastAction.getName().equals("move") && !lastAction.getSuccessMessage().equals("success")
+                || lastAction.getName().equals("clear") && lastAction.getSuccessMessage().equals("failed_target")){
+            List<Clear> possibleClears = perceptionAndMemory.getObstacles()
+                    .stream()
+                    .filter(obstacle -> obstacle.isAdjacent())
+                    .map(obstacle -> new Clear(obstacle))
+                    .filter(clear -> clear.predictSuccess(perceptionAndMemory))
+                    .toList();
+            if (!possibleClears.isEmpty()){
+                return possibleClears.stream().findFirst().orElseThrow();
+            }
+
             List<Move> possibleMoves = Arrays.stream(Direction.allDirections()).map(direction -> new Move(direction)).filter(move -> move.predictSuccess(perceptionAndMemory)).toList();
             if (!possibleMoves.isEmpty()){
                 return possibleMoves.stream().findFirst().orElseThrow();
@@ -80,9 +92,12 @@ public class G6GoalGoalRushV2 implements Goal {
     @NotNull
     private G6Action rotateAndSubmit(Block requirement) {
         //rotate block to match task
-        Block attachedBlock = perceptionAndMemory.getDirectlyAttachedBlocks()
+        List<Block> attachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks()
                 .stream()
                 .filter(x-> x.getBlocktype().equals(requirement.getBlocktype()))
+                .toList();
+        if(attachedBlocks.isEmpty()) return new Skip();
+        Block attachedBlock = attachedBlocks.stream()
                 .findFirst()
                 .orElseThrow();
 
@@ -125,12 +140,12 @@ public class G6GoalGoalRushV2 implements Goal {
         if (perceptionAndMemory.getGoalZones().isEmpty()) return exploreMap();
         List<Point> unblockedGoalZones = perceptionAndMemory.getGoalZones().stream().filter(position -> {
             return perceptionAndMemory.getFriendlyAgents().stream().noneMatch(agent -> agent.equals(position))
-                    && perceptionAndMemory.getBlocks().stream().filter(block -> perceptionAndMemory.getDirectlyAttachedBlocks().stream().noneMatch(b -> b.equals(block))).noneMatch(block -> block.equals(position));
+                    && perceptionAndMemory.getBlocks().stream().filter(block -> perceptionAndMemory.getDirectlyAttachedBlocks().stream().noneMatch(b -> b.equals(block))).noneMatch(block -> block.getCoordinates().equals(position));
         }).toList();
         if (unblockedGoalZones.isEmpty()) return exploreMap();
         Point closestGoalZone;
         if (this.targetGoalZone == null) {
-            closestGoalZone = unblockedGoalZones.stream().min(Comparator.comparingInt(a -> a.manhattanDistanceTo(new Point(0, 0)))).orElseThrow();
+            closestGoalZone = unblockedGoalZones.stream().min(Comparator.comparingInt(a -> a.manhattanDistanceTo(new Point(0, 0)))).orElse(unblockedGoalZones.get(0));
             this.targetGoalZone = closestGoalZone;
         } else {
             closestGoalZone = unblockedGoalZones
@@ -139,9 +154,9 @@ public class G6GoalGoalRushV2 implements Goal {
                     .orElseThrow();
             this.targetGoalZone = closestGoalZone;
         }
-        G6Action action = AStar.astarNextStep(closestGoalZone, perceptionAndMemory).orElseThrow();
+        G6Action action = AStar.astarNextStep(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         if (action instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
-            return AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(new Skip());
+            return AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         }
         return action;
     }
@@ -182,6 +197,7 @@ public class G6GoalGoalRushV2 implements Goal {
             this.task = null;
             return false;
         }
+        if (this.task.getRequirements().size() != 1) return false;
 
         if(perceptionAndMemory.getGoalZones().isEmpty()) return false;
         /*

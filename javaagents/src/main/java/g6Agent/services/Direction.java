@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public enum Direction {
     WEST(new Identifier("w"), new Point(-1, 0)), EAST(new Identifier("e"), new Point(1, 0)),
@@ -83,6 +84,17 @@ public enum Direction {
     }
 
     /**
+     *
+     * @return a random direction
+     */
+    public static Direction random(){
+        Direction[] directions = Direction.values();
+        Random random = new Random();
+        return directions[random.nextInt(directions.length)];
+    }
+
+
+    /**
      * returns a new direction, which is this direction, rotated in the given rotation
      *
      * @param rotation the rotation
@@ -111,5 +123,7 @@ public enum Direction {
             throw new RuntimeException(e);
         }
     }
+
+
 
 }

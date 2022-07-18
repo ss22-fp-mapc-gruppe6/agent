@@ -51,7 +51,7 @@ public class MyTestAgent extends Agent {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
             communicationModule.broadcastActionAttempt((Action) action);
-            say(currentGoal.getName());
+           // say(currentGoal.getName());
            /*
             for (var agents : perceptionAndMemory.getKnownAgents()){
                 say(agents.toString());

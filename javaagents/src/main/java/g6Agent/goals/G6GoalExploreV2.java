@@ -4,8 +4,8 @@ import g6Agent.actions.Clear;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
 import g6Agent.actions.Rotate;
+import g6Agent.decisionModule.astar.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
-import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
@@ -14,14 +14,14 @@ import g6Agent.services.Rotation;
 import java.util.Arrays;
 import java.util.List;
 
-public class G6GoalExplore implements Goal {
+public class G6GoalExploreV2 implements Goal{
     private final PerceptionAndMemory perceptionAndMemory;
-    private Direction fibonacciWalkDirection = Direction.NORTH;
-    private int fibonnaciWalkCurrent = 1;
+    private Direction fibonacciWalkDirection = Direction.random();
+    private int fibonnaciWalkCurrent = 2;
     private int fibbonacciWalkFormer = 1;
     private int fibbbonacciwalkCounter = 0;
 
-    public G6GoalExplore(PerceptionAndMemory perceptionAndMemory) {
+    public G6GoalExploreV2(PerceptionAndMemory perceptionAndMemory) {
         this.perceptionAndMemory = perceptionAndMemory;
     }
 
@@ -52,7 +52,9 @@ public class G6GoalExplore implements Goal {
         if (fibbbonacciwalkCounter == fibonnaciWalkCurrent) {
             skipToNextDirection();
         }
-        G6Action action = moveTo(fibonacciWalkDirection);
+        G6Action action = AStar
+                .astarNextStep(fibonacciWalkDirection.getNextCoordinate().multiply(fibbbonacciwalkCounter - fibonnaciWalkCurrent), perceptionAndMemory)
+                .orElse(moveTo(fibonacciWalkDirection));
         if (action instanceof Move) {
             fibbbonacciwalkCounter++;
         }
@@ -98,11 +100,12 @@ public class G6GoalExplore implements Goal {
 
     @Override
     public String getName() {
-        return "G6GoalExplore";
+        return "G6GoalExploreV2";
     }
 
     @Override
     public boolean preconditionsMet() {
         return true;
     }
+
 }
