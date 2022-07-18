@@ -92,9 +92,12 @@ public class G6GoalGoalRushV2 implements Goal {
     @NotNull
     private G6Action rotateAndSubmit(Block requirement) {
         //rotate block to match task
-        Block attachedBlock = perceptionAndMemory.getDirectlyAttachedBlocks()
+        List<Block> attachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks()
                 .stream()
                 .filter(x-> x.getBlocktype().equals(requirement.getBlocktype()))
+                .toList();
+        if(attachedBlocks.isEmpty()) return new Skip();
+        Block attachedBlock = attachedBlocks.stream()
                 .findFirst()
                 .orElseThrow();
 
@@ -137,7 +140,7 @@ public class G6GoalGoalRushV2 implements Goal {
         if (perceptionAndMemory.getGoalZones().isEmpty()) return exploreMap();
         List<Point> unblockedGoalZones = perceptionAndMemory.getGoalZones().stream().filter(position -> {
             return perceptionAndMemory.getFriendlyAgents().stream().noneMatch(agent -> agent.equals(position))
-                    && perceptionAndMemory.getBlocks().stream().filter(block -> perceptionAndMemory.getDirectlyAttachedBlocks().stream().noneMatch(b -> b.equals(block))).noneMatch(block -> block.equals(position));
+                    && perceptionAndMemory.getBlocks().stream().filter(block -> perceptionAndMemory.getDirectlyAttachedBlocks().stream().noneMatch(b -> b.equals(block))).noneMatch(block -> block.getCoordinates().equals(position));
         }).toList();
         if (unblockedGoalZones.isEmpty()) return exploreMap();
         Point closestGoalZone;

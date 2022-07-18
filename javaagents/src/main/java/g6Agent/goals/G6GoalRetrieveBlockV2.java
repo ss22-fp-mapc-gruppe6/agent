@@ -102,6 +102,7 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     @Nullable
     private G6Action moveToNextBlockAndPickItUp() {
         //determine next block
+        if (perceptionAndMemory.getBlocks().isEmpty()) return null;
         Block closestBlock = perceptionAndMemory.getBlocks()
                 .stream()
                 .min(Comparator.comparingInt(a-> a.getCoordinates().manhattanDistanceTo(new Point(0,0))))
