@@ -180,7 +180,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         this.acceptMessagesThisStep = new ArrayList<>();
 
         checkForOtherAgents();
-        broadcastKnownAgents();
+        //broadcastKnownAgents();
     }
 
     private void broadcastKnownAgents() {
@@ -262,7 +262,8 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         List<Point> unknownAgents = new ArrayList<>();
         //determine known Agents in sight
         for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
-            boolean isIdentified = comparePositionsInInternalMap(agentPosition);
+            boolean isIdentified = comparePositionsInInternalMap(agentPosition); //TODO Check function!
+            //boolean isIdentified = false; //always ask!
             if (!isIdentified) {
                 unknownAgents.add(agentPosition);
             }

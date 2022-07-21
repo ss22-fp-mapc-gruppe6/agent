@@ -29,6 +29,20 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     @Override
     public G6Action getNextAction() {
         //anti block
+        G6Action actionToBreakFree = ifStuckBreakFree();
+        if (actionToBreakFree != null) return actionToBreakFree;
+
+        if (!perceptionAndMemory.getBlocks().isEmpty()) {
+            G6Action actionToPickUpBlock = moveToNextBlockAndPickItUp();
+            if (actionToPickUpBlock != null) return actionToPickUpBlock;
+        }
+        if (!perceptionAndMemory.getDispensers().isEmpty()) {
+            return moveToClosestDispenserAndRequestBlock();
+        }
+        return new Skip();
+    }
+
+    private G6Action ifStuckBreakFree() {
         LastActionMemory lastAction = perceptionAndMemory.getLastAction();
         if (lastAction.getName().equals("move") && !lastAction.getSuccessMessage().equals("success")){
             List<Point> adjacentObstacles = perceptionAndMemory.getObstacles().stream().filter(Point::isAdjacent).toList();
@@ -39,17 +53,8 @@ public class G6GoalRetrieveBlockV2 implements Goal{
             if (!possibleMoves.isEmpty()){
                 return possibleMoves.stream().findFirst().orElseThrow();
             }
-
         }
-
-        if (!perceptionAndMemory.getBlocks().isEmpty()) {
-            G6Action actionToPickUpBlock = moveToNextBlockAndPickItUp();
-            if (actionToPickUpBlock != null) return actionToPickUpBlock;
-        }
-        if (!perceptionAndMemory.getDispensers().isEmpty()) {
-            return moveToClosestDispenserAndRequestBlock();
-        }
-        return new Skip();
+        return null;
     }
 
     private G6Action moveToClosestDispenserAndRequestBlock() {
