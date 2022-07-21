@@ -164,7 +164,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             notifyListenersOfLastAction();
             attachedBlocksController.checkClearConditions();
             if (visionReporter != null) {
-                visionReporter.reportMyVision(dispensers, blocks, roleZones, goalZones, obstacles);
+                visionReporter.reportMyVision(new Vision(dispensers, blocks, roleZones, goalZones, obstacles));
                 visionReporter.updateMyVisionWithSightingsOfOtherAgents();
             }
         }

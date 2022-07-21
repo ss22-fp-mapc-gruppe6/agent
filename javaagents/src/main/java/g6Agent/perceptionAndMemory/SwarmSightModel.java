@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * Class to save and track the Positions of other agents
+ *
+ * @author Kai Müller
  */
 class SwarmSightModel {
 
@@ -89,16 +91,6 @@ class SwarmSightModel {
      */
     void movedMyself(Movement movement) {
         updateAllEntries(movement.asVector().invert());
-    }
-
-    /**
-     * Updates all entries according to the movement of the Agent owning the internal Representation.
-     *
-     * @param direction the direction the Agent was moving.
-     * @param speed     the number of fields the Agent was moving
-     */
-    public void movedMyself(Direction direction, int speed) {
-        updateAllEntries(direction.getNextCoordinate().invert().multiply(speed));
     }
 
 

@@ -7,6 +7,7 @@ import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
+import g6Agent.perceptionAndMemory.messages.KnownAgentsNotificationMessage;
 
 import java.util.ArrayList;
 import java.util.List;

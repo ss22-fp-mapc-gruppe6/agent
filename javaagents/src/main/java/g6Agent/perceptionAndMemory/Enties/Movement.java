@@ -1,13 +1,7 @@
 package g6Agent.perceptionAndMemory.Enties;
 
-import eis.iilang.Numeral;
-import eis.iilang.Parameter;
-import eis.iilang.Percept;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -16,6 +10,8 @@ import java.util.List;
  *
  * @param directions the directions
  * @param speed     the speed
+ *
+ * @author Kai Müller
  */
 public record Movement(List<Direction> directions, int speed) {
 
