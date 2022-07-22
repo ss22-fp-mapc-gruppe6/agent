@@ -10,6 +10,8 @@ import java.util.List;
 
 /**
  * Module that implements the perception and memory. It is recommended, to use handlePercepts() in the beginning of the step cycle of an Agent.
+ *
+ * @author Kai Müller
  */
 
 public interface PerceptionAndMemory {
@@ -20,6 +22,20 @@ public interface PerceptionAndMemory {
      * @param perceptInput the Percepts recieved this step.
      */
     void handlePercepts(List<Percept> perceptInput);
+
+    /**
+     * Check for other Agents and send IntroductionRequests to unknown ones. Must be used after HandlePercepts()
+     */
+    void initiateSync();
+    /**
+     * Count introduction Requests send in initiateSwarmSightSync()
+     */
+    void handleSyncRequests();
+
+    /**
+     * finishes the sync process after handleSyncReuests()
+     */
+    void finishSync();
 
     /**
      * Returns a List of relative Positions of Obstacles
@@ -58,6 +74,7 @@ public interface PerceptionAndMemory {
      * @return ist the Agent deactivated?
      */
     boolean isDeactivated();
+
 
     /**
      * Determines if the Agent received an new Action ID. And is not deactivated Resets to false with clearShortTermMemory()

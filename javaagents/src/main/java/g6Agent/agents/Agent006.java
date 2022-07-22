@@ -38,15 +38,44 @@ public class Agent006 extends Agent {
         this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
     }
 
+    /**
+     * UNUSED
+     * @param percept the percept to process
+     */
     @Override
     public void handlePercept(Percept percept) {
 
     }
 
+    /**
+     * handles the new Perception of the Agent for this step
+     */
+    @Override
+    public void handlePerceptionforStep() {
+        perceptionAndMemory.handlePercepts(getPercepts());
+    }
+
+    /**
+     * Initialises the Syncronization Process
+     */
+    @Override
+    public void initialiseSync() {
+        perceptionAndMemory.initiateSync();
+    }
+
+    /**
+     * Handles Syncronization-Requests from other Agents
+     */
+    @Override
+    public void handleSyncRequests() {
+        perceptionAndMemory.handleSyncRequests();
+    }
+
+
     @Override
     public Action step() {
         G6Action action = null;
-        perceptionAndMemory.handlePercepts(getPercepts());
+        perceptionAndMemory.finishSync();
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
@@ -58,4 +87,6 @@ public class Agent006 extends Agent {
     public void handleMessage(Percept message, String sender) {
         communicationModule.handleMessage(message, sender);
     }
+
+
 }

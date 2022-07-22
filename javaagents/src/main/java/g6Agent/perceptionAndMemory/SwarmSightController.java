@@ -46,6 +46,34 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         this.visions = new HashMap<>();
     }
 
+    /**
+     * If the last action was a move action, calculate your move distance and vector.
+     * Updates the internal Model with this movement and notifies other Agents of it.
+     *
+     * @param lastAction the LastActionResult the action performed last step.
+     */
+    @Override
+    public void reportLastAction(@NotNull LastActionMemory lastAction) {
+        //If moved at all
+        if (lastAction.getName().equals("move")) {
+            int speed = SpeedCalculator.determineSpeedOfLastAction(lastAction, perceptionAndMemory);
+            if (speed > 0) {
+                messageCounter = messageCounter++;
+                MovementNotificationMessage movementNotificationMessage
+                        = new MovementNotificationMessage(
+                        messageCounter,
+                        perceptionAndMemory.getCurrentStep(),
+                        lastAction.getParameters().get(0),
+                        speed,
+                        agentname);
+                List<Direction> directions = parameterlistToListOfDirections((ParameterList) lastAction.getParameters().get(0));
+                Movement movement = new Movement(directions, speed);
+                swarmSightModel.movedMyself(movement);
+                movementNotificationMessage.broadcast(mailservice);
+            }
+        }
+    }
+
     @Override
     public void processMovementNotification(Percept message, String sender) {
         if (!sender.equals(agentname)) {
@@ -54,8 +82,9 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
             attemptedMovements.remove(sender);
             Movement movement = new Movement(
                     parameterlistToListOfDirections((ParameterList) notificationMessage.movementParameter()), //directions
-                    notificationMessage.speed()        //speed
+                    notificationMessage.speed()                                                               //speed
             );
+            System.out.println("recieved message with parameters" + message.getParameters());
             swarmSightModel.notifiedOfMovement(sender, movement);
         }
     }
@@ -88,7 +117,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
 
     @NotNull
     private List<Direction> parameterlistToListOfDirections(@NotNull ParameterList directionIdentifiers) {
-        List<Direction> directions = new ArrayList<>();
+        List<Direction> directions = new ArrayList<>(directionIdentifiers.size());
         for (Parameter p : directionIdentifiers) {
             directions.add(Direction.fromIdentifier((Identifier) p));
         }
@@ -126,27 +155,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
     @Override
-    public void reportLastAction(@NotNull LastActionMemory lastAction) {
-        //If moved at all
-        if (lastAction.getName().equals("move")) {
-            int speed = SpeedCalculator.determineSpeedOfLastAction(lastAction, perceptionAndMemory);
-            if (speed > 0) {
-                MovementNotificationMessage movementNotificationMessage
-                        = new MovementNotificationMessage(
-                                messageCounter,
-                                perceptionAndMemory.getCurrentStep(),
-                                lastAction.getParameters().get(0),
-                                speed,
-                                agentname);
-                List<Direction> directions = parameterlistToListOfDirections((ParameterList) lastAction.getParameters().get(0));
-                Movement movement = new Movement(directions, speed);
-                swarmSightModel.movedMyself(movement);
-                movementNotificationMessage.broadcast(mailservice);
-            }
-        }
-    }
-
-    @Override
     public void processVisionNotification(@NotNull Percept message, String sender) {
         if (message.getName().equals("MY_VISION")) {
             if (!sender.equals(agentname)) {
@@ -172,15 +180,21 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
     }
 
     @Override
-    public void handleStep() {
+    public void initiateSync() {
+        checkForOtherAgents();
+        broadcastKnownAgents();
+    }
+    @Override
+    public void handleSyncRequests(){
         handleUnansweredRequests();
         this.requestsToAnswer = new ArrayList<>();
+    }
+
+    @Override
+    public void finishSync() {
         //check accepts, each accept, which is a one of -> add sighting
         compareRequestsSendWithAccepts();
         this.acceptMessagesThisStep = new ArrayList<>();
-
-        checkForOtherAgents();
-        //broadcastKnownAgents();
     }
 
     private void broadcastKnownAgents() {
@@ -262,7 +276,7 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         List<Point> unknownAgents = new ArrayList<>();
         //determine known Agents in sight
         for (Point agentPosition : perceptionAndMemory.getFriendlyAgents()) {
-            boolean isIdentified = comparePositionsInInternalMap(agentPosition); //TODO Check function!
+            boolean isIdentified = comparePositionsInInternalMap(agentPosition);
             //boolean isIdentified = false; //always ask!
             if (!isIdentified) {
                 unknownAgents.add(agentPosition);
@@ -288,7 +302,11 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         }
         return false;
     }
-
+    private boolean comparePositionWithMovementVectors(Point agentPosition, @NotNull AgentNameAndPosition agentInMemory) {
+        return agentPosition.equals(agentInMemory.position());
+    }
+    //changed, because it seems irrelevant with syncing
+/*
     private boolean comparePositionWithMovementVectors(Point agentPosition, @NotNull AgentNameAndPosition agentInMemory) {
         boolean isIdentified = false;
         StepAndMovement attemptedMove = attemptedMovements.get(agentInMemory.name());
@@ -315,4 +333,6 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
         }
         return isIdentified;
     }
+
+ */
 }

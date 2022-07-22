@@ -14,7 +14,7 @@ import java.util.Map;
 public class MailServiceStub  extends MailService {
     private final Map<String, CommunicationModule> register = new HashMap<>();
 
-    void registerCommunicationModule(String agentname, CommunicationModule comModule){
+    public void registerCommunicationModule(String agentname, CommunicationModule comModule){
         register.put(agentname, comModule);
     }
     @Override
@@ -30,6 +30,7 @@ public class MailServiceStub  extends MailService {
     public void broadcast(Percept message, String sender) {
         register.forEach((name, agent) -> {
                     if (!name.equals(sender)) {
+                        System.out.println(message);
                         sendMessage(message, name, sender);
                     }
                 }

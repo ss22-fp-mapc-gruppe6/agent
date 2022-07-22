@@ -31,6 +31,21 @@ public class BasicAgent extends Agent {
     }
 
     @Override
+    public void handlePerceptionforStep() {
+
+    }
+
+    @Override
+    public void handleSyncRequests() {
+
+    }
+
+    @Override
+    public void initialiseSync() {
+
+    }
+
+    @Override
     public Action step() {
         List<Percept> percepts = getPercepts();
         for (Percept percept : percepts) {

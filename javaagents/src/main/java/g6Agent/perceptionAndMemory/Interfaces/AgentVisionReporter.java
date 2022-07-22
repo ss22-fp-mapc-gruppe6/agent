@@ -1,7 +1,6 @@
 package g6Agent.perceptionAndMemory.Interfaces;
 
 import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
-import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Vision;
 import g6Agent.services.Point;
 
@@ -26,9 +25,16 @@ public interface AgentVisionReporter {
     void updateMyVisionWithSightingsOfOtherAgents();
 
     /**
-     * use once per step, does its routine for this step
+     * initiates syncronization
      */
-    void handleStep();
+    void initiateSync();
+
+    void handleSyncRequests();
+
+    /**
+     * completes syncronization process
+     */
+    void finishSync();
 
     /**
      *

@@ -45,12 +45,12 @@ public class MyTestAgent extends Agent {
 
     @Override
     public Action step() {
+        perceptionAndMemory.finishSync();
         G6Action action = null;
-        perceptionAndMemory.handlePercepts(getPercepts());
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
-            communicationModule.broadcastActionAttempt((Action) action);
+            //communicationModule.broadcastActionAttempt((Action) action);
            // say(currentGoal.getName());
            /*
             for (var agents : perceptionAndMemory.getKnownAgents()){
@@ -77,6 +77,21 @@ public class MyTestAgent extends Agent {
     @Override
     public void handleMessage(Percept message, String sender) {
         communicationModule.handleMessage(message, sender);
+    }
+
+    @Override
+    public void handlePerceptionforStep() {
+        perceptionAndMemory.handlePercepts(getPercepts());
+    }
+
+
+    @Override
+    public void initialiseSync() {
+        perceptionAndMemory.initiateSync();
+    }
+    @Override
+    public void handleSyncRequests() {
+        perceptionAndMemory.handleSyncRequests();
     }
 
 }

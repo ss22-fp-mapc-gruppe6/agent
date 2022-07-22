@@ -158,7 +158,12 @@ public class Scheduler implements AgentListener, EnvironmentListener {
             } catch (PerceiveException ignored) {
             }
         });
-
+        //refresh Perception for each Agent
+        newPerceptAgents.forEach(agent -> agent.handlePerceptionforStep());
+        //Initialize Synchronization Process
+        newPerceptAgents.forEach(agent -> agent.initialiseSync());
+        //Synchronization Process step 2
+        newPerceptAgents.forEach(agent -> agent.handleSyncRequests());
         // step all agents which have new percepts
         newPerceptAgents.forEach(agent -> {
             eis.iilang.Action action = agent.step();

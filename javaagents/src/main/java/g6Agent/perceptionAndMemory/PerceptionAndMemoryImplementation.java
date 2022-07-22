@@ -1,4 +1,9 @@
 package g6Agent.perceptionAndMemory;
+/**
+ * Class to handle the Perception of An Agent
+ *
+ * @author Kai Müller
+ */
 
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
@@ -94,6 +99,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         return isDeactivated;
     }
 
+    //---HAPPENS EACH STEP IN THIS ORDER-----------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
@@ -158,15 +165,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (visionReporter != null) {
-                visionReporter.handleStep();
-            }
             notifyListenersOfLastAction();
-            attachedBlocksController.checkClearConditions();
+
             if (visionReporter != null) {
-                visionReporter.reportMyVision(new Vision(dispensers, blocks, roleZones, goalZones, obstacles));
-                visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+                visionReporter.initiateSync();
             }
+
+            attachedBlocksController.checkClearConditions();
         }
     }
 
@@ -176,6 +181,29 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         }
     }
 
+    @Override
+    public void initiateSync() {
+        if (visionReporter != null) {
+            visionReporter.initiateSync();
+        }
+    }
+    @Override
+    public void handleSyncRequests(){
+        if (visionReporter != null) {
+            visionReporter.handleSyncRequests();
+            visionReporter.reportMyVision(new Vision(dispensers, blocks, roleZones, goalZones, obstacles));
+        }
+    }
+    @Override
+    public void finishSync() {
+        if (visionReporter != null) {
+            visionReporter.finishSync();
+
+            visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------------------------------
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
@@ -197,12 +225,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                     movement.add(((Numeral) p).getValue().intValue());
                 }
                 Role role = new Role(
-                        ((Identifier) percept.getParameters().get(0)).toProlog(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
-                        possibleActions,
-                        movement,
-                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),
-                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()
+                        ((Identifier) percept.getParameters().get(0)).toProlog(),               //name
+                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),       //visionRange
+                        possibleActions,                                                        //possibleActions
+                        movement,                                                               //movementSpeed
+                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),    //Clear Action Chance
+                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()        //Clear Action Maximum Distance
                 );
                 this.possibleRoles.put(role.getName(), role);
             }
