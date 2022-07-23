@@ -7,7 +7,9 @@ import g6Agent.actions.G6Action;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
+import g6Agent.decisionModule.DecisionModuleImplementation;
 import g6Agent.decisionModule.TheStupidestDecisionModule;
+import g6Agent.decisionModule.configurations.Tounament4Config;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
@@ -35,7 +37,7 @@ public class Agent006 extends Agent {
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
-        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
+        this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new Tounament4Config());
     }
 
     /**

@@ -1,7 +1,6 @@
 package g6Agent.agents;
 
 import eis.iilang.Action;
-import eis.iilang.Parameter;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
@@ -9,13 +8,8 @@ import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
 import g6Agent.decisionModule.DecisionModuleImplementation;
-import g6Agent.decisionModule.TheStupidestDecisionModule;
-import g6Agent.decisionModule.configurations.NewTestConfig;
-import g6Agent.decisionModule.configurations.TSDMConfig;
 import g6Agent.decisionModule.configurations.TSDMUpdatedConfig;
-import g6Agent.goals.G6GoalFulfillSingleTaskV1;
 import g6Agent.goals.Goal;
-import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 
