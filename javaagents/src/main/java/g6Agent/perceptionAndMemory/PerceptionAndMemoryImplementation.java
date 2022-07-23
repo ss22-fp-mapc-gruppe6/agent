@@ -1,9 +1,6 @@
 package g6Agent.perceptionAndMemory;
-/**
- * Class to handle the Perception of An Agent
- *
- * @author Kai Müller
- */
+
+
 
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
@@ -20,6 +17,11 @@ import java.util.stream.Collectors;
 
 import g6Agent.environment.GridObject;
 
+/**
+ * Class to handle the Perception of An Agent
+ *
+ * @author Kai Müller
+ */
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, PerceptionAndMemoryInput {
 
     private LastActionMemory lastAction;
@@ -234,6 +236,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                 );
                 this.possibleRoles.put(role.getName(), role);
             }
+
+            attachedBlocksController.checkClearConditions();
         }
     }
 

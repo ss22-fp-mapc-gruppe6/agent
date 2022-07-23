@@ -18,10 +18,10 @@ import java.util.*;
 /**
  * Controller for determining the relative Positions of other Agents and Communicating their Vision. <br>
  * Every step every Agent goes through :<br>
- * - reportLastAction()
- * - initiateSync()
- * - handleSyncRequest(), reportMyVision()
- * -
+ * - reportLastAction() <br>
+ * - initiateSync() <br>
+ * - handleSyncRequest(), reportMyVision()<br>
+ * - finishSync(), updateMyVisionWithSightingsOfOtherAgents()
  *
  *
  * @author Kai Müller
