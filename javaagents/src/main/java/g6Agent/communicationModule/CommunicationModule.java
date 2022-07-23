@@ -5,7 +5,7 @@ import eis.iilang.Percept;
 import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
-import g6Agent.perceptionAndMemory.Enties.Block;
+import g6Agent.perceptionAndMemory.AttachedBlocksModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
 import g6Agent.services.Point;
 
@@ -31,13 +31,17 @@ public interface CommunicationModule {
     void broadcastActionAttempt(Action action);
     /**
      * Broadcasts a "Connect_Action" message. The block of the agent have been modified.
+     *
+     * @return
      */
-    void broadcastActionConnect(String agentName, Point position);
+    AttachedBlocksModule broadcastActionConnect(String agentName, Point position);
 
     /**
      * Broadcasts a "Disconnect_Action" message. The block of the agent have been modified.
+     *
+     * @return
      */
-    void broadcastActionDisconnect(String agent1Name,  Point block1, Point block2);
+    AttachedBlocksModule broadcastActionDisconnect(String agent1Name, Point block1, Point block2);
     /**
      * Returns the Module responsible for organizing and auctioning the tasks between the agents
      * @return the Module

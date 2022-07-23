@@ -214,6 +214,6 @@ public class AttachedBlocksModule extends Agent implements LastActionListener {
 
     @Override
     public void handleMessage(Percept message, String sender) {
-
+        communicationModule.handleMessage(message, sender);
     }
 }

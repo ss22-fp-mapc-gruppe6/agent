@@ -6,7 +6,9 @@ import g6Agent.MailService;
 import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
+import g6Agent.perceptionAndMemory.AttachedBlocksModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
+import g6Agent.services.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     private final TaskAuctionModule taskAuctionModule;
     private final StrategyModule strategyModule;
     private final PingCommunicator pingCommunicator;
+    private final AttachedBlocksModule attachedBlocksModule;
 
     public CommunicationModuleImplementation(String agentname, MailService mailService) {
         this.agentname = agentname;
@@ -27,6 +30,7 @@ public class CommunicationModuleImplementation implements CommunicationModule{
         this.taskAuctionModule = new TaskAuctionModule(agentname, mailService);
         this.strategyModule = new StrategyModule(agentname, mailService);
         this.pingCommunicator = new PingCommunicator(agentname, mailService);
+        this.attachedBlocksModule = new AttachedBlocksModule(agentname, mailService);
     }
 
     @Override
@@ -80,6 +84,16 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                 agentMapCoordinator.broadcastActionAttempt(action);
             }
         }
+    }
+
+    @Override
+    public AttachedBlocksModule broadcastActionConnect(String agentName, Point position) {
+            return this.attachedBlocksModule;
+    }
+
+    @Override
+    public AttachedBlocksModule broadcastActionDisconnect(String agent1Name, Point block1, Point block2) {
+             return this.attachedBlocksModule;
     }
 
     @Override
