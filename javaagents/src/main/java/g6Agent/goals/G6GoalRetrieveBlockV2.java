@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static g6Agent.decisionModule.astar.AStar.astarNextStep;
@@ -108,11 +110,22 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     private G6Action moveToNextBlockAndPickItUp() {
         //determine next block
         if (perceptionAndMemory.getBlocks().isEmpty()) return null;
-        Block closestBlock = perceptionAndMemory.getBlocks()
+        List<Block> unattachedBlocks = perceptionAndMemory.getBlocks()
+                .stream()
+                .filter(block -> {
+                    return perceptionAndMemory.getAttachedBlocks()
+                            .stream()
+                            .noneMatch(x-> x.getCoordinates().equals(block.getCoordinates()));
+                }).collect(Collectors.toList());
+
+        if (unattachedBlocks.isEmpty()) return null;
+
+
+
+        Block closestBlock  = unattachedBlocks
                 .stream()
                 .min(Comparator.comparingInt(a-> a.getCoordinates().manhattanDistanceTo(new Point(0,0))))
-                .orElseThrow() ;
-
+                .orElseThrow();
         //If Adjacent Attach , if is not adjacent to other agent or is requested by self.
         if (closestBlock.getCoordinates().isAdjacent()) {
             if (checkIfNotCloseToOtherAgent(closestBlock)){
@@ -123,7 +136,6 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                 return new Attach(Direction.fromAdjacentPoint(closestBlock.getCoordinates()));
             }
         }
-
         List<Block> blocksNotCloseToOtherAgents = perceptionAndMemory.getBlocks().stream().filter(this::checkIfNotCloseToOtherAgent).toList();
 
         if (!blocksNotCloseToOtherAgents.isEmpty()){

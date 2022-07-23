@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import g6Agent.environment.GridObject;
 
@@ -58,6 +59,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     private final AttachedBlocksModule attachedBlocksController;
     private String violation;
+    private List<Point> friendlyAgents;
 
     private record AgentEntry(String team, Point coordinate) {
     }
@@ -439,18 +441,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         markers = new ArrayList<>();
         attached = new ArrayList<>();
         attachedBlocks = null;
+        friendlyAgents = null;
         violation = "";
     }
 
     @Override
     public List<Point> getFriendlyAgents() {
-        List<Point> points = new ArrayList<>();
-        for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
-                points.add(agent.coordinate());
+        if (this.friendlyAgents == null) {
+            List<Point> points = new ArrayList<>();
+            for (AgentEntry agent : perceivedAgents) {
+                if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
+                    points.add(agent.coordinate());
+                }
             }
+            this.friendlyAgents = Stream.concat(points.stream(), getKnownAgents().stream().map(x -> x.position())).toList();
         }
-        return points;
+        return friendlyAgents;
     }
 
     @Override

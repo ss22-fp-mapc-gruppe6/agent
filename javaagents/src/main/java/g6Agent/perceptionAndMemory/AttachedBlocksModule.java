@@ -47,7 +47,6 @@ public class AttachedBlocksModule implements LastActionListener {
                     } //TODO if Action is ever used
                 }
             }
-            //recheckAttachedBlocks(); //TODO TEST TEST TEST
         }
     }
 
@@ -147,5 +146,6 @@ public class AttachedBlocksModule implements LastActionListener {
         if (perceptionAndMemory.isDeactivated() || perceptionAndMemory.getEnergy() == 0) {
             this.attachedBlocks.clear();
         }
+        //recheckAttachedBlocks(); //TODO TEST TEST TEST
     }
 }
