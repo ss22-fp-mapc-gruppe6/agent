@@ -38,11 +38,6 @@ public class CommunicationModuleImplementation implements CommunicationModule{
                     agentMapCoordinator.processMovementNotification(message, sender);
                 }
             }
-            case "MOVEMENT_ATTEMPT" -> {
-                for (var agentMapCoordinator : swarmSightControllers) {
-                    agentMapCoordinator.processMovementAttempt(message, sender);
-                }
-            }
             case "INTRODUCTION_REQUEST" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processIntroductionRequest(message, sender);
@@ -73,16 +68,6 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     public void addSwarmSightController(CommunicationModuleSwarmSightControllerInterface swarmSightController) {
         swarmSightControllers.add(swarmSightController);
     }
-
-    @Override
-    public void broadcastActionAttempt(Action action) {
-        if (action != null && action.getName().equals("move")) {
-            for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
-                agentMapCoordinator.broadcastActionAttempt(action);
-            }
-        }
-    }
-
     @Override
     public TaskAuctionModule getTaskAuctionModule() {
         return this.taskAuctionModule;

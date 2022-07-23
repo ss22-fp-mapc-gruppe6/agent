@@ -7,10 +7,12 @@ import eis.iilang.Percept;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.communicationModule.MailServiceStub;
+import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class TestSwarmSight {
@@ -102,5 +104,17 @@ public class TestSwarmSight {
         }
         System.out.println(new Point(-1,-1).add((Direction.WEST.getNextCoordinate().invert()).multiply(2)));
         assert (pam2.getPositionOfKnownAgent("A1").equals(new Point(-1,-1).add(Direction.WEST.getNextCoordinate().multiply(2))));
-        }
+     }
+
+     @Test
+    public void hashSetTest(){
+         HashSet<Block> blocks = new HashSet<>();
+         blocks.add(new Block( new Point(1,1), "B1"));
+         blocks.add(new Block( new Point(1,1), "B1"));
+         assert (blocks.size() == 1);
+         HashSet<Point> points = new HashSet<>();
+         points.add(new Point(1,1));
+         points.add(new Point(1,1));
+         assert (points.size() == 1);
+    }
 }

@@ -39,7 +39,7 @@ public class Agent006 extends Agent {
     }
 
     /**
-     * UNUSED
+     * UNUSED ARTIFACT FROM BASIC AGENT
      * @param percept the percept to process
      */
     @Override
@@ -83,6 +83,11 @@ public class Agent006 extends Agent {
         return (eis.iilang.Action) action;
     }
 
+    /**
+     *
+     * @param message the message that was sent
+     * @param sender  name of the agent who sent the message
+     */
     @Override
     public void handleMessage(Percept message, String sender) {
         communicationModule.handleMessage(message, sender);

@@ -51,7 +51,6 @@ public class MyTestAgent2 extends Agent {
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
-            communicationModule.broadcastActionAttempt((Action) action);
 /*
             say(currentGoal.getName());
             if(currentGoal.getName().equals("G6GoalDefendGoalZone")){
