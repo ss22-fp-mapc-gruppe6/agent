@@ -1,9 +1,13 @@
 package g6Agent.perceptionAndMemory;
 
+import eis.iilang.Action;
 import eis.iilang.Identifier;
 import eis.iilang.ParameterList;
+import eis.iilang.Percept;
+import g6Agent.MailService;
 import g6Agent.agents.Agent;
 import g6Agent.communicationModule.CommunicationModule;
+import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.perceptionAndMemory.Enties.AgentNameAndPosition;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.LastActionMemory;
@@ -24,16 +28,24 @@ import java.util.stream.Stream;
 /**
  * Module to keep track of the Blocks attached to an Agent.
  */
-public class AttachedBlocksModule implements LastActionListener {
+public class AttachedBlocksModule extends Agent implements LastActionListener {
 
     private HashMap<String, Block> attachedBlocks;
     private final PerceptionAndMemory perceptionAndMemory;
-    private final CommunicationModule communicationModule;
+    private  CommunicationModule communicationModule = null;
 
-    public AttachedBlocksModule(PerceptionAndMemory perceptionAndMemory, CommunicationModule communicationModule) {
-        this.perceptionAndMemory = perceptionAndMemory;
+    public AttachedBlocksModule( String name, MailService mailbox ) {
+        super(name, mailbox);
         this.attachedBlocks = new HashMap<>(4);
-        this.communicationModule = communicationModule;
+        PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
+        this.perceptionAndMemory = linker.getPerceptionAndMemory();
+        this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
+    }
+
+    public AttachedBlocksModule( PerceptionAndMemory perceptionAndMemory) {
+        super();
+        this.perceptionAndMemory = perceptionAndMemory;
+
     }
 
     @Override
@@ -46,7 +58,6 @@ public class AttachedBlocksModule implements LastActionListener {
                 case "submit" -> submitBlocks(lastAction);
                 case "connect" -> connectBlock(lastAction);
                 case "disconnect" -> disconnectBlocks(lastAction);
-                default ->System.out.println("Error. Name of lastAction does not exist.");
             }
         }
     }
@@ -128,79 +139,81 @@ public class AttachedBlocksModule implements LastActionListener {
         }
     }
     private void connectBlock(LastActionMemory lastAction) {
+        String otherAgentName = ((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)).toProlog();
+        Integer blockPositionX;
+        Integer blockPositionY;
+        Point point = null;
 
-        String parameter = ((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)).toProlog();
-        String otherAgentName = null;
-        Point position = null;
-        Block block = null;
-        Block blockToConnect = null;
-        HashMap<String, Block> updatedBlockPositions = new HashMap<>(4);
+        try {
+            blockPositionX = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(1)).get(1)).toProlog());
+            blockPositionY = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(2)).get(2)).toProlog());
+            point = new Point(blockPositionX, blockPositionY);
+        } catch (NumberFormatException e) { }
 
-        // Agents name and coordinates of the block to connect is specified by action parameters
-        for (AgentNameAndPosition agent: perceptionAndMemory.getKnownAgents()) {
-            if (agent.getName().contains(parameter)) {
-                otherAgentName = agent.getName();
-                break;
+        if (point != null) {
+            for (Block block : perceptionAndMemory.getAttachedBlocks()) {
+                if (block.getCoordinates().equals(point)) {
+                    Block blockToConnect = new Block(point, block.getBlocktype());
+                    attachedBlocks.put(point.toString(), blockToConnect);
+                    break;
+                }
             }
-        }
-
-        for (Block block1: perceptionAndMemory.getDirectlyAttachedBlocks()) {
-                if (block1.toString().contains(parameter)) {
-                position = block1.getCoordinates();
-                break;
-            }
-        }
-
-        // Each agent is responsible for keeping track of which blocks they are carrying.
-        if(block != null && otherAgentName != null && position != null) {
-            // The other agent must adjust its connected block.
-            blockToConnect = new Block(
-                    position,
-                    block.getBlocktype()
-            );
-            attachedBlocks.replace(otherAgentName, blockToConnect);
         }
 
         // Notification of the other agent about that, the blocks being changed
-        this.communicationModule.broadcastActionConnect(otherAgentName, position, blockToConnect);
+        this.communicationModule.broadcastActionConnect(otherAgentName, point);
 
     }
 
     private void disconnectBlocks(LastActionMemory lastAction) {
         String parameter = ((Identifier) ((ParameterList) lastAction.getParameters().get(0)).get(0)).toProlog();
-        Block attachment1 = null;
-        Block attachment2 = null;
-        String agent1Name = null;
-        String agent2Name = null;
+        Point  attachment1 = null;
+        Point attachment2 = null;
+        boolean isAttachment1 = false;
 
-        // Two attachments (blocks) of the agent are specified by action parameters
-        for (Block block : perceptionAndMemory.getAttachedBlocks()) {
-            if (block.getCoordinates().toString().contains(parameter) && attachment1 == null) {
-                // Get key (agents name) from value in HashMap
-                agent1Name = String.valueOf(attachedBlocks.entrySet().stream().filter(entry -> entry.getValue().equals(block)).map(Map.Entry::getKey)
-                        .findFirst());
-                if(agent1Name != null) {
-                    attachment1 = block;
-                    // The agent must adjust its disconnected block.
-                    attachedBlocks.remove(agent1Name, attachment1);
+        try {
+            Integer blockPositionXAttachment1 = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(1)).get(1)).toProlog());
+            Integer blockPositionYAttachment1 = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(2)).get(2)).toProlog());
+            Integer blockPositionXAttachment2 = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(3)).get(3)).toProlog());
+            Integer blockPositionYAttachment2 = Integer.parseInt(((Identifier) ((ParameterList) lastAction.getParameters().get(4)).get(4)).toProlog());
+            attachment1 = new Point(blockPositionXAttachment1, blockPositionYAttachment1);
+            attachment2 = new Point(blockPositionXAttachment2, blockPositionYAttachment2);
+        }
+        catch(NumberFormatException e) { }
+
+        if (attachment1 != null && attachment2 != null) {
+            for (Block block : perceptionAndMemory.getAttachedBlocks()) {
+                if (block.getCoordinates().equals(attachment1)) {
+                    if(!isAttachment1){
+                        Block blockToDisconnect = new Block(attachment1, block.getBlocktype());
+                        attachedBlocks.remove(attachment1.toString(), blockToDisconnect);
+                        isAttachment1 = true;
+                    }
+                    else if(isAttachment1){
+                        Block blockToDisconnect = new Block(attachment2, block.getBlocktype());
+                        attachedBlocks.remove(attachment2.toString(), blockToDisconnect);
+                        break;
+                    }
                 }
-            }
-            // This same activity with second attachment.
-            else if (block.getCoordinates().toString().contains(parameter)) {
-                agent2Name = String.valueOf(attachedBlocks.entrySet().stream().filter(entry -> entry.getValue().equals(block)).map(Map.Entry::getKey)
-                        .findFirst());
-                if(agent2Name != null) {
-                    attachment2 = block;
-                    attachedBlocks.remove(agent2Name, attachment2);
-                }
-                break;
             }
         }
         // Notification of the other agent about that, the blocks being changed
-        this.communicationModule.broadcastActionDisconnect(agent1Name, agent2Name, attachment1, attachment2);
-
+        this.communicationModule.broadcastActionDisconnect(this.getName(),  attachment1, attachment2);
     }
 
 
+    @Override
+    public void handlePercept(Percept percept) {
 
+    }
+
+    @Override
+    public Action step() {
+        return null;
+    }
+
+    @Override
+    public void handleMessage(Percept message, String sender) {
+
+    }
 }

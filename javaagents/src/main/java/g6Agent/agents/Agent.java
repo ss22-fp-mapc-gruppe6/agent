@@ -11,8 +11,8 @@ import java.util.*;
  */
 public abstract class Agent {
 
-    private final String name;
-    private final MailService mailbox;
+    private String name;
+    private  MailService mailbox;
     private final Set<Percept> percepts = Collections.synchronizedSet(new HashSet<>());
 
     /**
@@ -21,9 +21,13 @@ public abstract class Agent {
      * @param name    the agent's name
      * @param mailbox the mail facility
      */
-    Agent(String name, MailService mailbox) {
+    protected Agent(String name, MailService mailbox) {
         this.name = name;
         this.mailbox = mailbox;
+    }
+
+    public Agent() {
+
     }
 
     /**

@@ -9,6 +9,7 @@ import eis.exceptions.RelationException;
 import eis.iilang.EnvironmentState;
 import eis.iilang.Percept;
 import g6Agent.agents.*;
+import g6Agent.perceptionAndMemory.AttachedBlocksModule;
 import massim.eismassim.EnvironmentInterface;
 import org.json.JSONObject;
 
@@ -109,6 +110,8 @@ public class Scheduler implements AgentListener, EnvironmentListener {
                 case "DummyRotatingAStarAgent":
                     agent = new DummyRotatingAStarAgent(agentConf.name, mailService);
                     break;
+                case "AttachedBlocksModule":
+                        agent = new AttachedBlocksModule(agentConf.name, mailService);
                 // [add further types here]
                 default:
                     System.out.println("Unknown agent type/class " + agentConf.className);

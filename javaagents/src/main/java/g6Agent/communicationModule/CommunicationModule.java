@@ -32,12 +32,12 @@ public interface CommunicationModule {
     /**
      * Broadcasts a "Connect_Action" message. The block of the agent have been modified.
      */
-    void broadcastActionConnect(String agentName, Point position, Block block);
+    void broadcastActionConnect(String agentName, Point position);
 
     /**
      * Broadcasts a "Disconnect_Action" message. The block of the agent have been modified.
      */
-    void broadcastActionDisconnect(String agent1Name, String agent2Name, Block block1, Block block2);
+    void broadcastActionDisconnect(String agent1Name,  Point block1, Point block2);
     /**
      * Returns the Module responsible for organizing and auctioning the tasks between the agents
      * @return the Module
