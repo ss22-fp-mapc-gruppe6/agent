@@ -26,13 +26,12 @@ public class AStar {
     final List<Point> attachments;
     final Set<Point> pointsInMyWay;
     final Set<ComparableTuple<PointAction, Direction>> visited = new TreeSet<>();
-    volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
-    PointAction startPointAction;
-    Wrapper startWrapper;
     private final int clearCost = 1;
     private final int firstStepCost = 2;
     private final int rotationCost = 1;
-
+    volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
+    PointAction startPointAction;
+    Wrapper startWrapper;
 
     public static Optional<G6Action> astarNextStepWithAgents(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPathWithAgents(target, perceptionAndMemory).stream().findFirst();
@@ -52,74 +51,37 @@ public class AStar {
         return shortestPath;
     }
 
+    List<G6Action> findShortestPath() {
+        startPointAction = new PointAction(start, new Move(), start);
+        startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
+        queue.add(startWrapper);
 
-    static Map<Point, G6Action> getNextActions(List<Point> obstacles, Point origin) {
-        Map<Point, G6Action> result = new HashMap<>(4);
-        for (Direction d : Direction.values()) {
-            Point relative = d.getNextCoordinate();
-            Point absolute = origin.add(relative);
-            if (obstacles.contains(absolute))
-                result.put(absolute, new Clear(relative));
-            else
-                result.put(absolute, new Move(d));
-        }
-        return result;
-    }
-
-    static String visualize(List<Point> path, List<Point> obstacles, Point start) {
-        path = new ArrayList<>(path);
-        if (start != null) {
-            path.add(0, start);
-        }
-        Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
-        Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
-        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
-        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
-        if (path.isEmpty()) throw new IllegalArgumentException("list is empty");
-        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
-            throw new IllegalArgumentException("x or y dimension is empty?");
-        int maxX = maxXPoint.get().x;
-        int maxY = maxYPoint.get().y;
-        int minX = minXPoint.get().x;
-        int minY = minYPoint.get().y;
-
-        Point target = path.get(path.size() - 1);
-
-
-        String fielGap = " ";
-        StringBuffer s = new StringBuffer();
-        // x axis legend
-        s.append(" ").append(" ").append(" ");
-        for (int x = minX; x <= maxX; x++) {
-            s.append(String.format("%5s", x));
-        }
-        s.append("\n");
-
-        for (int y = minY; y <= maxY; y++) {
-            //y axis legend
-            s.append(String.format("%3s", y));
-
-            for (int x = minX; x <= maxX; x++) {
-                String field = " ";
-                if (start != null && start.getX() == x && start.getY() == y) field = "s";
-                else if (target.getX() == x && target.getY() == y) field = "t";
-                else {
-                    final var p = new Point(x, y);
-                    if (path.contains(p)) field = String.valueOf(path.indexOf(p));
-                    else if (obstacles.contains(p)) {
-                        field = "b";
-                    }
-                }
-                String fieldFormat = String.format("%5s", field);
-                s.append(fieldFormat);
+        while (!queue.isEmpty()) {
+            final var current = queue.poll();
+            if (current.pointAction.location().equals(target)) {
+                //log.info("############target reached################");
+                List<G6Action> g6Actions = traceResult(this.start, pointsInMyWay, stepSize, current.predecessor == null ? current : current.predecessor);
+                return g6Actions;
             }
-            s.append("\n");
+            List<Wrapper> nextSteps = getNextSteps(current);
+            queue.addAll(nextSteps);
         }
 
-        return s.toString();
+        new RuntimeException("No path to " + target + " found.").printStackTrace();
+        return List.of();
     }
 
-    static List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
+    private List<G6Action> traceResult(Point start, Set<Point> pointsInMyWay, int stepSize, Wrapper current) {
+        final List<PointAction> path = current.tracePath();
+        final List<Point> points = path.stream().map(PointAction::location).toList();
+//        final var visualize = visualize(points, new ArrayList<>(pointsInMyWay), start);
+        //log.info(visualize);
+        final List<G6Action> g6Actions = actionsFromPointActions(path, stepSize);
+        //log.info("g6Actions = " + g6Actions);
+        return g6Actions;
+    }
+
+    List<G6Action> actionsFromPointActions(List<PointAction> path, int stepSize) {
         final List<G6Action> actions = new ArrayList<>();
         final LinkedList<PointAction> queue = new LinkedList<>();
         int step = 0;
@@ -158,33 +120,13 @@ public class AStar {
         return actions;
     }
 
-    static Move bundle(LinkedList<PointAction> pointActions) {
+    Move bundle(LinkedList<PointAction> pointActions) {
         return new Move(pointActions.stream().sequential()
                 .map(PointAction::action)
                 .map(g6Action -> ((Move) g6Action))
                 .flatMap(move -> move.directions.stream().sequential())
                 .toArray(Direction[]::new)
         );
-    }
-
-    List<G6Action> findShortestPath() {
-        startPointAction = new PointAction(start, new Move(), start);
-        startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
-        queue.add(startWrapper);
-
-        while (!queue.isEmpty()) {
-            final var current = queue.poll();
-            if (current.pointAction.location().equals(target)) {
-                //log.info("############target reached################");
-                List<G6Action> g6Actions = traceResult(this.start, pointsInMyWay, stepSize, current.predecessor == null ? current : current.predecessor);
-                return g6Actions;
-            }
-            List<Wrapper> nextSteps = getNextSteps(current);
-            queue.addAll(nextSteps);
-        }
-
-        new RuntimeException("No path to " + target + " found.").printStackTrace();
-        return List.of();
     }
 
     List<Wrapper> getNextSteps(Wrapper current) {
@@ -273,34 +215,9 @@ public class AStar {
         return nextSteps;
     }
 
-    private List<Wrapper> shouldHaveClearedEarlier(Wrapper current, Rotate.AttachmentCollidingWithObstacleException e) {
-        Point collision = e.getCollision().add(current.pointAction.location().invert());
-        HashSet<Point> destroyed = new HashSet<>(current.destroyedObstacles);
-        destroyed.add(collision);
-
-        Wrapper destroyedWrapper = current
-                .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision))
-                .withPredecessor(current)
-                .withCostSum(current.costSum + clearCost)
-                .withTotalCostFromStart(current.totalCostFromStart + clearCost)
-                .withDestroyedObstacles(destroyed)
-                .withStep(0);
-        return List.of(destroyedWrapper);
-    }
-
     @NotNull
     private List<Point> obstaclesWithoutDestroyedAt(Wrapper current) {
         return pointsInMyWay.stream().filter(Predicate.not(current.destroyedObstacles::contains)).toList();
-    }
-
-    private List<G6Action> traceResult(Point start, Set<Point> pointsInMyWay, int stepSize, Wrapper current) {
-        final List<PointAction> path = current.tracePath();
-        final List<Point> points = path.stream().map(PointAction::location).toList();
-        final var visualize = visualize(points, new ArrayList<>(pointsInMyWay), start);
-        //log.info(visualize);
-        final List<G6Action> g6Actions = actionsFromPointActions(path, stepSize);
-        //log.info("g6Actions = " + g6Actions);
-        return g6Actions;
     }
 
     private List<Wrapper> shouldHaveRotatedEarlier(Wrapper current) {
@@ -319,5 +236,86 @@ public class AStar {
                 .withCostSum(current.costSum + rotationCost);
         return List.of(rotation1, rotation2);
 
+    }
+
+    private List<Wrapper> shouldHaveClearedEarlier(Wrapper current, Rotate.AttachmentCollidingWithObstacleException e) {
+        Point collision = e.getCollision().add(current.pointAction.location().invert());
+        HashSet<Point> destroyed = new HashSet<>(current.destroyedObstacles);
+        destroyed.add(collision);
+
+        Wrapper destroyedWrapper = current
+                .withPointAction(new PointAction(current.getPointAction().location(), new Clear(collision), collision))
+                .withPredecessor(current)
+                .withCostSum(current.costSum + clearCost)
+                .withTotalCostFromStart(current.totalCostFromStart + clearCost)
+                .withDestroyedObstacles(destroyed)
+                .withStep(0);
+        return List.of(destroyedWrapper);
+    }
+
+    Map<Point, G6Action> getNextActions(List<Point> obstacles, Point origin) {
+        Map<Point, G6Action> result = new HashMap<>(4);
+        for (Direction d : Direction.values()) {
+            Point relative = d.getNextCoordinate();
+            Point absolute = origin.add(relative);
+            if (obstacles.contains(absolute))
+                result.put(absolute, new Clear(relative));
+            else
+                result.put(absolute, new Move(d));
+        }
+        return result;
+    }
+
+    String visualize(List<Point> path, List<Point> obstacles, Point start) {
+        path = new ArrayList<>(path);
+        if (start != null) {
+            path.add(0, start);
+        }
+        Optional<Point> maxXPoint = path.stream().max(Comparator.comparing(Point::getX));
+        Optional<Point> maxYPoint = path.stream().max(Comparator.comparing(Point::getY));
+        Optional<Point> minXPoint = path.stream().min(Comparator.comparing(Point::getX));
+        Optional<Point> minYPoint = path.stream().min(Comparator.comparing(Point::getY));
+        if (path.isEmpty()) throw new IllegalArgumentException("list is empty");
+        if (maxXPoint.isEmpty() || maxYPoint.isEmpty() || minXPoint.isEmpty() || minYPoint.isEmpty())
+            throw new IllegalArgumentException("x or y dimension is empty?");
+        int maxX = maxXPoint.get().x;
+        int maxY = maxYPoint.get().y;
+        int minX = minXPoint.get().x;
+        int minY = minYPoint.get().y;
+
+        Point target = path.get(path.size() - 1);
+
+
+        String fielGap = " ";
+        StringBuffer s = new StringBuffer();
+        // x axis legend
+        s.append(" ").append(" ").append(" ");
+        for (int x = minX; x <= maxX; x++) {
+            s.append(String.format("%5s", x));
+        }
+        s.append("\n");
+
+        for (int y = minY; y <= maxY; y++) {
+            //y axis legend
+            s.append(String.format("%3s", y));
+
+            for (int x = minX; x <= maxX; x++) {
+                String field = " ";
+                if (start != null && start.getX() == x && start.getY() == y) field = "s";
+                else if (target.getX() == x && target.getY() == y) field = "t";
+                else {
+                    final var p = new Point(x, y);
+                    if (path.contains(p)) field = String.valueOf(path.indexOf(p));
+                    else if (obstacles.contains(p)) {
+                        field = "b";
+                    }
+                }
+                String fieldFormat = String.format("%5s", field);
+                s.append(fieldFormat);
+            }
+            s.append("\n");
+        }
+
+        return s.toString();
     }
 }
