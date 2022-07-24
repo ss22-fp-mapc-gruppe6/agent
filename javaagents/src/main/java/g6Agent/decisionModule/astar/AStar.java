@@ -200,7 +200,7 @@ public class AStar {
         }
 
         new RuntimeException("No path to " + target + " found.").printStackTrace();
-        return null;
+        return List.of();
     }
 
     List<Wrapper> getNextSteps(Wrapper current) {
