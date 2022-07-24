@@ -30,8 +30,6 @@ public class AStar {
     private final int firstStepCost = 2;
     private final int rotationCost = 1;
     volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
-    PointAction startPointAction;
-    Wrapper startWrapper;
 
     public static Optional<G6Action> astarNextStepWithAgents(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPathWithAgents(target, perceptionAndMemory).stream().findFirst();
@@ -52,8 +50,8 @@ public class AStar {
     }
 
     List<G6Action> findShortestPath() {
-        startPointAction = new PointAction(start, new Move(), start);
-        startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
+        PointAction startPointAction = new PointAction(start, new Move(), start);
+        Wrapper startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
         queue.add(startWrapper);
 
         while (!queue.isEmpty()) {
