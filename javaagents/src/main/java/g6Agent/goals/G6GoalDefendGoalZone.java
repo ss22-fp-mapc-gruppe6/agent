@@ -98,7 +98,7 @@ public class G6GoalDefendGoalZone implements Goal {
 
     @NotNull
     private G6Action moveTo(Point closestPointNextToTarget) {
-        G6Action moveToTarget = AStar.astarNextStep(closestPointNextToTarget, perceptionAndMemory)
+        G6Action moveToTarget = AStar.astarNextStepWithAgents(closestPointNextToTarget, perceptionAndMemory)
                 .orElse(ManhattanDistanceMove.nextAction(closestPointNextToTarget, perceptionAndMemory));
         if (moveToTarget.predictSuccess(perceptionAndMemory)) return moveToTarget;
         moveToTarget = AStar.astarNextStepWithAgents(closestPointNextToTarget, perceptionAndMemory)

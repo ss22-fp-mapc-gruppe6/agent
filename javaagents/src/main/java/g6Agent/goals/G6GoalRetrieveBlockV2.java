@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static g6Agent.decisionModule.astar.AStar.astarNextStep;
 import static g6Agent.decisionModule.astar.AStar.astarNextStepWithAgents;
 
 public class G6GoalRetrieveBlockV2 implements Goal{
@@ -72,12 +71,12 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                     .stream(Direction.allDirections())
                     .map(direction -> direction.getNextCoordinate().add(closestDispenser.getCoordinates()))
                     .min(Comparator.comparingInt(o -> o.manhattanDistanceTo(new Point(0, 0)))).orElseThrow();
-            G6Action a = AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
+            G6Action a = astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory).orElse(new Skip());
             if (a instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
                 return AStar.astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory)
                         .orElse(ManhattanDistanceMove.nextAction(closestPointAdjacentToDispenser, perceptionAndMemory));
             }
-            return AStar.astarNextStep(closestPointAdjacentToDispenser, perceptionAndMemory)
+            return astarNextStepWithAgents(closestPointAdjacentToDispenser, perceptionAndMemory)
                     .orElse(ManhattanDistanceMove.nextAction(closestPointAdjacentToDispenser, perceptionAndMemory));
         }
     }
@@ -128,7 +127,7 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                     .orElseThrow() ;
 
             //move to next block
-            G6Action moveToNextBlock = astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory)
+            G6Action moveToNextBlock = astarNextStepWithAgents(closestBlock.getCoordinates(), perceptionAndMemory)
                     .orElse(ManhattanDistanceMove.nextAction(closestBlock.getCoordinates(), perceptionAndMemory));
             if (moveToNextBlock.predictSuccess(perceptionAndMemory)) return moveToNextBlock;
             return astarNextStepWithAgents(closestBlock.getCoordinates(), perceptionAndMemory)

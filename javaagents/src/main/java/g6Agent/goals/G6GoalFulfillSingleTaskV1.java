@@ -101,7 +101,7 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
 
     private G6Action moveToClosestGoalZone() {
         Point closestGoalZone = perceptionAndMemory.getGoalZones().stream().min(Comparator.comparingInt(a-> a.manhattanDistanceTo(new Point(0,0)))).orElseThrow() ;
-        actionQueque = AStar.astarShortestPath(closestGoalZone, perceptionAndMemory);
+        actionQueque = AStar.astarShortestPathWithAgents(closestGoalZone, perceptionAndMemory);
         return actionQueque.remove(0);
     }
 
@@ -123,7 +123,7 @@ public class G6GoalFulfillSingleTaskV1 extends GoalWithTask implements Goal{
             }
             return new Request(Direction.fromAdjacentPoint(closestDispenser.getCoordinates()));
         } else {
-            actionQueque = AStar.astarShortestPath(closestDispenser.getCoordinates(), perceptionAndMemory);
+            actionQueque = AStar.astarShortestPathWithAgents(closestDispenser.getCoordinates(), perceptionAndMemory);
             return actionQueque.remove(0);
         }
     }

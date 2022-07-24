@@ -1,6 +1,7 @@
 package g6Agent.goals.old;
 
 import g6Agent.actions.*;
+import g6Agent.decisionModule.astar.AStar;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
@@ -8,8 +9,6 @@ import g6Agent.services.Direction;
 import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import org.jetbrains.annotations.Nullable;
-
-import static g6Agent.decisionModule.astar.AStar.astarNextStep;
 
 public class G6GoalRetrieveBlock implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
@@ -46,7 +45,7 @@ public class G6GoalRetrieveBlock implements Goal {
                     }
                 } else {
                     //move to next block
-                    return astarNextStep(closestBlock.getCoordinates(), perceptionAndMemory).orElse(new Skip());
+                    return AStar.astarNextStepWithAgents(closestBlock.getCoordinates(), perceptionAndMemory).orElse(new Skip());
                 }
             }
         }

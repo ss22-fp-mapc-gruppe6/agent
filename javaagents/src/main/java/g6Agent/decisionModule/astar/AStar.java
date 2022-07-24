@@ -13,8 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static g6Agent.services.Rotation.CLOCKWISE;
 import static g6Agent.services.Rotation.COUNTERCLOCKWISE;
@@ -40,34 +38,20 @@ public class AStar {
         return astarShortestPathWithAgents(target, perceptionAndMemory).stream().findFirst();
     }
 
-    public static Optional<G6Action> astarNextStep(Point target, PerceptionAndMemory perceptionAndMemory) {
-        return astarShortestPath(target, perceptionAndMemory).stream().findFirst();
-    }
     public static List<G6Action> astarShortestPathWithAgents(Point target, PerceptionAndMemory perceptionAndMemory) {
         final List<Point> directlyAttachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks().stream().map(Block::getCoordinates).toList();
         final List<Integer> movementSpeed = perceptionAndMemory.getCurrentRole().getMovementSpeed();
         final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
-        final List<Point> blockingBlocks = perceptionAndMemory.getBlocks().stream().map(Block::getCoordinates).filter(Predicate.not(directlyAttachedBlocks::contains)).toList();
-        final List<Point> otherAgents = Stream.concat(perceptionAndMemory.getFriendlyAgents().stream(), perceptionAndMemory.getEnemyAgents().stream()).toList();
-        final List<Point> obstaclesAndAgents = Stream.concat(perceptionAndMemory.getObstacles().stream(), otherAgents.stream()).toList();
-        TreeSet<Point> pointsInMyWay = Stream.concat(obstaclesAndAgents.stream(), blockingBlocks.stream()).collect(Collectors.toCollection(TreeSet::new));
+        final Set<Point> pointsInMyWay = new TreeSet<>();
+        pointsInMyWay.addAll(perceptionAndMemory.getBlocks().stream().map(Block::getCoordinates).filter(Predicate.not(directlyAttachedBlocks::contains)).toList());
+        pointsInMyWay.addAll(perceptionAndMemory.getFriendlyAgents());
+        pointsInMyWay.addAll(perceptionAndMemory.getEnemyAgents());
+        pointsInMyWay.addAll(perceptionAndMemory.getObstacles());
         AStar aStar = new AStar(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay);
         List<G6Action> shortestPath = aStar.findShortestPath();
         return shortestPath;
     }
 
-
-    public static List<G6Action> astarShortestPath(Point target, PerceptionAndMemory perceptionAndMemory) {
-        final List<Point> directlyAttachedBlocks = perceptionAndMemory.getDirectlyAttachedBlocks().stream().map(Block::getCoordinates).toList();
-        final List<Integer> movementSpeed = perceptionAndMemory.getCurrentRole().getMovementSpeed();
-        final Integer stepSize = movementSpeed.get(directlyAttachedBlocks.size());
-        final List<Point> blockingBlocks = perceptionAndMemory.getBlocks().stream().map(Block::getCoordinates).filter(Predicate.not(directlyAttachedBlocks::contains)).toList();
-
-        TreeSet<Point> pointsInMyWay = Stream.concat(perceptionAndMemory.getObstacles().stream(), blockingBlocks.stream()).collect(Collectors.toCollection(TreeSet::new));
-        AStar aStar = new AStar(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay);
-        List<G6Action> shortestPath = aStar.findShortestPath();
-        return shortestPath;
-    }
 
     static Map<Point, G6Action> getNextActions(List<Point> obstacles, Point origin) {
         Map<Point, G6Action> result = new HashMap<>(4);

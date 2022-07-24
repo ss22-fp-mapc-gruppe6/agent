@@ -52,8 +52,7 @@ public class G6GoalExploreV2 implements Goal{
         if (fibbbonacciwalkCounter == fibonnaciWalkCurrent) {
             skipToNextDirection();
         }
-        G6Action action = AStar
-                .astarNextStep(fibonacciWalkDirection.getNextCoordinate().multiply(fibbbonacciwalkCounter - fibonnaciWalkCurrent), perceptionAndMemory)
+        G6Action action = AStar.astarNextStepWithAgents(fibonacciWalkDirection.getNextCoordinate().multiply(fibbbonacciwalkCounter - fibonnaciWalkCurrent), perceptionAndMemory)
                 .orElse(moveTo(fibonacciWalkDirection));
         if (action instanceof Move) {
             fibbbonacciwalkCounter++;

@@ -4,6 +4,7 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.*;
+import g6Agent.decisionModule.astar.AStar;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
@@ -12,8 +13,6 @@ import g6Agent.services.Point;
 
 import java.util.List;
 
-import static g6Agent.decisionModule.astar.AStar.astarNextStep;
-import static g6Agent.decisionModule.astar.AStar.astarShortestPath;
 import static g6Agent.services.Point.byDistanceToOrigin;
 
 
@@ -42,7 +41,7 @@ public class DummyRotatingAStarAgent extends Agent {
         final Point point = roleZones.stream()
                 .min(byDistanceToOrigin())
                 .orElseThrow(() -> new IllegalStateException("no role zone in sight?"));
-        final List<G6Action> g6Actions =astarShortestPath(point, perceptionAndMemory);
+        final List<G6Action> g6Actions = AStar.astarShortestPathWithAgents(point, perceptionAndMemory);
         if (!g6Actions.isEmpty()) return (Action) g6Actions.get(0);
         return null;
     }
@@ -55,7 +54,7 @@ public class DummyRotatingAStarAgent extends Agent {
                 .min(byDistanceToOrigin())
                 .orElseThrow(() -> new IllegalStateException("should have seen the block"));
 
-        var actions =astarShortestPath(b0.add(0, 1), perceptionAndMemory);
+        var actions = AStar.astarShortestPathWithAgents(b0.add(0, 1), perceptionAndMemory);
         if (!actions.isEmpty()) return ((Action) actions.get(0));
         else {
             Direction direction = Direction.fromAdjacentPoint(b0);
@@ -82,7 +81,7 @@ public class DummyRotatingAStarAgent extends Agent {
                     .map(Block::getCoordinates)
                     .min(byDistanceToOrigin());
             var target = d0.orElseThrow(() -> new IllegalStateException("should have seen the block"));
-            final var g6Action =astarNextStep(target, perceptionAndMemory).orElse(new Skip());
+            final var g6Action = AStar.astarNextStepWithAgents(target, perceptionAndMemory).orElse(new Skip());
             return (Action) g6Action;
         }
     }
