@@ -171,10 +171,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             }
             notifyListenersOfLastAction();
 
-            if (visionReporter != null) {
-                visionReporter.initiateSync();
-            }
-
             attachedBlocksController.checkClearConditions();
         }
     }
