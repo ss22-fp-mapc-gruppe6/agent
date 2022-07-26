@@ -113,7 +113,7 @@ public class G6GoalDefendGoalZone implements Goal {
 
     @NotNull
     private G6Action moveTo(Point point) {
-        G6Action moveToTarget = AStar.astarNextStep(point, perceptionAndMemory)
+        G6Action moveToTarget = AStar.astarNextStepWithAgents(point, perceptionAndMemory)
                 .orElse(ManhattanDistanceMove.nextAction(point, perceptionAndMemory));
         if (moveToTarget.predictSuccess(perceptionAndMemory)) return moveToTarget;
         if (perceptionAndMemory.getFriendlyAgents().stream().anyMatch(x-> x.equals(point))){

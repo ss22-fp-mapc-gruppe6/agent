@@ -3,11 +3,8 @@ package g6Agent.goals;
 import g6Agent.actions.*;
 import g6Agent.decisionModule.astar.AStar;
 import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
-import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-import g6Agent.services.Direction;
 import g6Agent.services.Point;
-import g6Agent.services.Rotation;
 
 public class G6GoalChangeRole implements Goal {
     String roleName;
@@ -45,8 +42,7 @@ public class G6GoalChangeRole implements Goal {
         }
         roleZoneMovedToLast = closestRoleZone;
 
-        G6Action moveToRoleZone = AStar
-                .astarNextStep(closestRoleZone, perceptionAndMemory)
+        G6Action moveToRoleZone = AStar.astarNextStepWithAgents(closestRoleZone, perceptionAndMemory)
                 .orElse(ManhattanDistanceMove.nextAction(closestRoleZone, perceptionAndMemory));
         if(moveToRoleZone.predictSuccess(perceptionAndMemory)) return moveToRoleZone;
         return AStar.astarNextStepWithAgents(closestRoleZone, perceptionAndMemory)

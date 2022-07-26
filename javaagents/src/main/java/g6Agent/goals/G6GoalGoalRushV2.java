@@ -13,11 +13,7 @@ import g6Agent.services.Point;
 import g6Agent.services.Rotation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.*;
 
 public class G6GoalGoalRushV2 implements Goal {
     private Task task;
@@ -154,7 +150,7 @@ public class G6GoalGoalRushV2 implements Goal {
                     .orElseThrow();
             this.targetGoalZone = closestGoalZone;
         }
-        G6Action action = AStar.astarNextStep(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
+        G6Action action = AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         if (action instanceof Move move && !move.predictSuccess(perceptionAndMemory)){
             return AStar.astarNextStepWithAgents(closestGoalZone, perceptionAndMemory).orElse(ManhattanDistanceMove.nextAction(closestGoalZone, perceptionAndMemory));
         }
