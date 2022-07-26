@@ -31,6 +31,7 @@ public class AStar {
     private final int rotationCost = 1;
     volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
     private final PerceptionAndMemory pem;
+    private int timeout = 50;
 
     public static Optional<G6Action> astarNextStepWithAgents(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPathWithAgents(target, perceptionAndMemory).stream().findFirst();
@@ -59,14 +60,14 @@ public class AStar {
         while (!queue.isEmpty()) {
             final var current = queue.poll();
             if (current.pointAction.location().equals(target)) {
-                log.info("found path in " + (System.currentTimeMillis() - start) + "ms");
+                System.out.println("found path in " + (System.currentTimeMillis() - start) + "ms");
                 List<G6Action> g6Actions = traceResult(this.start, pointsInMyWay, stepSize, current.predecessor == null ? current : current.predecessor);
                 return g6Actions;
             }
             List<Wrapper> nextSteps = getNextSteps(current);
             queue.addAll(nextSteps);
-            if (System.currentTimeMillis() - start > 500) {
-                log.severe(String.format("Agent %s ran out of time!", pem.getName()));
+            if (System.currentTimeMillis() - start > timeout) {
+                log.severe(String.format("Agent %s did not complete AStar within %dms, falling back to different pathfinding", pem.getName(), timeout));
                 return List.of();
             }
         }
