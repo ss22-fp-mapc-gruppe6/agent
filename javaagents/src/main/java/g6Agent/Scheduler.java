@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A scheduler for agent creation and execution.
@@ -25,6 +27,7 @@ import java.util.*;
  */
 public class Scheduler implements AgentListener, EnvironmentListener {
 
+    private ExecutorService executorService = Executors.newCachedThreadPool();
     /**
      * Holds configured agent data.
      */
@@ -159,21 +162,24 @@ public class Scheduler implements AgentListener, EnvironmentListener {
             }
         });
         //refresh Perception for each Agent
-        newPerceptAgents.forEach(agent -> agent.handlePerceptionforStep());
+        newPerceptAgents.parallelStream().forEach(agent -> agent.handlePerceptionforStep());
         //Initialize Synchronization Process
         newPerceptAgents.forEach(agent -> agent.initialiseSync());
         //Synchronization Process step 2
         newPerceptAgents.forEach(agent -> agent.handleSyncRequests());
         // step all agents which have new percepts
-        newPerceptAgents.forEach(agent -> {
-            eis.iilang.Action action = agent.step();
-            if (action != null) {
-                try {
-                    eis.performAction(agent.getName(), action);
-                } catch (ActException e) {
-                    System.out.println("Could not perform action " + action.getName() + " for " + agent.getName());
+        newPerceptAgents.parallelStream().forEach(agent -> {
+            // running steps in parallel prevents agents from blocking each other
+            executorService.submit(()-> {
+                eis.iilang.Action action = agent.step();
+                if (action != null) {
+                    try {
+                        eis.performAction(agent.getName(), action);
+                    } catch (ActException e) {
+                        System.out.println("Could not perform action " + action.getName() + " for " + agent.getName());
+                    }
                 }
-            }
+            });
         });
 
         if (newPerceptAgents.size() == 0) try {
