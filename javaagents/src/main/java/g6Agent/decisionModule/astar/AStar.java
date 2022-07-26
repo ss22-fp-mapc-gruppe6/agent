@@ -30,6 +30,7 @@ public class AStar {
     private final int firstStepCost = 2;
     private final int rotationCost = 1;
     volatile Queue<Wrapper> queue = new PriorityQueue<>(Wrapper::compareTo);
+    private final PerceptionAndMemory pem;
 
     public static Optional<G6Action> astarNextStepWithAgents(Point target, PerceptionAndMemory perceptionAndMemory) {
         return astarShortestPathWithAgents(target, perceptionAndMemory).stream().findFirst();
@@ -44,7 +45,7 @@ public class AStar {
         pointsInMyWay.addAll(perceptionAndMemory.getFriendlyAgents());
         pointsInMyWay.addAll(perceptionAndMemory.getEnemyAgents());
         pointsInMyWay.addAll(perceptionAndMemory.getObstacles());
-        AStar aStar = new AStar(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay);
+        AStar aStar = new AStar(new Point(0, 0), target, stepSize, directlyAttachedBlocks, pointsInMyWay, perceptionAndMemory);
         List<G6Action> shortestPath = aStar.findShortestPath();
         return shortestPath;
     }
@@ -53,16 +54,21 @@ public class AStar {
         PointAction startPointAction = new PointAction(start, new Move(), start);
         Wrapper startWrapper = new Wrapper(startPointAction, null, 0.0, 0.0, target.euclideanDistanceTo(start), Set.of(), 0, attachments, Direction.NORTH, new Stack<>());
         queue.add(startWrapper);
+        final var start = System.currentTimeMillis();
 
         while (!queue.isEmpty()) {
             final var current = queue.poll();
             if (current.pointAction.location().equals(target)) {
-                //log.info("############target reached################");
+                log.info("found path in " + (System.currentTimeMillis() - start) + "ms");
                 List<G6Action> g6Actions = traceResult(this.start, pointsInMyWay, stepSize, current.predecessor == null ? current : current.predecessor);
                 return g6Actions;
             }
             List<Wrapper> nextSteps = getNextSteps(current);
             queue.addAll(nextSteps);
+            if (System.currentTimeMillis() - start > 500) {
+                log.severe(String.format("Agent %s ran out of time!", pem.getName()));
+                return List.of();
+            }
         }
 
         new RuntimeException("No path to " + target + " found.").printStackTrace();
