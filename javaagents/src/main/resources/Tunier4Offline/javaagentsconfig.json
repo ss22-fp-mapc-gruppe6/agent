@@ -1,0 +1,20 @@
+{
+    "agents": [
+        {
+            "count": 10,
+            "start-index": 1,
+            "agent-prefix": "A",
+            "entity-prefix": "connectionA",
+            "team": "A",
+            "class": "Agent006"
+        },
+        {
+            "count": 10,
+            "start-index": 1,
+            "agent-prefix": "B",
+            "entity-prefix": "connectionB",
+            "team": "B",
+            "class": "Agent006"
+        }
+    ]
+}
