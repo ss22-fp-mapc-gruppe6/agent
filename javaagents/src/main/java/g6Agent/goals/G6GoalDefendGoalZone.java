@@ -15,6 +15,21 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Class to Represent the Desire to Defend a Goal Zone. <br>
+ * <br>
+ * <h3>Behavior:</h3>
+ * Agent hangs around a Goalzone and attacks enemy Agents which are carrying blocks.<br>
+ * <br>
+ * <h3>Preconditions:</h3>
+ * - knows a GoalZone<br>
+ * - current role can perform clear actions <br>
+ * - has met at least one friendly Agent <br>
+ *
+ * @author Kai Müller
+ */
+
+
 public class G6GoalDefendGoalZone implements Goal {
     private final PerceptionAndMemory perceptionAndMemory;
     private Direction currentPatrolDirection;
@@ -97,12 +112,15 @@ public class G6GoalDefendGoalZone implements Goal {
     }
 
     @NotNull
-    private G6Action moveTo(Point closestPointNextToTarget) {
-        G6Action moveToTarget = AStar.astarNextStep(closestPointNextToTarget, perceptionAndMemory)
-                .orElse(ManhattanDistanceMove.nextAction(closestPointNextToTarget, perceptionAndMemory));
+    private G6Action moveTo(Point point) {
+        G6Action moveToTarget = AStar.astarNextStep(point, perceptionAndMemory)
+                .orElse(ManhattanDistanceMove.nextAction(point, perceptionAndMemory));
         if (moveToTarget.predictSuccess(perceptionAndMemory)) return moveToTarget;
-        moveToTarget = AStar.astarNextStepWithAgents(closestPointNextToTarget, perceptionAndMemory)
-                .orElse(ManhattanDistanceMove.nextAction(closestPointNextToTarget, perceptionAndMemory));
+        if (perceptionAndMemory.getFriendlyAgents().stream().anyMatch(x-> x.equals(point))){
+            return new Skip(); //to avoid a clear action
+        }
+        moveToTarget = AStar.astarNextStepWithAgents(point, perceptionAndMemory)
+                .orElse(ManhattanDistanceMove.nextAction(point, perceptionAndMemory));
         return moveToTarget;
     }
 
@@ -113,9 +131,12 @@ public class G6GoalDefendGoalZone implements Goal {
                 .filter(agent -> perceptionAndMemory.getBlocks()    //has blocks next to ist
                         .stream()
                         .anyMatch(block -> block.getCoordinates().isAdjacentTo(agent)))
+
                 .filter(agent -> perceptionAndMemory.getAttachedBlocks()
                         .stream()
                         .anyMatch(block-> block.getCoordinates().isAdjacentTo(agent)))
+
+
                // .filter(agent-> agent.manhattanDistanceTo(new Point(0,0)) <= perceptionAndMemory.getCurrentRole().getVisionRange()) //is in vision range
                 .toList();
 
@@ -143,6 +164,7 @@ public class G6GoalDefendGoalZone implements Goal {
     public boolean preconditionsMet() {
         if (perceptionAndMemory.getGoalZones().isEmpty()) return false;
         if (perceptionAndMemory.getCurrentRole() == null) return false;
+        if (perceptionAndMemory.getKnownAgents().isEmpty()) return false; //only defend if knows other Agents
         return perceptionAndMemory.getCurrentRole().canPerformAction("clear");
     }
 

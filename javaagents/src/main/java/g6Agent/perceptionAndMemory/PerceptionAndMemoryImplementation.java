@@ -1,5 +1,7 @@
 package g6Agent.perceptionAndMemory;
 
+
+
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
 import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
@@ -12,9 +14,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import g6Agent.environment.GridObject;
 
+/**
+ * Class to handle the Perception of An Agent
+ *
+ * @author Kai Müller
+ */
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, PerceptionAndMemoryInput {
 
     private LastActionMemory lastAction;
@@ -51,6 +59,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     private final AttachedBlocksModule attachedBlocksController;
     private String violation;
+    private List<Point> friendlyAgents;
 
     private record AgentEntry(String team, Point coordinate) {
     }
@@ -94,6 +103,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         return isDeactivated;
     }
 
+    //---HAPPENS EACH STEP IN THIS ORDER-----------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
@@ -158,15 +169,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (visionReporter != null) {
-                visionReporter.handleStep();
-            }
             notifyListenersOfLastAction();
+
             attachedBlocksController.checkClearConditions();
-            if (visionReporter != null) {
-                visionReporter.reportMyVision(dispensers, blocks, roleZones, goalZones, obstacles);
-                visionReporter.updateMyVisionWithSightingsOfOtherAgents();
-            }
         }
     }
 
@@ -176,6 +181,29 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         }
     }
 
+    @Override
+    public void initiateSync() {
+        if (visionReporter != null) {
+            visionReporter.initiateSync();
+        }
+    }
+    @Override
+    public void handleSyncRequests(){
+        if (visionReporter != null) {
+            visionReporter.handleSyncRequests();
+            visionReporter.reportMyVision(new Vision(dispensers, blocks, roleZones, goalZones, obstacles));
+        }
+    }
+    @Override
+    public void finishSync() {
+        if (visionReporter != null) {
+            visionReporter.finishSync();
+
+            visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------------------------------
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
@@ -197,15 +225,17 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                     movement.add(((Numeral) p).getValue().intValue());
                 }
                 Role role = new Role(
-                        ((Identifier) percept.getParameters().get(0)).toProlog(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
-                        possibleActions,
-                        movement,
-                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),
-                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()
+                        ((Identifier) percept.getParameters().get(0)).toProlog(),               //name
+                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),       //visionRange
+                        possibleActions,                                                        //possibleActions
+                        movement,                                                               //movementSpeed
+                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),    //Clear Action Chance
+                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()        //Clear Action Maximum Distance
                 );
                 this.possibleRoles.put(role.getName(), role);
             }
+
+            attachedBlocksController.checkClearConditions();
         }
     }
 
@@ -407,18 +437,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         markers = new ArrayList<>();
         attached = new ArrayList<>();
         attachedBlocks = null;
+        friendlyAgents = null;
         violation = "";
     }
 
     @Override
     public List<Point> getFriendlyAgents() {
-        List<Point> points = new ArrayList<>();
-        for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
-                points.add(agent.coordinate());
+        if (this.friendlyAgents == null) {
+            List<Point> points = new ArrayList<>();
+            for (AgentEntry agent : perceivedAgents) {
+                if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
+                    points.add(agent.coordinate());
+                }
             }
+            this.friendlyAgents = Stream.concat(points.stream(), getKnownAgents().stream().map(x -> x.position())).toList();
         }
-        return points;
+        return friendlyAgents;
     }
 
     @Override

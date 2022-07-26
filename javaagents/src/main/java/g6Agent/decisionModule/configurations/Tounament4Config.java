@@ -2,15 +2,12 @@ package g6Agent.decisionModule.configurations;
 
 import g6Agent.decisionModule.entities.Strategy;
 import g6Agent.goals.*;
-import g6Agent.goals.old.G6GoalExplore;
-import g6Agent.goals.old.G6GoalRetrieveBlock;
-import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewTestConfig implements DecisionModuleConfiguration{
+public class Tounament4Config implements DecisionModuleConfiguration{
     @Override
     public List<Goal> generateGoals(PerceptionAndMemory perceptionAndMemory, Strategy strategy) {
 

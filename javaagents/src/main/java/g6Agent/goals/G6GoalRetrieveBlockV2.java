@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static g6Agent.decisionModule.astar.AStar.astarNextStep;
@@ -29,6 +31,20 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     @Override
     public G6Action getNextAction() {
         //anti block
+        G6Action actionToBreakFree = ifStuckBreakFree();
+        if (actionToBreakFree != null) return actionToBreakFree;
+
+        if (!perceptionAndMemory.getBlocks().isEmpty()) {
+            G6Action actionToPickUpBlock = moveToNextBlockAndPickItUp();
+            if (actionToPickUpBlock != null) return actionToPickUpBlock;
+        }
+        if (!perceptionAndMemory.getDispensers().isEmpty()) {
+            return moveToClosestDispenserAndRequestBlock();
+        }
+        return new Skip();
+    }
+
+    private G6Action ifStuckBreakFree() {
         LastActionMemory lastAction = perceptionAndMemory.getLastAction();
         if (lastAction.getName().equals("move") && !lastAction.getSuccessMessage().equals("success")){
             List<Point> adjacentObstacles = perceptionAndMemory.getObstacles().stream().filter(Point::isAdjacent).toList();
@@ -39,17 +55,8 @@ public class G6GoalRetrieveBlockV2 implements Goal{
             if (!possibleMoves.isEmpty()){
                 return possibleMoves.stream().findFirst().orElseThrow();
             }
-
         }
-
-        if (!perceptionAndMemory.getBlocks().isEmpty()) {
-            G6Action actionToPickUpBlock = moveToNextBlockAndPickItUp();
-            if (actionToPickUpBlock != null) return actionToPickUpBlock;
-        }
-        if (!perceptionAndMemory.getDispensers().isEmpty()) {
-            return moveToClosestDispenserAndRequestBlock();
-        }
-        return new Skip();
+        return null;
     }
 
     private G6Action moveToClosestDispenserAndRequestBlock() {
@@ -103,11 +110,22 @@ public class G6GoalRetrieveBlockV2 implements Goal{
     private G6Action moveToNextBlockAndPickItUp() {
         //determine next block
         if (perceptionAndMemory.getBlocks().isEmpty()) return null;
-        Block closestBlock = perceptionAndMemory.getBlocks()
+        List<Block> unattachedBlocks = perceptionAndMemory.getBlocks()
+                .stream()
+                .filter(block -> {
+                    return perceptionAndMemory.getAttachedBlocks()
+                            .stream()
+                            .noneMatch(x-> x.getCoordinates().equals(block.getCoordinates()));
+                }).collect(Collectors.toList());
+
+        if (unattachedBlocks.isEmpty()) return null;
+
+
+
+        Block closestBlock  = unattachedBlocks
                 .stream()
                 .min(Comparator.comparingInt(a-> a.getCoordinates().manhattanDistanceTo(new Point(0,0))))
-                .orElseThrow() ;
-
+                .orElseThrow();
         //If Adjacent Attach , if is not adjacent to other agent or is requested by self.
         if (closestBlock.getCoordinates().isAdjacent()) {
             if (checkIfNotCloseToOtherAgent(closestBlock)){
@@ -118,7 +136,6 @@ public class G6GoalRetrieveBlockV2 implements Goal{
                 return new Attach(Direction.fromAdjacentPoint(closestBlock.getCoordinates()));
             }
         }
-
         List<Block> blocksNotCloseToOtherAgents = perceptionAndMemory.getBlocks().stream().filter(this::checkIfNotCloseToOtherAgent).toList();
 
         if (!blocksNotCloseToOtherAgents.isEmpty()){

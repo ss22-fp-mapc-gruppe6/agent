@@ -1,6 +1,12 @@
+/**
+ * Interface for the {@link g6Agent.communicationModule.CommunicationModule} to
+ * access the {@link g6Agent.perceptionAndMemory.SwarmSightController}
+ *
+ * @author Kai Müller
+ */
+
 package g6Agent.perceptionAndMemory.Interfaces;
 
-import eis.iilang.Action;
 import eis.iilang.Percept;
 
 public interface CommunicationModuleSwarmSightControllerInterface {
@@ -29,21 +35,6 @@ public interface CommunicationModuleSwarmSightControllerInterface {
     void processKnownAgentsNotification(Percept message, String sender);
 
     /**
-     * Broadcasts a "MOVEMENT_ATTEMPT" message, if the attempted action is one.
-     *
-     * @param action the action
-     */
-    void broadcastActionAttempt(Action action);
-
-    /**
-     * decifers an "ACTION_ATTEMPT" message
-     *
-     * @param message the message
-     * @param sender  the sender
-     */
-    void processMovementAttempt(Percept message, String sender);
-
-    /**
      * decifers an "INTRODUCTION_REQUEST" message
      *
      * @param message the message
@@ -51,6 +42,10 @@ public interface CommunicationModuleSwarmSightControllerInterface {
      */
     void processIntroductionRequest(Percept message, String sender);
 
-
+    /**
+     * decifers and processes an "INTRODUCTION_ACCEPT" message
+     * @param message the message
+     * @param sender   the sender
+     */
     void processIntroductionAccept(Percept message, String sender);
 }

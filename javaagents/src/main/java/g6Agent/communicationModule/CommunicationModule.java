@@ -22,13 +22,6 @@ public interface CommunicationModule {
     void addSwarmSightController(CommunicationModuleSwarmSightControllerInterface swarmSightController);
 
     /**
-     * Broadcasts a "MOVEMENT_ATTEMPT" message, if the attempted action is one.
-     *
-     * @param action the action
-     */
-    void broadcastActionAttempt(Action action);
-
-    /**
      * Returns the Module responsible for organizing and auctioning the tasks between the agents
      * @return the Module
      */
