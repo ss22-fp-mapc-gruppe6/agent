@@ -58,25 +58,35 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
      */
     @Override
     public void reportLastAction(@NotNull LastActionMemory lastAction) {
-        //If moved at all
-        if (lastAction.getName().equals("move")) {
-            int speed = SpeedCalculator.determineSpeedOfLastAction(lastAction, perceptionAndMemory);
+        if (lastAction.getName().equals("move") && perceptionAndMemory.getLastStepsRole()!= null) {
+            int speed = SpeedCalculator.determineSpeedOfLastAction(lastAction,
+                    perceptionAndMemory.getDirectlyAttachedBlocks(),
+                    perceptionAndMemory.getLastStepsRole());
             if (speed > 0) {
-                this.messageCounter = messageCounter++;
-                MovementNotificationMessage movementNotificationMessage
-                        = new MovementNotificationMessage(
-                        messageCounter,
-                        perceptionAndMemory.getCurrentStep(),
-                        lastAction.getParameters().get(0),
-                        speed,
-                        agentname);
-                List<Direction> directions = parameterlistToListOfDirections((ParameterList) lastAction.getParameters().get(0));
-                Movement movement = new Movement(directions, speed);
-                swarmSightModel.movedMyself(movement);
-                movementNotificationMessage.broadcast(mailservice);
+                broadcastMovement(lastAction, speed);
+                updateModelWithOwnMovement(lastAction, speed);
             }
         }
     }
+
+    private void broadcastMovement(@NotNull LastActionMemory lastAction, int speed) {
+        this.messageCounter = messageCounter++;
+        MovementNotificationMessage movementNotificationMessage
+                = new MovementNotificationMessage(
+                messageCounter,
+                perceptionAndMemory.getCurrentStep(),
+                lastAction.getParameters().get(0),
+                speed,
+                agentname);
+        movementNotificationMessage.broadcast(mailservice);
+    }
+
+    private void updateModelWithOwnMovement(@NotNull LastActionMemory lastAction, int speed) {
+        List<Direction> directions = parameterlistToListOfDirections((ParameterList) lastAction.getParameters().get(0));
+        Movement movement = new Movement(directions, speed);
+        swarmSightModel.movedMyself(movement);
+    }
+
     @Override
     public void initiateSync() {
         checkForOtherAgents();
