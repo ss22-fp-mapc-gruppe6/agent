@@ -60,6 +60,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private final AttachedBlocksModule attachedBlocksController;
     private String violation;
     private List<Point> friendlyAgents;
+    private Role lastStepsRole;
 
     private record AgentEntry(String team, Point coordinate) {
     }
@@ -406,8 +407,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     @Override
     public boolean isReadyForAction() {
-        //TODO Checking for deactivation leads to failed server connections search for cause!
-        //if (isDeactivated) { return false;}
         if (!isActionIdCheckedSuccessfully) {
             checkActionID();
         }
@@ -423,6 +422,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     private void clearShortTermMemory() {
+        this.lastStepsRole = getCurrentRole();
         obstacles = new ArrayList<>();
         isActionIdCheckedSuccessfully = false;
         lastAction = new LastActionMemory();
@@ -525,6 +525,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public Role getLastStepsRole() {
+        return this.lastStepsRole;
+    }
+
+    @Override
     public int getTeamSize() {
         return teamSize;
     }
@@ -613,5 +618,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         return lastAction;
     }
 
+    @Override
+    public String getViolation() {return this.violation;}
 
 }

@@ -29,6 +29,10 @@ public interface AgentVisionReporter {
      */
     void initiateSync();
 
+    /**
+     * Answer the IntroductionRequestMessages send by other Agents.
+     * Step 2 of the syncronization process
+     */
     void handleSyncRequests();
 
     /**

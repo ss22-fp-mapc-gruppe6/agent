@@ -147,6 +147,12 @@ public interface PerceptionAndMemory {
     Role getCurrentRole();
 
     /**
+     *
+     * @return the Role the Agent had Last step
+     */
+    Role getLastStepsRole();
+
+    /**
      * @return the teamsize of the Agents Team
      */
     int getTeamSize();
@@ -189,4 +195,8 @@ public interface PerceptionAndMemory {
      */
     Point getPositionOfKnownAgent(String agentname);
 
+    /**
+     * @return the current violation. Empty String if none this step.
+     */
+    String getViolation();
 }
