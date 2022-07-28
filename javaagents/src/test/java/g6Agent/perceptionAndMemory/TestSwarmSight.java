@@ -80,7 +80,7 @@ public class TestSwarmSight {
 
 
         Percept lastActionName = new Percept("lastAction", new Identifier("move"));
-        Percept lastActionParameters = new Percept("lastActionParams", new ParameterList(new Identifier("w")));
+        Percept lastActionParameters = new Percept("lastActionParams", new ParameterList(new Identifier("w"), new Identifier("w")));
         Percept lastActionSuccess = new Percept("lastActionResult", new Identifier("success"));
         Percept agentCoord1updated = new Percept("thing", new Numeral(1+ Direction.WEST.getNextCoordinate().x), new Numeral(1+Direction.WEST.getNextCoordinate().y), new Identifier("entity"), new Identifier("A"));
         Percept agentCoord2updated = new Percept("thing", new Numeral(-1- Direction.WEST.getNextCoordinate().x), new Numeral(-1-Direction.WEST.getNextCoordinate().y), new Identifier("entity"), new Identifier("A"));

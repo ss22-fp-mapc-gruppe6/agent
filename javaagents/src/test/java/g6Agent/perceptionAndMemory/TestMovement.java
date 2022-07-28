@@ -12,7 +12,7 @@ public class TestMovement {
     @Test
     public void movementTest(){
         Movement p0 = new Movement(List.of(Direction.EAST), 2);
-        assert (p0.asVector().equals(Direction.EAST.getNextCoordinate().multiply(2)));
+        assert (p0.asVector().equals(Direction.EAST.getNextCoordinate()));
 
         Movement p1 = new Movement(List.of(Direction.EAST, Direction.SOUTH), 2);
         assert (p1.asVector().equals(Direction.EAST.getNextCoordinate().add(Direction.SOUTH.getNextCoordinate())));
@@ -24,7 +24,7 @@ public class TestMovement {
         assert (p3.asVector().equals(new Point(0,0)));
 
         Movement p4 = new Movement(List.of(Direction.EAST, Direction.NORTH), 3);
-        assert (p4.asVector().equals(Direction.EAST.getNextCoordinate().add(Direction.NORTH.getNextCoordinate().multiply(2))));
+        assert (p4.asVector().equals(Direction.EAST.getNextCoordinate().add(Direction.NORTH.getNextCoordinate())));
 
         Movement p5 = new Movement(List.of(Direction.EAST, Direction.EAST, Direction.SOUTH), 3);
         assert (p5.asVector().equals(Direction.EAST.getNextCoordinate().multiply(2).add(Direction.SOUTH.getNextCoordinate())));

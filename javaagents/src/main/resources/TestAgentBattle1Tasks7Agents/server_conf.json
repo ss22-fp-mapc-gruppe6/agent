@@ -1,8 +1,8 @@
 {
   "server" : {
     "tournamentMode" : "round-robin",
-    "teamsPerMatch" : 1,
-    "launch" : "1s",
+    "teamsPerMatch" : 2,
+    "launch" : "5s",
     "port" : 12300,
     "backlog" : 10000,
     "agentTimeout" : 4000,
@@ -15,7 +15,7 @@
   },
 
   "manual-mode" : [
-    ["A"]
+    ["A", "B"]
   ],
 
   "match" : [
@@ -23,10 +23,10 @@
       "steps" : 750,
       "randomSeed" : 22,
       "randomFail" : 1,
-      "entities" : {"standard" : 1},
+      "entities" : {"standard" : 7},
       "clusterBounds" : [1,3],
 
-      "roles" : "$(../shared/roles/standard.json)",
+        "roles" : "$(../shared/roles/standard.json)",
 
       "clearEnergyCost" : 2,
       "deactivatedDuration" : 10,
@@ -38,14 +38,14 @@
       "attachLimit" : 10,
 
       "grid" : {
-        "height" : 12,
-        "width" : 12,
+        "height" : 70,
+        "width" : 70,
         "instructions": [
-          ["cave", 0.0, 0, 0, 0]
+          ["cave", 0.6, 2, 5, 4]
         ],
         "goals": {
-          "number" : 4,
-          "size" : [1,3],
+          "number" : 5,
+          "size" : [1,5],
           "moveProbability": 0.1
         },
         "roleZones" : {
@@ -54,8 +54,8 @@
         }
       },
 
-      "blockTypes" : [1, 1],
-      "dispensers" : [1, 1],
+      "blockTypes" : [2, 3],
+      "dispensers" : [8, 12],
 
       "tasks" : {
         "size" : [1, 1],
@@ -79,6 +79,7 @@
   ],
 
   "teams" : {
-    "A" : {"prefix" : "agent", "password" : "1"}
+    "A" : {"prefix" : "agent", "password" : "1"},
+    "B" : {"prefix" : "agent", "password" : "1"}
   }
 }
