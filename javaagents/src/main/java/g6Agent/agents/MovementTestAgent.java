@@ -42,7 +42,7 @@ public class MovementTestAgent extends Agent {
      * @param name    the agent's name
      * @param mailbox the mail facility
      */
-    MovementTestAgent(String name, MailService mailbox) {
+    public MovementTestAgent(String name, MailService mailbox) {
         super(name, mailbox);
         PerceptionAndMemoryLinker linker = new PerceptionAndMemoryLinker(this, mailbox);
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
@@ -65,10 +65,12 @@ public class MovementTestAgent extends Agent {
         if (perceptionAndMemory.isReadyForAction()) {
             if(perceptionAndMemory.getDispensers().isEmpty()
                     || perceptionAndMemory.getCurrentRole() == null
-                    || perceptionAndMemory.getCurrentRole().getName() != "worker"){
+                    || !perceptionAndMemory.getCurrentRole().getName().equals("worker")){
                 if (becomeWorker.preconditionsMet()){
+                    say("Goal : become worker");
                     return (Action) becomeWorker.getNextAction();
                 }
+                say("Goal : explore");
                 return (Action) explore.getNextAction();
             }
         }
@@ -79,15 +81,19 @@ public class MovementTestAgent extends Agent {
 
         if(closestDispenser.getCoordinates().equals(new Point(0,0))) isAtTestPosition = true;
         if(!isAtTestPosition){
-            return (Action) AStar.astarNextStep(closestDispenser.getCoordinates(), perceptionAndMemory).orElseThrow();
+            say("Goal : move to Test Position " + closestDispenser.getCoordinates());
+            return (Action) AStar.astarNextStepWithAgents(closestDispenser.getCoordinates(), perceptionAndMemory).orElseThrow();
         }
+        say("Goal : Running test No. " + testCounter);
+        say("Current speed : " + perceptionAndMemory.getCurrentRole().getMovementSpeed().get(0));
         switch (testCounter){
-            case 0-> {
+            case 0 -> {
+                //Test Standard Movement, 1 Direction, speed 2
                 testCounter++;
                 return new Move(Direction.EAST);
             }
             case 1 -> {
-
+                //Test Standard Movement, 1 Direction, speed 2, back to base
                 int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
@@ -101,6 +107,72 @@ public class MovementTestAgent extends Agent {
                 testCounter ++;
                 return new Move(Direction.WEST);
             }
+            //Testcase for double in one direction
+            case 2 -> {
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                if (speed != 2){
+                    System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
+                    throw new RuntimeException();
+                }
+                Movement lastMovement = new Movement(parameterlistToListOfDirections((ParameterList) perceptionAndMemory.getLastAction().getParameters().get(0)), speed);
+                if (!closestDispenser.getCoordinates().equals(new Point(0,0))){
+                    System.out.println("TestCounter : " + testCounter + ", " + "lastMovement : " + lastMovement.asVector() + " expected : " + closestDispenser.getCoordinates().invert());
+                    throw new RuntimeException();
+                }
+
+                testCounter++;
+                return new Move(new Direction[]{Direction.SOUTH, Direction.SOUTH});
+            }
+            //Testcase for double in one direction, back to base
+            case 3 -> {
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                if (speed != 2){
+                    System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
+                    throw new RuntimeException();
+                }
+                Movement lastMovement = new Movement(parameterlistToListOfDirections((ParameterList) perceptionAndMemory.getLastAction().getParameters().get(0)), speed);
+                if (!closestDispenser.getCoordinates().equals(lastMovement.asVector().invert())){
+                    System.out.println("TestCounter : " + testCounter + ", " + "lastMovement : " + lastMovement.asVector() + " expected : " + closestDispenser.getCoordinates().invert());
+                    throw new RuntimeException();
+                }
+
+                testCounter++;
+                return new Move(new Direction[]{Direction.NORTH, Direction.NORTH});
+            }
+            //Testcase move around the corner
+            case 4 -> {
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                if (speed != 2){
+                    System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
+                    throw new RuntimeException();
+                }
+                Movement lastMovement = new Movement(parameterlistToListOfDirections((ParameterList) perceptionAndMemory.getLastAction().getParameters().get(0)), speed);
+                if (!closestDispenser.getCoordinates().equals(new Point(0,0))){
+                    System.out.println("TestCounter : " + testCounter + ", " + "lastMovement : " + lastMovement.asVector() + " expected : " + closestDispenser.getCoordinates().invert());
+                    throw new RuntimeException();
+                }
+
+                testCounter++;
+                return new Move(new Direction[]{Direction.WEST, Direction.SOUTH});
+            }
+            //Testcase move around the corner
+            case 5 -> {
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                if (speed != 2){
+                    System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
+                    throw new RuntimeException();
+                }
+                Movement lastMovement = new Movement(parameterlistToListOfDirections((ParameterList) perceptionAndMemory.getLastAction().getParameters().get(0)), speed);
+                if (!closestDispenser.getCoordinates().equals(lastMovement.asVector().invert())){
+                    System.out.println("TestCounter : " + testCounter + ", " + "lastMovement : " + lastMovement.asVector() + " expected : " + closestDispenser.getCoordinates().invert());
+                    throw new RuntimeException();
+                }
+
+                testCounter++;
+                return new Move(new Direction[]{Direction.WEST, Direction.SOUTH});
+            }
+
+
         }
 
 

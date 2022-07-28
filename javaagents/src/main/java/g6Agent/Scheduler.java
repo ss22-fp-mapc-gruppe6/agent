@@ -112,6 +112,9 @@ public class Scheduler implements AgentListener, EnvironmentListener {
                 case "MyTestAgent2" :
                     agent = new MyTestAgent2(agentConf.name, mailService);
                     break;
+                case "MovementTestAgent" :
+                    agent = new MovementTestAgent(agentConf.name, mailService);
+                    break;
                 // [add further types here]
                 default:
                     System.out.println("Unknown agent type/class " + agentConf.className);
