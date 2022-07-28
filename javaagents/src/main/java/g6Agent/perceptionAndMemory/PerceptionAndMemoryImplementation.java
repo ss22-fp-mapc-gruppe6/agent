@@ -7,13 +7,13 @@ import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemoryInput;
 import g6Agent.services.Point;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import g6Agent.environment.GridObject;
+import g6Agent.brain.agentBrainModule;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import static java.util.Map.entry;
+
 
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, PerceptionAndMemoryInput {
 
@@ -50,11 +50,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private List<Block> attachedBlocks;
 
     private final AttachedBlocksModule attachedBlocksController;
+    private agentBrainModule brain;
 
     private record AgentEntry(String team, Point coordinate) {
     }
 
     public PerceptionAndMemoryImplementation() {
+        brain = new agentBrainModule();
         obstacles = new ArrayList<>();
         lastID = -1;
         currentId = -1;
@@ -86,6 +88,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     void setVisionReporter(AgentVisionReporter reporter) {
         this.visionReporter = reporter;
     }
+
+
 
     @Override
     public boolean isDeactivated() {
@@ -387,8 +391,31 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             this.isActionIdCheckedSuccessfully = true;
         }
     }
+    
+    private void writeIntoBrain(){
+        int round = getCurrentStep();
+        //skip initial round, because some entries have no values in round zero
+        if(round != 0){
+            //write all important map vars into brain
+            Map<String, Object> map = Map.ofEntries(
+                    entry("Name", name)
+                    ,entry("obstacles", obstacles)
+                    ,entry("dispensers", dispensers)
+                    ,entry("blocks", blocks)
+                    ,entry("roleZones", roleZones)
+                    ,entry("goalZones", goalZones)
+                    ,entry("tasks", tasks)
+            );
+            brain.addData(round, map);
+        }
+    }
+
+    public AbstractMap<Integer, Object> getBrainData(){
+        return brain.getData();
+    }
 
     private void clearShortTermMemory() {
+        writeIntoBrain();
         obstacles = new ArrayList<>();
         isActionIdCheckedSuccessfully = false;
         lastAction = new LastActionMemory();

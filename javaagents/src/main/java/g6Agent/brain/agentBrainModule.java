@@ -1,23 +1,15 @@
 package g6Agent.brain;
 
-import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
-
 import java.util.HashMap;
 
 public class agentBrainModule {
-    HashMap<Integer, PerceptionAndMemory> agentBrain = new HashMap<Integer, PerceptionAndMemory>();
+    HashMap<Integer, Object> agentBrain = new HashMap<>();
 
-    public agentBrainModule() {
+    public void addData(Integer round, Object data) {
+        agentBrain.put(round, data);
     }
 
-    public void addData(PerceptionAndMemory perceptionAndMemory) {
-        //getLastId indicates the current round
-        if (perceptionAndMemory.getLastId() >= -1) {
-            agentBrain.put(perceptionAndMemory.getCurrentStep(), perceptionAndMemory);
-        }
-    }
-
-    public HashMap<Integer, PerceptionAndMemory> getData() {
+    public HashMap<Integer, Object> getData() {
         return agentBrain;
     }
 }
