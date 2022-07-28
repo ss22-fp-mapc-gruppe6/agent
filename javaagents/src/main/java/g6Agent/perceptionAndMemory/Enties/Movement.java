@@ -9,7 +9,7 @@ import java.util.List;
  * Record to store direction and speed of an movement
  *
  * @param directions the directions
- * @param speed     the speed
+ * @param speed      the speed
  *
  * @author Kai Müller
  */
