@@ -4,6 +4,7 @@ import eis.iilang.*;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
 import g6Agent.actions.Move;
+import g6Agent.actions.Skip;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModuleImplementation;
 import g6Agent.decisionModule.astar.AStar;
@@ -61,10 +62,10 @@ public class MovementTestAgent extends Agent {
     @Override
     public Action step() {
         G6Action action = null;
+        if (perceptionAndMemory.getCurrentRole() == null) return new Skip();
         perceptionAndMemory.finishSync();
         if (perceptionAndMemory.isReadyForAction()) {
             if(perceptionAndMemory.getDispensers().isEmpty()
-                    || perceptionAndMemory.getCurrentRole() == null
                     || !perceptionAndMemory.getCurrentRole().getName().equals("worker")){
                 if (becomeWorker.preconditionsMet()){
                     say("Goal : become worker");
@@ -77,7 +78,7 @@ public class MovementTestAgent extends Agent {
         Block closestDispenser = perceptionAndMemory.getDispensers()
                 .stream()
                 .min(Comparator.comparingInt(x-> x.getCoordinates().manhattanDistanceTo(new Point(0,0))))
-                .orElseThrow();
+                .orElse(new Block(new Point (0,1), ""));
 
         if(closestDispenser.getCoordinates().equals(new Point(0,0))) isAtTestPosition = true;
         if(!isAtTestPosition){
@@ -172,7 +173,7 @@ public class MovementTestAgent extends Agent {
                 return new Move(Direction.WEST, Direction.SOUTH);
             }
 
-
+            case 6  -> {throw new RuntimeException("ALL TESTS POSITIVE");}
         }
 
 
