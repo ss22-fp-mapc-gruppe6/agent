@@ -137,7 +137,7 @@ public class MovementTestAgent extends Agent {
                 }
 
                 testCounter++;
-                return new Move(new Direction[]{Direction.NORTH, Direction.NORTH});
+                return new Move(Direction.NORTH, Direction.NORTH);
             }
             //Testcase move around the corner
             case 4 -> {
@@ -169,7 +169,7 @@ public class MovementTestAgent extends Agent {
                 }
 
                 testCounter++;
-                return new Move(new Direction[]{Direction.WEST, Direction.SOUTH});
+                return new Move(Direction.WEST, Direction.SOUTH);
             }
 
 
