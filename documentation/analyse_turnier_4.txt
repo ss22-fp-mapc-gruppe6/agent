@@ -1,0 +1,12 @@
+Analyse Turnier 4 :
+
+- Da es bei 3er Tasks kaum noch 1er gibt, ist das erfüllen derselben fast Glücksspiel, das haben wir meist verloren.
+
+- Erfüllen von 2er und höherer Tasks hat Priorität, da hinken wir immernoch im Zeitplan hinterher.
+
+- Defensive Agenten haben geglänzt, siehe Match gegen Team 1. Bringen andere Teams komplett durcheinander und werden effektiver je höhere Tasks die anderen lösen wollen. 
+  Kann man weiter verbessern, zeigen schwächen in den anderen Teams auf, wo sie sich darauf verlassen das Dinge funktionieren.
+
+- Immer noch kein Gedächtnis, nicht so schlimm wegen der Schwarmsicht, kostet aber doch immer wieder wertvolle Steps. Wird bereits bearbeitet.
+
+- Ist es sinnvoll gegnerischen Agenten die Blocks zu stehlen, nachdem sie vom Verteidiger getroffen wurden?
