@@ -4,6 +4,7 @@ import eis.iilang.Action;
 import eis.iilang.Percept;
 import g6Agent.MailService;
 import g6Agent.actions.G6Action;
+import g6Agent.brain.agentBrainModule;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
@@ -18,7 +19,6 @@ public class MyTestAgent extends Agent {
 
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
-
     private final CommunicationModule communicationModule;
 
     public MyTestAgent(String name, MailService mailbox) {
@@ -40,30 +40,12 @@ public class MyTestAgent extends Agent {
     @Override
     public Action step() {
         perceptionAndMemory.finishSync();
+
         G6Action action = null;
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
-            //communicationModule.broadcastActionAttempt((Action) action);
-           // say(currentGoal.getName());
-           /*
-            for (var agents : perceptionAndMemory.getKnownAgents()){
-                say(agents.toString());
-            }
-                    if(action == null){
-            say("NULL ACTION");
-            try {
-                throw new Exception();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         }
-        say(action.toString());
-
-
-            */
-        }
-
         return (eis.iilang.Action) action;
     }
 

@@ -5,6 +5,7 @@ import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
 
+import java.util.AbstractMap;
 import java.util.List;
 
 
@@ -74,7 +75,6 @@ public interface PerceptionAndMemory {
      * @return ist the Agent deactivated?
      */
     boolean isDeactivated();
-
 
     /**
      * Determines if the Agent received an new Action ID. And is not deactivated Resets to false with clearShortTermMemory()
@@ -199,4 +199,12 @@ public interface PerceptionAndMemory {
      * @return the current violation. Empty String if none this step.
      */
     String getViolation();
+    /**
+     *
+     * @return the currently saved values in agent brain module
+     */
+    AbstractMap<Integer, Object> getBrainData();
+
+    Integer getLastId();
+
 }

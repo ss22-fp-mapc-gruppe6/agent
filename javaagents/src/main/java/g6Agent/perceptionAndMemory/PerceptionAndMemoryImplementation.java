@@ -1,7 +1,5 @@
 package g6Agent.perceptionAndMemory;
 
-
-
 import eis.iilang.*;
 import g6Agent.perceptionAndMemory.Interfaces.AgentVisionReporter;
 import g6Agent.perceptionAndMemory.Interfaces.LastActionListener;
@@ -17,6 +15,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import g6Agent.environment.GridObject;
+import g6Agent.brain.agentBrainModule;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import static java.util.Map.entry;
 
 /**
  * Class to handle the Perception of An Agent
@@ -61,11 +64,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private String violation;
     private List<Point> friendlyAgents;
     private Role lastStepsRole;
+    private agentBrainModule brain;
 
     private record AgentEntry(String team, Point coordinate) {
     }
 
     public PerceptionAndMemoryImplementation() {
+        brain = new agentBrainModule();
         obstacles = new ArrayList<>();
         lastID = -1;
         currentId = -1;
@@ -235,8 +240,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                 );
                 this.possibleRoles.put(role.getName(), role);
             }
-
-            attachedBlocksController.checkClearConditions();
         }
     }
 
@@ -407,6 +410,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     @Override
     public boolean isReadyForAction() {
+        //TODO Checking for deactivation leads to failed server connections search for cause!
+        //if (isDeactivated) { return false;}
         if (!isActionIdCheckedSuccessfully) {
             checkActionID();
         }
@@ -421,7 +426,30 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         }
     }
 
+    private void writeIntoBrain(){
+        int round = getCurrentStep();
+        //skip initial round, because some entries have no values in round zero
+        if(round != 0){
+            //write all important map vars into brain
+            Map<String, Object> map = Map.ofEntries(
+                    entry("Name", name)
+                    ,entry("obstacles", obstacles)
+                    ,entry("dispensers", dispensers)
+                    ,entry("blocks", blocks)
+                    ,entry("roleZones", roleZones)
+                    ,entry("goalZones", goalZones)
+                    ,entry("tasks", tasks)
+            );
+            brain.addData(round, map);
+        }
+    }
+
+    public AbstractMap<Integer, Object> getBrainData(){
+        return brain.getData();
+    }
+
     private void clearShortTermMemory() {
+        writeIntoBrain();
         this.lastStepsRole = getCurrentRole();
         obstacles = new ArrayList<>();
         isActionIdCheckedSuccessfully = false;
@@ -453,6 +481,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             this.friendlyAgents = Stream.concat(points.stream(), getKnownAgents().stream().map(x -> x.position())).toList();
         }
         return friendlyAgents;
+    }
+
+    @Override
+    public Integer getLastId() {
+        return lastID;
     }
 
     @Override
@@ -589,6 +622,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public String getViolation() {
+        return this.violation;
+    }
+
+    @Override
     public List<Point> getObstacles() {
         return obstacles;
     }
@@ -618,7 +656,5 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         return lastAction;
     }
 
-    @Override
-    public String getViolation() {return this.violation;}
 
 }

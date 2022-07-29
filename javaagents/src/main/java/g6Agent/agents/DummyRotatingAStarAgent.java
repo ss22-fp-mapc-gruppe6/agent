@@ -10,6 +10,8 @@ import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 import g6Agent.services.Direction;
 import g6Agent.services.Point;
 
+
+import java.util.AbstractMap;
 import java.util.List;
 
 import static g6Agent.decisionModule.astar.AStar.astarNextStep;
@@ -69,6 +71,9 @@ public class DummyRotatingAStarAgent extends Agent {
 
     @Override
     public Action step() {
+        //example how to access brain after each step to make decisions
+        AbstractMap<Integer, Object> brain = perceptionAndMemory.getBrainData();
+
         perceptionAndMemory.handlePercepts(getPercepts());
         final String currentRoleName = perceptionAndMemory.getCurrentRole().getName();
         if (currentRoleName.equalsIgnoreCase("default")) {
