@@ -67,7 +67,7 @@ public class SpeedCalculator {
     public static int determineSpeedOfLastAction(@NotNull LastActionMemory lastAction,
                                                  int maxSpeed) {
         //if is no move action it has no speed
-        if(!lastAction.getName().equals("move")) return 0;
+        if(!lastAction.getName().equals("move") || maxSpeed < 1) return 0;
 
         //can move full movement
         if (lastAction.getSuccessMessage().equals("success")) {
