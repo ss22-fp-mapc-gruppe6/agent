@@ -55,7 +55,7 @@ public record KnownAgentsNotificationMessage(List<AgentNameAndPosition> knownAge
         ParameterList listOfKnownAgentPercepts = new ParameterList();
         for (AgentNameAndPosition agent : knownAgents) {
             if (!agent.name().equals(sender)) {
-                listOfKnownAgentPercepts.add(new Function(agent.name(), new Numeral(agent.position().y), new Numeral(agent.position().y)));
+                listOfKnownAgentPercepts.add(new Function(agent.name(), new Numeral(agent.position().x), new Numeral(agent.position().y)));
             }
         }
         return listOfKnownAgentPercepts;
