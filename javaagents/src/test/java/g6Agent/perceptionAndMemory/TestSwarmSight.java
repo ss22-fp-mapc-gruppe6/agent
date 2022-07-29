@@ -37,6 +37,8 @@ public class TestSwarmSight {
         ms.registerCommunicationModule("A2", com2);
 
         Percept teamPercept = new Percept("team", new Identifier("A"));
+        Percept name1 = new Percept("name", new Identifier("A1"));
+        Percept name2 = new Percept("name", new Identifier("A2"));
         Percept agentCoord1 = new Percept("thing", new Numeral(1), new Numeral(1), new Identifier("entity"), new Identifier("A"));
         Percept agentCoord2 = new Percept("thing", new Numeral(-1), new Numeral(-1), new Identifier("entity"), new Identifier("A"));
         Percept role = new Percept("role",
@@ -49,8 +51,8 @@ public class TestSwarmSight {
         Percept roleID = new Percept("role", new Identifier("id"));
         Percept step = new Percept("step", new Numeral(2));
 
-        pam1.handlePercepts(List.of(teamPercept, agentCoord1, role, roleID, step));
-        pam2.handlePercepts(List.of(teamPercept, agentCoord2, role, roleID, step));
+        pam1.handlePercepts(List.of(teamPercept, agentCoord1, name1, role, roleID, step));
+        pam2.handlePercepts(List.of(teamPercept, agentCoord2, name1, role, roleID, step));
         assert (pam1.getPositionOfKnownAgent("A2") == null);
         assert (pam2.getPositionOfKnownAgent("A1") == null);
         assert (pam2.getPositionOfKnownAgent("A2") == null);
@@ -92,8 +94,8 @@ public class TestSwarmSight {
                 //agentCoord2updated,
                 role, roleID, step));
 
-        pam1.handlePercepts(List.of(teamPercept, agentCoord1updated, role, roleID, step, lastActionName, lastActionParameters, lastActionSuccess));
-        pam2.handlePercepts(List.of(teamPercept, agentCoord2updated, role, roleID, step));
+        pam1.handlePercepts(List.of(teamPercept, agentCoord1updated, name1, role, roleID, step, lastActionName, lastActionParameters, lastActionSuccess));
+        pam2.handlePercepts(List.of(teamPercept, agentCoord2updated, name1, role, roleID, step));
         //pam1.initiateSync();
         //pam2.initiateSync();
         for (var agent : pam1.getKnownAgents()){
