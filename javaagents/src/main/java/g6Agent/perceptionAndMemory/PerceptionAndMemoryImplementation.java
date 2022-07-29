@@ -622,6 +622,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
+    public String getViolation() {
+        return this.violation;
+    }
+
+    @Override
     public List<Point> getObstacles() {
         return obstacles;
     }

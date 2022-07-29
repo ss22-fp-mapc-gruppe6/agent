@@ -22,8 +22,6 @@ import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
 public class Agent006 extends Agent {
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
-    private final agentBrainModule brain;
-
     private final CommunicationModule communicationModule;
 
 
@@ -40,7 +38,6 @@ public class Agent006 extends Agent {
         this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
         this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new Tounament4Config());
-        this.brain = new agentBrainModule();
     }
 
     /**
@@ -79,7 +76,6 @@ public class Agent006 extends Agent {
 
     @Override
     public Action step() {
-        brain.addData(perceptionAndMemory);
         G6Action action = null;
         perceptionAndMemory.finishSync();
         if (perceptionAndMemory.isReadyForAction()) {

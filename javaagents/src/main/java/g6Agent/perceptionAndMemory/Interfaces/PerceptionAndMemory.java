@@ -5,6 +5,7 @@ import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
 
+import java.util.AbstractMap;
 import java.util.List;
 
 
@@ -203,5 +204,7 @@ public interface PerceptionAndMemory {
      * @return the currently saved values in agent brain module
      */
     AbstractMap<Integer, Object> getBrainData();
+
+    Integer getLastId();
 
 }
