@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import g6Agent.environment.GridObject;
+import g6Agent.services.SpeedCalculator;
 
 /**
  * Class to handle the Perception of An Agent
@@ -60,7 +61,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private final AttachedBlocksModule attachedBlocksController;
     private String violation;
     private List<Point> friendlyAgents;
-    private Role lastStepsRole;
+    private int lastStepsMaxSpeed;
 
     private record AgentEntry(String team, Point coordinate) {
     }
@@ -83,6 +84,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         steps = 0;
         currentStep = 0;
         teamSize = 0;
+        this.lastStepsMaxSpeed = 0;
         possibleRoles = new HashMap<>();
         listOfAllObstacles = new GridObject();
         this.lastAction = new LastActionMemory();
@@ -109,6 +111,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
+            determineSpeedLastStep();
             clearShortTermMemory();
             try {
                 for (Percept percept : perceptInput) {
@@ -176,6 +179,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         }
     }
 
+
     private void notifyListenersOfLastAction() {
         for (LastActionListener listener : lastActionListeners) {
             listener.reportLastAction(lastAction);
@@ -205,6 +209,17 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
 //-------------------------------------------------------------------------------------------------------------------------
+
+
+    private void determineSpeedLastStep() {
+        if (getCurrentRole() == null || getDirectlyAttachedBlocks() == null){
+            this.lastStepsMaxSpeed = 0;
+        }else{
+            this.lastStepsMaxSpeed = SpeedCalculator.calculateSpeed(
+                    getDirectlyAttachedBlocks(), getCurrentRole()
+            );
+        }
+    }
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
@@ -422,7 +437,6 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     private void clearShortTermMemory() {
-        this.lastStepsRole = getCurrentRole();
         obstacles = new ArrayList<>();
         isActionIdCheckedSuccessfully = false;
         lastAction = new LastActionMemory();
@@ -525,8 +539,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     }
 
     @Override
-    public Role getLastStepsRole() {
-        return this.lastStepsRole;
+    public int getLastStepsMaxSpeed() {
+        return this.lastStepsMaxSpeed;
     }
 
     @Override

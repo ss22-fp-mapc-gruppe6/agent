@@ -30,8 +30,8 @@ public class MovementTestAgent extends Agent {
     private final CommunicationModuleImplementation communicationModule;
     private final DecisionModuleImplementation decisionModule;
 
-    private Goal explore;
-    private Goal becomeWorker;
+    private final Goal explore;
+    private final Goal becomeWorker;
 
     private boolean isAtTestPosition = false;
 
@@ -95,7 +95,7 @@ public class MovementTestAgent extends Agent {
             }
             case 1 -> {
                 //Test Standard Movement, 1 Direction, speed 2, back to base
-                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getLastStepsMaxSpeed());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
                     throw new RuntimeException();
@@ -110,7 +110,7 @@ public class MovementTestAgent extends Agent {
             }
             //Testcase for double in one direction
             case 2 -> {
-                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getLastStepsMaxSpeed());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
                     throw new RuntimeException();
@@ -126,7 +126,7 @@ public class MovementTestAgent extends Agent {
             }
             //Testcase for double in one direction, back to base
             case 3 -> {
-                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getLastStepsMaxSpeed());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
                     throw new RuntimeException();
@@ -142,7 +142,7 @@ public class MovementTestAgent extends Agent {
             }
             //Testcase move around the corner
             case 4 -> {
-                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getLastStepsMaxSpeed());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
                     throw new RuntimeException();
@@ -158,7 +158,7 @@ public class MovementTestAgent extends Agent {
             }
             //Testcase move around the corner
             case 5 -> {
-                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getDirectlyAttachedBlocks(), perceptionAndMemory.getLastStepsRole());
+                int speed = SpeedCalculator.determineSpeedOfLastAction(perceptionAndMemory.getLastAction(), perceptionAndMemory.getLastStepsMaxSpeed());
                 if (speed != 2){
                     System.out.println("TestCounter : " + testCounter + ", " + "speed = " + speed);
                     throw new RuntimeException();
