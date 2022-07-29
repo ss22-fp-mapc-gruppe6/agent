@@ -5,12 +5,13 @@ import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.services.Point;
 
 
-import java.util.AbstractMap;
 import java.util.List;
 
 
 /**
  * Module that implements the perception and memory. It is recommended, to use handlePercepts() in the beginning of the step cycle of an Agent.
+ *
+ * @author Kai Müller
  */
 
 public interface PerceptionAndMemory {
@@ -21,6 +22,20 @@ public interface PerceptionAndMemory {
      * @param perceptInput the Percepts recieved this step.
      */
     void handlePercepts(List<Percept> perceptInput);
+
+    /**
+     * Check for other Agents and send IntroductionRequests to unknown ones. Must be used after HandlePercepts()
+     */
+    void initiateSync();
+    /**
+     * Count introduction Requests send in initiateSwarmSightSync()
+     */
+    void handleSyncRequests();
+
+    /**
+     * finishes the sync process after handleSyncReuests()
+     */
+    void finishSync();
 
     /**
      * Returns a List of relative Positions of Obstacles
@@ -72,8 +87,6 @@ public interface PerceptionAndMemory {
      */
     List<Point> getFriendlyAgents();
 
-
-    Integer getLastId();
 
     /**
      * @return a List with Coordinates with Agents of the opposing Team, perceived this step
@@ -133,6 +146,12 @@ public interface PerceptionAndMemory {
     Role getCurrentRole();
 
     /**
+     *
+     * @return the Role the Agent had Last step
+     */
+    Role getLastStepsRole();
+
+    /**
      * @return the teamsize of the Agents Team
      */
     int getTeamSize();
@@ -175,6 +194,10 @@ public interface PerceptionAndMemory {
      */
     Point getPositionOfKnownAgent(String agentname);
 
+    /**
+     * @return the current violation. Empty String if none this step.
+     */
+    String getViolation();
     /**
      *
      * @return the currently saved values in agent brain module

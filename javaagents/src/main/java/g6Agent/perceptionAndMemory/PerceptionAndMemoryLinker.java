@@ -7,6 +7,8 @@ import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 
 /**
  * Class to Link all classes of PerceptionAndMemory
+ *
+ * @author Kai Müller
  */
 public class PerceptionAndMemoryLinker {
     PerceptionAndMemoryImplementation perceptionAndMemory;

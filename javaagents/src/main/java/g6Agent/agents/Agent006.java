@@ -8,7 +8,9 @@ import g6Agent.brain.agentBrainModule;
 import g6Agent.communicationModule.CommunicationModule;
 import g6Agent.communicationModule.CommunicationModuleImplementation;
 import g6Agent.decisionModule.DecisionModule;
+import g6Agent.decisionModule.DecisionModuleImplementation;
 import g6Agent.decisionModule.TheStupidestDecisionModule;
+import g6Agent.decisionModule.configurations.Tounament4Config;
 import g6Agent.goals.Goal;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.PerceptionAndMemoryLinker;
@@ -37,20 +39,49 @@ public class Agent006 extends Agent {
         this.perceptionAndMemory = linker.getPerceptionAndMemory();
         this.communicationModule = new CommunicationModuleImplementation(name, mailbox);
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
-        this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
+        this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new Tounament4Config());
         this.brain = new agentBrainModule();
     }
 
+    /**
+     * UNUSED ARTIFACT FROM BASIC AGENT
+     * @param percept the percept to process
+     */
     @Override
     public void handlePercept(Percept percept) {
 
     }
 
+    /**
+     * handles the new Perception of the Agent for this step
+     */
+    @Override
+    public void handlePerceptionforStep() {
+        perceptionAndMemory.handlePercepts(getPercepts());
+    }
+
+    /**
+     * Initialises the Syncronization Process
+     */
+    @Override
+    public void initialiseSync() {
+        perceptionAndMemory.initiateSync();
+    }
+
+    /**
+     * Handles Syncronization-Requests from other Agents
+     */
+    @Override
+    public void handleSyncRequests() {
+        perceptionAndMemory.handleSyncRequests();
+    }
+
+
     @Override
     public Action step() {
         brain.addData(perceptionAndMemory);
         G6Action action = null;
-        perceptionAndMemory.handlePercepts(getPercepts());
+        perceptionAndMemory.finishSync();
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
             action = currentGoal.getNextAction();
@@ -58,6 +89,11 @@ public class Agent006 extends Agent {
         return (eis.iilang.Action) action;
     }
 
+    /**
+     *
+     * @param message the message that was sent
+     * @param sender  name of the agent who sent the message
+     */
     @Override
     public void handleMessage(Percept message, String sender) {
         communicationModule.handleMessage(message, sender);

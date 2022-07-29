@@ -12,6 +12,7 @@ import g6Agent.communicationModule.submodules.TaskPingFilter;
 import g6Agent.goals.*;
 import g6Agent.goals.interfaces.GoalWithPriorityOffset;
 import g6Agent.goals.interfaces.PingReceiver;
+import g6Agent.goals.old.G6GoalExplore;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Enties.Task;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;

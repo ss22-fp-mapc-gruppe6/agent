@@ -19,6 +19,7 @@ public class TestAttachedBlocksController {
         Direction d = Direction.EAST;
         List<Percept> pl = List.of(new Percept("thing", new Numeral(d.getNextCoordinate().x), new Numeral(d.getNextCoordinate().y), new Identifier("block"), new Identifier("B1")),
                 new Percept("attached", new Numeral(d.getNextCoordinate().x), new Numeral(d.getNextCoordinate().y)));
+
         //Test attach
         AttachedBlocksModule abc = new AttachedBlocksModule(pam);
         pam.handlePercepts(pl);
@@ -28,6 +29,7 @@ public class TestAttachedBlocksController {
         memory1.setLastActionParameters(List.of(new ParameterList(new Identifier("e"))));
         abc.reportLastAction(memory1);
         assert (abc.getAttachedBlocks().size() == 1);
+
         //Test rotate
         LastActionMemory memory2 = new LastActionMemory();
         memory2.setName("rotate");

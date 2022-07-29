@@ -13,6 +13,7 @@ import g6Agent.services.Rotation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,18 +31,41 @@ public class AttachedBlocksModule implements LastActionListener {
 
     @Override
     public void reportLastAction(LastActionMemory lastAction) {
-        if (lastAction != null && lastAction.getSuccessMessage().equals("success")) {
-            switch (lastAction.getName()) {
-                case "attach" -> attachBlock(lastAction);
-                case "rotate" -> rotateBlocks(lastAction);
-                case "detach" -> detachBlock(lastAction);
-                case "submit" -> submitBlocks(lastAction);
-                case "connect" -> {
-                }    //TODO if Action is ever used, communication with target agent?
-                case "disconnect" -> {
-                } //TODO if Action is ever used
+        if (lastAction != null) {
+            if(lastAction.getName().equals("submit") && lastAction.getSuccessMessage().equals("failed")){
+                recheckAttachedBlocks();
+            }
+            if (lastAction.getSuccessMessage().equals("success")) {
+                switch (lastAction.getName()) {
+                    case "attach" -> attachBlock(lastAction);
+                    case "rotate" -> rotateBlocks(lastAction);
+                    case "detach" -> detachBlock(lastAction);
+                    case "submit" -> submitBlocks(lastAction);
+                    case "connect" -> {
+                    }    //TODO if Action is ever used, communication with target agent?
+                    case "disconnect" -> {
+                    } //TODO if Action is ever used
+                }
             }
         }
+    }
+
+    private void recheckAttachedBlocks() {
+        List<String> keysToRemove = new LinkedList<>();
+        attachedBlocks.forEach(
+                (key, entry) -> {
+                if(perceptionAndMemory
+                        .getBlocks()
+                        .stream()
+                        .noneMatch(block -> block.getCoordinates().equals(entry.getCoordinates()))
+                ){
+                    keysToRemove.add(key);
+                }
+        });
+        for (String key : keysToRemove){
+            attachedBlocks.remove(key);
+        }
+
     }
 
     private void submitBlocks(LastActionMemory lastAction) {
@@ -56,12 +80,15 @@ public class AttachedBlocksModule implements LastActionListener {
         if (task != null) {
             for (Block block : task.getRequirements()) {
                 if (attachedBlocks.get(block.getCoordinates().toString()) == null) {
-                    try {
+                    recheckAttachedBlocks();
+                    /*try {
                         throw new Exception();
                     } catch (Exception e) {
                         System.out.println("ATTACHED BLOCKS CONTROLLER - submit without tracked attached block");
                         e.printStackTrace();
                     }
+
+                     */
                 }
                 attachedBlocks.remove(block.getCoordinates().toString());
             }
@@ -119,5 +146,6 @@ public class AttachedBlocksModule implements LastActionListener {
         if (perceptionAndMemory.isDeactivated() || perceptionAndMemory.getEnergy() == 0) {
             this.attachedBlocks.clear();
         }
+        //recheckAttachedBlocks(); //TODO TEST TEST TEST
     }
 }

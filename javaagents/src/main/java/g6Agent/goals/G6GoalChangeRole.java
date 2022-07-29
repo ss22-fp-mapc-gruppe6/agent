@@ -1,6 +1,8 @@
 package g6Agent.goals;
 
 import g6Agent.actions.*;
+import g6Agent.decisionModule.astar.AStar;
+import g6Agent.decisionModule.manhattanDistanceMove.ManhattanDistanceMove;
 import g6Agent.perceptionAndMemory.Enties.Block;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.services.Direction;
@@ -43,28 +45,12 @@ public class G6GoalChangeRole implements Goal {
         }
         roleZoneMovedToLast = closestRoleZone;
 
-        Direction direction = Direction.WEST;
-        for (Direction d : Direction.allDirections()) {
-            if (d.getNextCoordinate().manhattanDistanceTo(closestRoleZone) < direction.getNextCoordinate().manhattanDistanceTo(closestRoleZone)) {
-
-                direction = d;
-            }
-        }
-        return moveTo(direction);
-    }
-
-    private G6Action moveTo(Direction direction) {
-        for (Block attachedBlock : perceptionAndMemory.getDirectlyAttachedBlocks()) {
-            if (!attachedBlock.getCoordinates().invert().equals(direction.getNextCoordinate())) {
-                return new Rotate(Rotation.CLOCKWISE);
-            }
-        }
-        for (Point obstacle : perceptionAndMemory.getObstacles()) {
-            if (direction.getNextCoordinate().equals(obstacle)) {
-                return new Clear(obstacle);
-            }
-        }
-        return new Move(direction);
+        G6Action moveToRoleZone = AStar
+                .astarNextStep(closestRoleZone, perceptionAndMemory)
+                .orElse(ManhattanDistanceMove.nextAction(closestRoleZone, perceptionAndMemory));
+        if(moveToRoleZone.predictSuccess(perceptionAndMemory)) return moveToRoleZone;
+        return AStar.astarNextStepWithAgents(closestRoleZone, perceptionAndMemory)
+                .orElse(ManhattanDistanceMove.nextAction(closestRoleZone, perceptionAndMemory));
     }
 
     private boolean checkIfInRoleZone() {

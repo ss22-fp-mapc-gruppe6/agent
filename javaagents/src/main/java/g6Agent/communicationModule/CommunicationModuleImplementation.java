@@ -7,6 +7,7 @@ import g6Agent.communicationModule.submodules.PingCommunicator;
 import g6Agent.communicationModule.submodules.StrategyModule;
 import g6Agent.communicationModule.submodules.TaskAuctionModule;
 import g6Agent.perceptionAndMemory.Interfaces.CommunicationModuleSwarmSightControllerInterface;
+import g6Agent.perceptionAndMemory.messages.KnownAgentsNotificationMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +36,6 @@ public class CommunicationModuleImplementation implements CommunicationModule{
             case "MOVEMENT_NOTIFICATION" -> {
                 for (var agentMapCoordinator : swarmSightControllers) {
                     agentMapCoordinator.processMovementNotification(message, sender);
-                }
-            }
-            case "MOVEMENT_ATTEMPT" -> {
-                for (var agentMapCoordinator : swarmSightControllers) {
-                    agentMapCoordinator.processMovementAttempt(message, sender);
                 }
             }
             case "INTRODUCTION_REQUEST" -> {
@@ -72,16 +68,6 @@ public class CommunicationModuleImplementation implements CommunicationModule{
     public void addSwarmSightController(CommunicationModuleSwarmSightControllerInterface swarmSightController) {
         swarmSightControllers.add(swarmSightController);
     }
-
-    @Override
-    public void broadcastActionAttempt(Action action) {
-        if (action != null && action.getName().equals("move")) {
-            for (CommunicationModuleSwarmSightControllerInterface agentMapCoordinator : swarmSightControllers) {
-                agentMapCoordinator.broadcastActionAttempt(action);
-            }
-        }
-    }
-
     @Override
     public TaskAuctionModule getTaskAuctionModule() {
         return this.taskAuctionModule;

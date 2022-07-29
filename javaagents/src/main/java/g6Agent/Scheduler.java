@@ -109,6 +109,9 @@ public class Scheduler implements AgentListener, EnvironmentListener {
                 case "DummyRotatingAStarAgent":
                     agent = new DummyRotatingAStarAgent(agentConf.name, mailService);
                     break;
+                case "MyTestAgent2" :
+                    agent = new MyTestAgent2(agentConf.name, mailService);
+                    break;
                 // [add further types here]
                 default:
                     System.out.println("Unknown agent type/class " + agentConf.className);
@@ -155,7 +158,12 @@ public class Scheduler implements AgentListener, EnvironmentListener {
             } catch (PerceiveException ignored) {
             }
         });
-
+        //refresh Perception for each Agent
+        newPerceptAgents.forEach(agent -> agent.handlePerceptionforStep());
+        //Initialize Synchronization Process
+        newPerceptAgents.forEach(agent -> agent.initialiseSync());
+        //Synchronization Process step 2
+        newPerceptAgents.forEach(agent -> agent.handleSyncRequests());
         // step all agents which have new percepts
         newPerceptAgents.forEach(agent -> {
             eis.iilang.Action action = agent.step();

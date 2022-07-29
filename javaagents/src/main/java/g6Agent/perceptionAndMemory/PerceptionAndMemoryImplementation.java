@@ -7,6 +7,13 @@ import g6Agent.perceptionAndMemory.Enties.*;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemory;
 import g6Agent.perceptionAndMemory.Interfaces.PerceptionAndMemoryInput;
 import g6Agent.services.Point;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import g6Agent.environment.GridObject;
 import g6Agent.brain.agentBrainModule;
 
@@ -14,7 +21,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static java.util.Map.entry;
 
-
+/**
+ * Class to handle the Perception of An Agent
+ *
+ * @author Kai Müller
+ */
 public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, PerceptionAndMemoryInput {
 
     private LastActionMemory lastAction;
@@ -50,6 +61,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     private List<Block> attachedBlocks;
 
     private final AttachedBlocksModule attachedBlocksController;
+    private String violation;
+    private List<Point> friendlyAgents;
+    private Role lastStepsRole;
     private agentBrainModule brain;
 
     private record AgentEntry(String team, Point coordinate) {
@@ -80,6 +94,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         this.markers = new ArrayList<>();
         this.attached = new ArrayList<>();
         this.lastActionListeners = new ArrayList<>(2);
+        this.violation ="";
 
         this.attachedBlocksController = new AttachedBlocksModule(this);
         addLastActionListener(attachedBlocksController);
@@ -89,13 +104,13 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         this.visionReporter = reporter;
     }
 
-
-
     @Override
     public boolean isDeactivated() {
         return isDeactivated;
     }
 
+    //---HAPPENS EACH STEP IN THIS ORDER-----------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------
     @Override
     public void handlePercepts(List<Percept> perceptInput) {
         if (!perceptInput.isEmpty()) {
@@ -141,6 +156,8 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                     } else if (percept.getName().equals("attached")) {
                         this.attached.add(new Point(((Numeral) percept.getParameters().get(0)).getValue().intValue(),
                                 ((Numeral) percept.getParameters().get(1)).getValue().intValue()));
+                    } else if (percept.getName().equals("violation")) {
+                      this.violation = ((Identifier) percept.getParameters().get(0)).toProlog();
                     } else if (percept.getName().equals("simEnd")) {
                         lastID = -1;
                         currentId = -1;
@@ -158,15 +175,9 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (visionReporter != null) {
-                visionReporter.handleStep();
-            }
             notifyListenersOfLastAction();
+
             attachedBlocksController.checkClearConditions();
-            if (visionReporter != null) {
-                visionReporter.reportMyVision(dispensers, blocks, roleZones, goalZones, obstacles);
-                visionReporter.updateMyVisionWithSightingsOfOtherAgents();
-            }
         }
     }
 
@@ -176,6 +187,29 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         }
     }
 
+    @Override
+    public void initiateSync() {
+        if (visionReporter != null) {
+            visionReporter.initiateSync();
+        }
+    }
+    @Override
+    public void handleSyncRequests(){
+        if (visionReporter != null) {
+            visionReporter.handleSyncRequests();
+            visionReporter.reportMyVision(new Vision(dispensers, blocks, roleZones, goalZones, obstacles));
+        }
+    }
+    @Override
+    public void finishSync() {
+        if (visionReporter != null) {
+            visionReporter.finishSync();
+
+            visionReporter.updateMyVisionWithSightingsOfOtherAgents();
+        }
+    }
+
+//-------------------------------------------------------------------------------------------------------------------------
 
     private void handleRolePercept(Percept percept) throws Exception {
         if (!(percept.getParameters().size() == 6 || percept.getParameters().size() == 1)) {
@@ -197,12 +231,12 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
                     movement.add(((Numeral) p).getValue().intValue());
                 }
                 Role role = new Role(
-                        ((Identifier) percept.getParameters().get(0)).toProlog(),
-                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),
-                        possibleActions,
-                        movement,
-                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),
-                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()
+                        ((Identifier) percept.getParameters().get(0)).toProlog(),               //name
+                        ((Numeral) percept.getParameters().get(1)).getValue().intValue(),       //visionRange
+                        possibleActions,                                                        //possibleActions
+                        movement,                                                               //movementSpeed
+                        ((Numeral) percept.getParameters().get(4)).getValue().doubleValue(),    //Clear Action Chance
+                        ((Numeral) percept.getParameters().get(5)).getValue().intValue()        //Clear Action Maximum Distance
                 );
                 this.possibleRoles.put(role.getName(), role);
             }
@@ -391,7 +425,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
             this.isActionIdCheckedSuccessfully = true;
         }
     }
-    
+
     private void writeIntoBrain(){
         int round = getCurrentStep();
         //skip initial round, because some entries have no values in round zero
@@ -416,6 +450,7 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
 
     private void clearShortTermMemory() {
         writeIntoBrain();
+        this.lastStepsRole = getCurrentRole();
         obstacles = new ArrayList<>();
         isActionIdCheckedSuccessfully = false;
         lastAction = new LastActionMemory();
@@ -430,17 +465,22 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
         markers = new ArrayList<>();
         attached = new ArrayList<>();
         attachedBlocks = null;
+        friendlyAgents = null;
+        violation = "";
     }
 
     @Override
     public List<Point> getFriendlyAgents() {
-        List<Point> points = new ArrayList<>();
-        for (AgentEntry agent : perceivedAgents) {
-            if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
-                points.add(agent.coordinate());
+        if (this.friendlyAgents == null) {
+            List<Point> points = new ArrayList<>();
+            for (AgentEntry agent : perceivedAgents) {
+                if (agent.team.equals(this.team) && !agent.coordinate().equals(new Point(0, 0))) {
+                    points.add(agent.coordinate());
+                }
             }
+            this.friendlyAgents = Stream.concat(points.stream(), getKnownAgents().stream().map(x -> x.position())).toList();
         }
-        return points;
+        return friendlyAgents;
     }
 
     @Override
@@ -515,6 +555,11 @@ public class PerceptionAndMemoryImplementation implements PerceptionAndMemory, P
     @Override
     public Role getCurrentRole() {
         return possibleRoles.get(currentRoleName);
+    }
+
+    @Override
+    public Role getLastStepsRole() {
+        return this.lastStepsRole;
     }
 
     @Override

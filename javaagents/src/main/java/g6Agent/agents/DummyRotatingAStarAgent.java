@@ -96,4 +96,19 @@ public class DummyRotatingAStarAgent extends Agent {
     @Override
     public void handleMessage(Percept message, String sender) {
     }
+
+    @Override
+    public void handlePerceptionforStep() {
+
+    }
+
+    @Override
+    public void handleSyncRequests() {
+
+    }
+
+    @Override
+    public void initialiseSync() {
+
+    }
 }

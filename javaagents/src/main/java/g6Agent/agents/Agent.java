@@ -107,4 +107,11 @@ public abstract class Agent {
     List<Percept> getPercepts() {
         return new ArrayList<>(percepts);
     }
+
+    public abstract void handlePerceptionforStep();
+
+
+    public abstract void handleSyncRequests();
+
+    public abstract void initialiseSync();
 }
