@@ -19,7 +19,6 @@ public class MyTestAgent extends Agent {
 
     private final PerceptionAndMemory perceptionAndMemory;
     private final DecisionModule decisionModule;
-    private final agentBrainModule brain;
     private final CommunicationModule communicationModule;
 
     public MyTestAgent(String name, MailService mailbox) {
@@ -30,7 +29,6 @@ public class MyTestAgent extends Agent {
         this.communicationModule.addSwarmSightController(linker.getSwarmSightController());
         //this.decisionModule = new TheStupidestDecisionModule(this.perceptionAndMemory);
         this.decisionModule = new DecisionModuleImplementation(this.perceptionAndMemory, communicationModule,new TSDMUpdatedConfig());
-        this.brain = new agentBrainModule();
     }
 
 
@@ -42,7 +40,7 @@ public class MyTestAgent extends Agent {
     @Override
     public Action step() {
         perceptionAndMemory.finishSync();
-        brain.addData(perceptionAndMemory);
+
         G6Action action = null;
         if (perceptionAndMemory.isReadyForAction()) {
             Goal currentGoal = decisionModule.revalidateGoal();
