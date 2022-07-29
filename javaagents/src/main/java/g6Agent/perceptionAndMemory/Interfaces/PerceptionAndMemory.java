@@ -148,9 +148,9 @@ public interface PerceptionAndMemory {
 
     /**
      *
-     * @return the Role the Agent had Last step
+     * @return the speed the Agent had last step.
      */
-    Role getLastStepsRole();
+    int getLastStepsMaxSpeed();
 
     /**
      * @return the teamsize of the Agents Team

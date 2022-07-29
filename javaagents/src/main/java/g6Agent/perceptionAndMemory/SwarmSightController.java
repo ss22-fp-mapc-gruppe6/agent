@@ -58,10 +58,11 @@ class SwarmSightController implements LastActionListener, CommunicationModuleSwa
      */
     @Override
     public void reportLastAction(@NotNull LastActionMemory lastAction) {
-        if (lastAction.getName().equals("move") && perceptionAndMemory.getLastStepsRole()!= null) {
-            int speed = SpeedCalculator.determineSpeedOfLastAction(lastAction,
-                    perceptionAndMemory.getDirectlyAttachedBlocks(),
-                    perceptionAndMemory.getLastStepsRole());
+        if (lastAction.getName().equals("move") ) {
+            int speed = SpeedCalculator.determineSpeedOfLastAction(
+                    lastAction,
+                    perceptionAndMemory.getLastStepsMaxSpeed()
+            );
             if (speed > 0) {
                 broadcastMovement(lastAction, speed);
                 updateModelWithOwnMovement(lastAction, speed);

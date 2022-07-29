@@ -57,4 +57,28 @@ public class SpeedCalculator {
         }
         return speed;
     }
+
+    /**
+     * Calculates the speed of an lastAction Memory from the success message and the maximum speed
+     * @param lastAction    the action last step
+     * @param maxSpeed      the maximum speed an Agent could move last step
+     * @return the speed of the last action
+     */
+    public static int determineSpeedOfLastAction(@NotNull LastActionMemory lastAction,
+                                                 int maxSpeed) {
+        //if is no move action it has no speed
+        if(!lastAction.getName().equals("move")) return 0;
+
+        //can move full movement
+        if (lastAction.getSuccessMessage().equals("success")) {
+            return maxSpeed;
+        }
+        //moves less than full movement, more than 0 (for a speed of 2 always 1)
+        if (lastAction.getSuccessMessage().equals("partial_success")) {
+            return 1;
+            //TODO Explorer for whom it could be 1 or 2 is unhandeld
+        }
+        //movement failed
+        return 0;
+    }
 }
